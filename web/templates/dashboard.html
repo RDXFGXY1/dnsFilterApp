@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>DNS FILTER</h1>
+        <nav>
+            <a href="/">DASHBOARD</a>
+            <a href="#" onclick="updateBlocklists()">UPDATE LISTS</a>
+            <a href="#" onclick="clearCache()">CLEAR CACHE</a>
+            <a href="/logout">LOGOUT</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>BLOCKED DOMAINS</h3>
+                <div class="stat-value" id="stat-blocked">...</div>
+            </div>
+            <div class="stat-card">
+                <h3>QUERIES (24H)</h3>
+                <div class="stat-value" id="stat-queries">...</div>
+            </div>
+            <div class="stat-card">
+                <h3>BLOCKED (24H)</h3>
+                <div class="stat-value" id="stat-blocked-24h">...</div>
+            </div>
+            <div class="stat-card">
+                <h3>BLOCK RATE</h3>
+                <div class="stat-value" id="stat-rate">...%</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="panel">
+            <h2>CONTROLS</h2>
+            <div class="action-buttons">
+                <button onclick="updateBlocklists()">↻ UPDATE BLOCKLISTS</button>
+                <button onclick="clearCache()">⊘ CLEAR CACHE</button>
+                <button onclick="loadStats()">↺ REFRESH STATS</button>
+            </div>
+        </div>
+
+        <!-- Custom Blocklist -->
+        <div class="panel">
+            <h2>CUSTOM BLOCKLIST</h2>
+            <div class="whitelist-controls">
+                <input type="text" id="custom-block-input" placeholder="Enter domain to block (e.g. tiktok.com)" />
+                <button onclick="addCustomBlock()">+ BLOCK</button>
+            </div>
+            <ul class="whitelist" id="custom-blocks-list">
+                <li class="no-data">Loading...</li>
+            </ul>
+        </div>
+
+        <!-- Whitelist -->
+        <div class="panel">
+            <h2>WHITELIST (NEVER BLOCK)</h2>
+            <div class="whitelist-controls">
+                <input type="text" id="whitelist-input" placeholder="Enter domain to whitelist (e.g. github.com)" />
+                <button onclick="addWhitelist()">+ ALLOW</button>
+            </div>
+            <ul class="whitelist" id="whitelist-list">
+                <li class="no-data">Loading...</li>
+            </ul>
+        </div>
+
+        <!-- Recent Blocked -->
+        <div class="panel">
+            <h2>RECENT BLOCKED QUERIES</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>DOMAIN</th>
+                            <th>CLIENT IP</th>
+                            <th>TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-table">
+                        <tr><td colspan="3" class="no-data">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Blocked -->
+        <div class="panel">
+            <h2>TOP BLOCKED DOMAINS</h2>
+            <ul class="top-blocked-list" id="top-blocked-list">
+                <li class="no-data">Loading...</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ── Notifications ──────────────────────────────────────────
+        function showNotification(msg, isError = false) {
+            const el = document.getElementById('notification');
+            el.textContent = (isError ? '⚠ ' : '✓ ') + msg;
+            el.style.borderColor = isError ? '#ff0000' : '#00ff00';
+            el.style.color = isError ? '#ff0000' : '#00ff00';
+            el.style.boxShadow = isError
+                ? '0 0 25px rgba(255,0,0,0.3)'
+                : '0 0 25px rgba(0,255,0,0.3)';
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // ── API Helper ─────────────────────────────────────────────
+        async function api(method, endpoint, body = null) {
+            const opts = {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin'
+            };
+            if (body) opts.body = JSON.stringify(body);
+
+            const resp = await fetch('/api' + endpoint, opts);
+            if (resp.status === 401) {
+                window.location.href = '/login';
+                return null;
+            }
+            return resp.json();
+        }
+
+        // ── Load Stats ─────────────────────────────────────────────
+        async function loadStats() {
+            try {
+                const data = await api('GET', '/stats');
+                if (!data) return;
+
+                document.getElementById('stat-blocked').textContent =
+                    (data.blocked_domains || 0).toLocaleString();
+
+                const stats = data.stats || {};
+                const queries = stats.total_queries || 0;
+                const blocked = stats.total_blocked || 0;
+                const rate = queries > 0 ? Math.round((blocked / queries) * 100) : 0;
+
+                document.getElementById('stat-queries').textContent = queries.toLocaleString();
+                document.getElementById('stat-blocked-24h').textContent = blocked.toLocaleString();
+                document.getElementById('stat-rate').textContent = rate + '%';
+            } catch (e) {
+                console.error('Failed to load stats:', e);
+            }
+        }
+
+        // ── Recent Blocked ─────────────────────────────────────────
+        async function loadRecent() {
+            try {
+                const data = await api('GET', '/recent');
+                if (!data) return;
+
+                const tbody = document.getElementById('recent-table');
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="no-data">No blocked queries yet</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(item => `
+                    <tr>
+                        <td>${escapeHtml(item.domain || '')}</td>
+                        <td>${escapeHtml(item.client_ip || 'unknown')}</td>
+                        <td>${formatTime(item.timestamp)}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load recent:', e);
+            }
+        }
+
+        // ── Top Blocked ────────────────────────────────────────────
+        async function loadTopBlocked() {
+            try {
+                const data = await api('GET', '/stats/top-blocked');
+                if (!data) return;
+
+                const list = document.getElementById('top-blocked-list');
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<li class="no-data">No data yet</li>';
+                    return;
+                }
+
+                list.innerHTML = data.map(item => `
+                    <li>
+                        <span class="domain">${escapeHtml(item.domain || '')}</span>
+                        <span class="count">${(item.count || 0).toLocaleString()} blocks</span>
+                    </li>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load top blocked:', e);
+            }
+        }
+
+        // ── Whitelist ──────────────────────────────────────────────
+        async function loadWhitelist() {
+            try {
+                const data = await api('GET', '/whitelist');
+                if (!data) return;
+
+                const list = document.getElementById('whitelist-list');
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<li class="no-data">No whitelisted domains</li>';
+                    return;
+                }
+
+                list.innerHTML = data.map(domain => `
+                    <li>
+                        <span>${escapeHtml(domain)}</span>
+                        <button class="btn-remove" onclick="removeWhitelist('${escapeHtml(domain)}')">REMOVE</button>
+                    </li>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load whitelist:', e);
+            }
+        }
+
+        async function addWhitelist() {
+            const input = document.getElementById('whitelist-input');
+            const domain = input.value.trim().toLowerCase();
+            if (!domain) return;
+
+            const data = await api('POST', '/whitelist', { domain });
+            if (data && data.success) {
+                input.value = '';
+                showNotification('Whitelisted: ' + domain);
+                loadWhitelist();
+            } else {
+                showNotification('Failed to add domain', true);
+            }
+        }
+
+        async function removeWhitelist(domain) {
+            const data = await api('DELETE', '/whitelist/' + encodeURIComponent(domain));
+            if (data && data.success) {
+                showNotification('Removed: ' + domain);
+                loadWhitelist();
+            }
+        }
+
+        // ── Custom Blocklist ───────────────────────────────────────
+        async function loadCustomBlocklist() {
+            try {
+                const data = await api('GET', '/custom-blocklist');
+                if (!data) return;
+
+                const list = document.getElementById('custom-blocks-list');
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<li class="no-data">No custom blocked domains. Add one above!</li>';
+                    return;
+                }
+
+                list.innerHTML = data.map(domain => `
+                    <li>
+                        <span>${escapeHtml(domain)}</span>
+                        <button class="btn-remove" onclick="removeCustomBlock('${escapeHtml(domain)}')">REMOVE</button>
+                    </li>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load custom blocklist:', e);
+            }
+        }
+
+        async function addCustomBlock() {
+            const input = document.getElementById('custom-block-input');
+            const domain = input.value.trim().toLowerCase();
+            if (!domain) return;
+
+            const data = await api('POST', '/custom-blocklist/add', { domain });
+            if (data && data.success) {
+                input.value = '';
+                showNotification('Blocked: ' + domain);
+                loadCustomBlocklist();
+            } else {
+                showNotification('Failed to block domain', true);
+            }
+        }
+
+        async function removeCustomBlock(domain) {
+            const data = await api('DELETE', '/custom-blocklist/' + encodeURIComponent(domain));
+            if (data && data.success) {
+                showNotification('Unblocked: ' + domain);
+                loadCustomBlocklist();
+            }
+        }
+
+        // ── System Actions ─────────────────────────────────────────
+        async function updateBlocklists() {
+            showNotification('Updating blocklists... (this takes ~30 seconds)');
+            await api('POST', '/blocklist/update');
+            setTimeout(() => {
+                loadStats();
+                showNotification('Blocklist update started!');
+            }, 2000);
+        }
+
+        async function clearCache() {
+            const data = await api('POST', '/system/clear-cache');
+            if (data) showNotification('Cache cleared!');
+        }
+
+        // ── Allow Enter key on inputs ──────────────────────────────
+        document.getElementById('whitelist-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addWhitelist();
+        });
+
+        document.getElementById('custom-block-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addCustomBlock();
+        });
+
+        // ── Helpers ────────────────────────────────────────────────
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatTime(ts) {
+            if (!ts) return 'N/A';
+            return new Date(ts * 1000).toLocaleTimeString();
+        }
+
+        // ── Initial Load ───────────────────────────────────────────
+        loadStats();
+        loadRecent();
+        loadTopBlocked();
+        loadWhitelist();
+        loadCustomBlocklist();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadStats();
+            loadRecent();
+            loadTopBlocked();
+        }, 30000);
+    </script>
+</body>
+</html>

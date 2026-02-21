@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-container">
+            <div class="login-box">
+                <h1>🛡️ DNS FILTER</h1>
+                <h2>CONTENT PROTECTION SYSTEM</h2>
+
+                {{ if .error }}
+                <div class="error-message visible">{{ .error }}</div>
+                {{ end }}
+
+                <div id="error-msg" class="error-message"></div>
+
+                <div class="form-group">
+                    <label for="username">USERNAME</label>
+                    <input type="text" id="username" placeholder="admin" autocomplete="username" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+                </div>
+
+                <button class="login-btn" id="login-btn" onclick="doLogin()">
+                    [ LOGIN ]
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Allow Enter key to login
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        // Auto-focus username field
+        document.getElementById('username').focus();
+
+        async function doLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error-msg');
+            const btn = document.getElementById('login-btn');
+
+            // Clear previous error
+            errorEl.classList.remove('visible');
+            errorEl.textContent = '';
+
+            if (!username || !password) {
+                showError('Please enter username and password');
+                return;
+            }
+
+            btn.textContent = '[ AUTHENTICATING... ]';
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'same-origin'
+                });
+
+                const data = await resp.json();
+
+                if (resp.ok && data.success) {
+                    btn.textContent = '[ ACCESS GRANTED ]';
+                    // Redirect to dashboard
+                    window.location.href = data.redirect || '/';
+                } else {
+                    showError(data.error || 'Invalid credentials');
+                    btn.textContent = '[ LOGIN ]';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                showError('Connection error. Is DNS Filter running?');
+                btn.textContent = '[ LOGIN ]';
+                btn.disabled = false;
+            }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.textContent = '⚠ ' + msg;
+            el.classList.add('visible');
+        }
+    </script>
+</body>
+</html>

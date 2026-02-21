@@ -1,0 +1,57 @@
+# Binaries
+build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+dns-filter
+dns-filter-*
+
+# Test binary
+*.test
+
+# Output of go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Data and logs
+data/*.db
+data/*.db-journal
+data/logs/*.log
+data/logs/*.log.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config backups
+*.yaml.bak
+*.yml.bak
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# SSL certificates (don't commit private keys!)
+*.key
+*.pem
+*.crt
+!configs/*.example.pem
+
+# Environment files
+.env
+.env.local

@@ -1,0 +1,66 @@
+# Custom Blocklist - DNS Filter
+# Edit this file to add/remove domains
+# Changes take effect after: ./dns-cli.sh reload
+#
+# Format:
+#   - domain: "example.com"
+#     category: "adult|social|gaming|custom"
+#     note: "Why you blocked it"
+#     enabled: true   <-- set to false to temporarily unblock
+
+version: "2.0"
+last_updated: "2026-02-17"
+
+domains:
+  # ── Adult Content ─────────────────────────────────────────
+  - domain: "pornhub.com"
+    category: "adult"
+    note: "Adult content"
+    enabled: true
+
+  - domain: "xvideos.com"
+    category: "adult"
+    note: "Adult content"
+    enabled: true
+
+  - domain: "xnxx.com"
+    category: "adult"
+    note: "Adult content"
+    enabled: true
+
+  # ── Social Media (disabled by default) ───────────────────
+  - domain: "tiktok.com"
+    category: "social"
+    note: "Social media time waster"
+    enabled: false
+
+  - domain: "instagram.com"
+    category: "social"
+    note: "Social media"
+    enabled: false
+
+  - domain: "facebook.com"
+    category: "social"
+    note: "Social media"
+    enabled: false
+
+  # ── Add your custom domains below ────────────────────────
+  # - domain: "example.com"
+  #   category: "custom"
+  #   note: "Your reason here"
+  #   enabled: true
+
+  - domain: "porn.com"
+    category: "custom"
+    note: "Added via CLI"
+    enabled: true
+
+  - domain: "youporn.com"
+    category: "custom"
+    note: "Added via CLI"
+    enabled: true
+
+  - domain: "beeg.com"
+    category: "custom"
+    note: "Blocked via CLI"
+    enabled: true

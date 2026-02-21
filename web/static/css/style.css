@@ -1,0 +1,362 @@
+/* DNS Filter v2 - Terminal/Hacker Style */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --green: #00ff00;
+    --dark-green: #00cc00;
+    --red: #ff0000;
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --border: #00ff00;
+    --text: #00ff00;
+    --text-dim: #008800;
+}
+
+body {
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* ── Header ─────────────────────────────────────────────────── */
+header {
+    border-bottom: 2px solid var(--green);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    color: var(--green);
+    font-size: 2rem;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px var(--green);
+}
+
+header h1::before { content: "▶ "; }
+
+nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-left: 25px;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+nav a:hover { color: var(--green); text-shadow: 0 0 8px var(--green); }
+
+/* ── Stats Grid ─────────────────────────────────────────────── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--green);
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+}
+
+.stat-card:hover {
+    border-color: var(--green);
+    box-shadow: 0 0 20px rgba(0,255,0,0.2);
+    transform: translateY(-2px);
+}
+
+.stat-card h3 {
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+}
+
+.stat-value {
+    font-size: 42px;
+    font-weight: bold;
+    color: var(--green);
+    text-shadow: 0 0 15px var(--green);
+    line-height: 1;
+}
+
+/* ── Panels ─────────────────────────────────────────────────── */
+.panel {
+    background: var(--bg2);
+    border: 1px solid #333;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.panel h2 {
+    color: var(--green);
+    font-size: 1rem;
+    margin-bottom: 20px;
+    border-left: 3px solid var(--green);
+    padding-left: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+.table-container { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead { background: var(--bg3); }
+
+th {
+    padding: 12px 15px;
+    text-align: left;
+    color: var(--green);
+    border-bottom: 2px solid var(--green);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #222;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+tr:hover td { background: var(--bg3); color: var(--green); }
+
+.no-data {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 30px;
+    font-style: italic;
+}
+
+/* ── Top Blocked List ───────────────────────────────────────── */
+.top-blocked-list { list-style: none; }
+
+.top-blocked-list li {
+    display: flex;
+    justify-content: space-between;
+    background: var(--bg3);
+    border: 1px solid #222;
+    border-left: 3px solid var(--green);
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+
+.top-blocked-list li:hover { border-left-color: var(--green); background: #1f1f1f; }
+
+.top-blocked-list .domain { color: #ccc; }
+.top-blocked-list .count { color: var(--green); font-weight: bold; }
+
+/* ── Forms & Inputs ─────────────────────────────────────────── */
+.whitelist-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    background: var(--bg3);
+    border: 1px solid #444;
+    color: var(--green);
+    padding: 10px 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 8px rgba(0,255,0,0.3);
+}
+
+.whitelist-controls input { flex: 1; }
+
+.whitelist { list-style: none; }
+
+.whitelist li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg3);
+    border: 1px solid #222;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    color: #ccc;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+button, .btn {
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+button:hover, .btn:hover {
+    background: var(--green);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0,255,0,0.4);
+}
+
+button:active { transform: translateY(1px); }
+
+.btn-remove {
+    border-color: var(--red);
+    color: var(--red);
+    padding: 5px 12px;
+    font-size: 11px;
+}
+
+.btn-remove:hover {
+    background: var(--red);
+    color: #000;
+    box-shadow: 0 0 15px rgba(255,0,0,0.4);
+}
+
+.action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.action-buttons button { flex: 1; min-width: 140px; }
+
+/* ── Login Page ─────────────────────────────────────────────── */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg);
+}
+
+.login-container { width: 100%; max-width: 420px; padding: 20px; }
+
+.login-box {
+    background: var(--bg2);
+    border: 2px solid var(--green);
+    padding: 45px;
+    box-shadow: 0 0 40px rgba(0,255,0,0.15);
+}
+
+.login-box h1 {
+    text-align: center;
+    color: var(--green);
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px var(--green);
+    margin-bottom: 8px;
+}
+
+.login-box h2 {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+.form-group { margin-bottom: 20px; }
+
+.form-group label {
+    display: block;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 14px;
+    margin-top: 10px;
+    letter-spacing: 3px;
+}
+
+.error-message {
+    color: var(--red);
+    background: rgba(255,0,0,0.1);
+    border: 1px solid var(--red);
+    padding: 12px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.85rem;
+    display: none;
+}
+
+.error-message.visible { display: block; }
+
+/* ── Notification ────────────────────────────────────────────── */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg2);
+    border: 2px solid var(--green);
+    color: var(--green);
+    padding: 15px 25px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s;
+    z-index: 9999;
+    box-shadow: 0 0 25px rgba(0,255,0,0.3);
+    font-size: 0.9rem;
+}
+
+.notification.show { opacity: 1; transform: translateY(0); }
+
+/* ── Terminal Effects ─────────────────────────────────────────── */
+::selection { background: var(--green); color: #000; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--green); }
+::-webkit-scrollbar-thumb:hover { box-shadow: 0 0 8px var(--green); }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    header { flex-direction: column; gap: 15px; }
+    header h1 { font-size: 1.5rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .action-buttons { flex-direction: column; }
+    nav a { margin-left: 10px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
