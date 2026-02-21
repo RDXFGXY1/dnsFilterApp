@@ -39,6 +39,21 @@ run_build_steps() {
         BUILD_USER="root"
     fi
 
+    # If the target working directory is under /tmp, it's safe to chown it
+    # so a non-root build user can run build steps. Otherwise, fall back
+    # to running the build as root to avoid changing ownership of system
+    # install paths like /opt.
+    PWD_DIR="$PWD"
+    if [ "$BUILD_USER" != "root" ]; then
+        if [[ "$PWD_DIR" == "/tmp"* || "$PWD_DIR" == "$TMP_DIR"* ]]; then
+            echo "Making $PWD_DIR owned by $BUILD_USER for build steps"
+            chown -R "$BUILD_USER:$BUILD_USER" "$PWD_DIR" || true
+        else
+            echo "Working dir $PWD_DIR not safe to chown — running build steps as root"
+            BUILD_USER="root"
+        fi
+    fi
+
     if command -v make >/dev/null 2>&1; then
         echo "Running: make deps && make setup && make build (as $BUILD_USER)"
         if [ "$BUILD_USER" != "root" ]; then
@@ -54,12 +69,12 @@ run_build_steps() {
         echo "make not found — falling back to go commands"
         if command -v go >/dev/null 2>&1; then
             if [ "$BUILD_USER" != "root" ]; then
-                sudo -u "$BUILD_USER" go mod download || true
-                sudo -u "$BUILD_USER" go build -o build/dns-filter ./cmd/server || true
-            else
-                go mod download || true
-                go build -o build/dns-filter ./cmd/server || true
-            fi
+                    sudo -u "$BUILD_USER" go mod download || true
+                    sudo -u "$BUILD_USER" go build -o build/dns-filter ./cmd/server || true
+                else
+                    go mod download || true
+                    go build -o build/dns-filter ./cmd/server || true
+                fi
         else
             echo "No build tool found (make/go) — skipping build"
         fi
