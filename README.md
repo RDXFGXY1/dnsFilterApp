@@ -49,15 +49,14 @@ dns-filter-app/
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <repo-url>
+curl -fsSL https://raw.githubusercontent.com/RDXFGXY1/dnsFilterApp/main/setup.sh | sudo bash
+
+# Or Clone the repository and Install it manually
+git clone https://github.com/RDXFGXY1/dnsFilterApp.git
 cd dns-filter-app
 
 # Build the application
 go build -o dns-filter ./cmd/server
-
-# Run as administrator (required for port 53)
-sudo ./dns-filter
 ```
 
 ### Configuration
