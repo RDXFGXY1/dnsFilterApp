@@ -1,10 +1,28 @@
 #!/bin/bash
-# dns-cli - Interactive DNS Filter Management Shell
-# Usage: dns-cli run
+# dns-cli - Interactive DNS Filter Management Shell v2.1
+# Auto-detects installation path (/opt/dns-filter or local)
 
-VERSION="2.0"
-API="http://127.0.0.1:8080/api"
-CUSTOM_BLOCKLIST="/opt/dns-filter/configs/custom-blocklist.yaml"
+VERSION="2.1"
+
+# ── Auto-detect installation path ────────────────────────────────
+if [ -f "/opt/dns-filter/configs/config.yaml" ]; then
+    # System-wide installation
+    INSTALL_PATH="/opt/dns-filter"
+    API="http://127.0.0.1:8080/api"
+    CUSTOM_BLOCKLIST="$INSTALL_PATH/configs/custom-blocklist.yaml"
+    CONFIG_FILE="$INSTALL_PATH/configs/config.yaml"
+elif [ -f "./configs/config.yaml" ]; then
+    # Local installation
+    INSTALL_PATH="$(pwd)"
+    API="http://127.0.0.1:8080/api"
+    CUSTOM_BLOCKLIST="./configs/custom-blocklist.yaml"
+    CONFIG_FILE="./configs/config.yaml"
+else
+    echo "Error: Cannot find DNS Filter installation"
+    echo "Please run from /opt/dns-filter or project directory"
+    exit 1
+fi
+
 SESSION_COOKIE="session=authenticated"
 
 # Colors
@@ -13,21 +31,22 @@ readonly RED='\033[0;31m'
 readonly YELLOW='\033[1;33m'
 readonly CYAN='\033[0;36m'
 readonly BLUE='\033[0;34m'
-readonly BOLD='\033[1m'
+readonly MAGENTA='\033[0;35m'
 readonly NC='\033[0m'
 
-# History file
+# History
 HISTFILE="$HOME/.dns-cli_history"
-touch "$HISTFILE"
+touch "$HISTFILE" 2>/dev/null
 
-# Helper functions
+# Helpers
 ok()    { echo -e "${GREEN}✓${NC} $1"; }
 err()   { echo -e "${RED}✗${NC} $1"; }
 info()  { echo -e "${YELLOW}→${NC} $1"; }
 warn()  { echo -e "${YELLOW}!${NC} $1"; }
+title() { echo -e "${CYAN}${1}${NC}"; }
 
 is_running() {
-    curl -s --max-time 2 "$API/stats" --cookie "$SESSION_COOKIE" >/dev/null 2>&1
+    curl -s --connect-timeout 2 "$API/stats" --cookie "$SESSION_COOKIE" >/dev/null 2>&1
 }
 
 api_post() {
@@ -46,126 +65,178 @@ validate_domain() {
     [[ "$1" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]+)+$ ]]
 }
 
-# Command implementations
+# ── Commands ──────────────────────────────────────────────────────
+
 cmd_block() {
     local domain="$1"
     
-    if [ -z "$domain" ]; then
-        err "Usage: block <domain>"
-        return 1
-    fi
+    [ -z "$domain" ] && { err "Usage: block <domain>"; return 1; }
+    validate_domain "$domain" || { err "Invalid domain: $domain"; return 1; }
+    is_running || { err "DNS Filter not running"; return 1; }
     
-    if ! validate_domain "$domain"; then
-        err "Invalid domain format: $domain"
-        return 1
-    fi
-    
-    if ! is_running; then
-        err "DNS Filter not running. Start with: systemctl start dns-filter"
-        return 1
-    fi
-    
-    # Add to YAML
+    # Add or enable in YAML
     if grep -q "domain: \"$domain\"" "$CUSTOM_BLOCKLIST" 2>/dev/null; then
-        info "Domain already in blocklist"
+        # Already exists, enable it
+        python3 << PYEOF
+import re
+with open('$CUSTOM_BLOCKLIST', 'r') as f:
+    content = f.read()
+# Find domain block and set enabled: true
+lines = content.split('\n')
+result = []
+in_domain = False
+for line in lines:
+    if 'domain: "$domain"' in line:
+        in_domain = True
+    if in_domain and 'enabled:' in line:
+        line = re.sub(r'enabled:\s*(true|false)', 'enabled: true', line)
+        in_domain = False
+    result.append(line)
+with open('$CUSTOM_BLOCKLIST', 'w') as f:
+    f.write('\n'.join(result))
+PYEOF
+        info "Domain exists, set enabled: true"
     else
+        # Add new
         cat >> "$CUSTOM_BLOCKLIST" << EOF
 
   - domain: "$domain"
     category: "custom"
-    note: "Blocked via CLI"
+    note: "Blocked via CLI $(date +%Y-%m-%d)"
     enabled: true
 EOF
-        ok "Added to custom-blocklist.yaml"
+        ok "Added to $CUSTOM_BLOCKLIST"
     fi
     
-    # Reload via API
+    # Reload
     local resp=$(api_post "/blocklist/reload-custom")
     if echo "$resp" | grep -q "success"; then
         ok "Blocked: $domain (cache cleared)"
     else
-        warn "Added to file but API reload failed. Restart DNS Filter to apply."
+        warn "Added to file. Restart: systemctl restart dns-filter"
     fi
 }
 
 cmd_unblock() {
     local domain="$1"
     
-    if [ -z "$domain" ]; then
-        err "Usage: unblock <domain>"
-        return 1
+    [ -z "$domain" ] && { err "Usage: unblock <domain>"; return 1; }
+    is_running || { err "DNS Filter not running"; return 1; }
+    
+    # Set enabled: false in YAML
+    if grep -q "domain: \"$domain\"" "$CUSTOM_BLOCKLIST" 2>/dev/null; then
+        python3 << PYEOF
+import re
+with open('$CUSTOM_BLOCKLIST', 'r') as f:
+    content = f.read()
+lines = content.split('\n')
+result = []
+in_domain = False
+for line in lines:
+    if 'domain: "$domain"' in line:
+        in_domain = True
+    if in_domain and 'enabled:' in line:
+        line = re.sub(r'enabled:\s*(true|false)', 'enabled: false', line)
+        in_domain = False
+    result.append(line)
+with open('$CUSTOM_BLOCKLIST', 'w') as f:
+    f.write('\n'.join(result))
+PYEOF
+        ok "Set enabled: false"
+    else
+        warn "Domain not in blocklist"
     fi
     
-    if ! is_running; then
-        err "DNS Filter not running"
-        return 1
-    fi
+    # Remove from memory + clear cache
+    api_del "/custom-blocklist/$domain" >/dev/null 2>&1
+    api_post "/system/clear-cache" >/dev/null 2>&1
     
-    api_del "/custom-blocklist/$domain" >/dev/null
-    api_post "/system/clear-cache" >/dev/null
-    ok "Unblocked: $domain"
+    ok "Unblocked: $domain (cache cleared)"
+}
+
+cmd_enable() {
+    local domain="$1"
+    [ -z "$domain" ] && { err "Usage: enable <domain>"; return 1; }
+    cmd_block "$domain"
+}
+
+cmd_disable() {
+    local domain="$1"
+    [ -z "$domain" ] && { err "Usage: disable <domain>"; return 1; }
+    cmd_unblock "$domain"
+}
+
+cmd_remove() {
+    local domain="$1"
+    
+    [ -z "$domain" ] && { err "Usage: remove <domain>"; return 1; }
+    
+    if grep -q "domain: \"$domain\"" "$CUSTOM_BLOCKLIST" 2>/dev/null; then
+        python3 << PYEOF
+with open('$CUSTOM_BLOCKLIST', 'r') as f:
+    lines = f.readlines()
+result = []
+skip = 0
+for line in lines:
+    if skip > 0:
+        skip -= 1
+        continue
+    if 'domain: "$domain"' in line:
+        skip = 3
+        continue
+    result.append(line)
+with open('$CUSTOM_BLOCKLIST', 'w') as f:
+    f.writelines(result)
+PYEOF
+        ok "Removed: $domain"
+        is_running && {
+            api_del "/custom-blocklist/$domain" >/dev/null
+            api_post "/system/clear-cache" >/dev/null
+        }
+    else
+        err "Domain not found"
+    fi
 }
 
 cmd_whitelist() {
     local domain="$1"
     
-    if [ -z "$domain" ]; then
-        err "Usage: whitelist <domain>"
-        return 1
-    fi
-    
-    if ! validate_domain "$domain"; then
-        err "Invalid domain format"
-        return 1
-    fi
-    
-    if ! is_running; then
-        err "DNS Filter not running"
-        return 1
-    fi
+    [ -z "$domain" ] && { err "Usage: whitelist <domain>"; return 1; }
+    validate_domain "$domain" || { err "Invalid domain"; return 1; }
+    is_running || { err "DNS Filter not running"; return 1; }
     
     local resp=$(api_post "/whitelist" "{\"domain\":\"$domain\"}")
-    if echo "$resp" | grep -q "success"; then
-        ok "Whitelisted: $domain"
-    else
-        err "Failed to whitelist"
-    fi
+    echo "$resp" | grep -q "success" && ok "Whitelisted: $domain" || err "Failed"
 }
 
 cmd_test() {
     local domain="$1"
     
-    if [ -z "$domain" ]; then
-        err "Usage: test <domain>"
-        return 1
-    fi
+    [ -z "$domain" ] && { err "Usage: test <domain>"; return 1; }
     
-    echo -e "${CYAN}Testing: $domain${NC}"
+    title "Testing: $domain"
     
     local result=$(dig @127.0.0.1 "$domain" +short +time=2 2>/dev/null | head -1)
     
     if [ -z "$result" ]; then
-        err "BLOCKED - Returns NXDOMAIN"
+        err "BLOCKED ✓ - Returns NXDOMAIN"
     else
         ok "ALLOWED - IP: $result"
     fi
 }
 
 cmd_list() {
-    if [ ! -f "$CUSTOM_BLOCKLIST" ]; then
-        err "Custom blocklist not found"
-        return 1
-    fi
+    [ ! -f "$CUSTOM_BLOCKLIST" ] && { err "Not found: $CUSTOM_BLOCKLIST"; return 1; }
     
-    echo -e "${CYAN}Custom Blocklist:${NC}"
+    title "Custom Blocklist: $CUSTOM_BLOCKLIST"
     echo ""
     
-    python3 << PYEOF
-import yaml
-import sys
+    CUSTOM_BLOCKLIST="$CUSTOM_BLOCKLIST" python3 << 'PYEOF'
+import yaml, sys, os
 
 try:
-    with open("$CUSTOM_BLOCKLIST", 'r') as f:
+    blocklist = os.environ['CUSTOM_BLOCKLIST']
+    with open(blocklist, 'r') as f:
         data = yaml.safe_load(f)
     
     domains = data.get('domains', [])
@@ -177,25 +248,24 @@ try:
         for d in enabled:
             cat = d.get('category', 'custom')
             note = d.get('note', '')
-            print(f"  ✓  {d['domain']:<30} [{cat}] {note}")
+            print(f"  ✓  {d['domain']:<30} [{cat:8}] {note}")
     
     if disabled:
         print(f"\n\033[0;33mDisabled ({len(disabled)}):\033[0m")
         for d in disabled:
             cat = d.get('category', 'custom')
-            print(f"  ✗  {d['domain']:<30} [{cat}]")
+            note = d.get('note', '')
+            print(f"  ✗  {d['domain']:<30} [{cat:8}] {note}")
     
     if not domains:
-        print("  No custom domains")
-        
+        print("  (empty)")
 except Exception as e:
     print(f"Error: {e}", file=sys.stderr)
-    sys.exit(1)
 PYEOF
 }
 
 cmd_status() {
-    echo -e "${CYAN}DNS Filter Status${NC}"
+    title "DNS Filter Status"
     echo ""
     
     if is_running; then
@@ -210,8 +280,6 @@ cmd_status() {
     
     python3 << PYEOF
 import json
-import sys
-
 try:
     data = json.loads('''$stats''')
     blocked = data.get('blocked_domains', 0)
@@ -225,38 +293,58 @@ try:
     print(f"  Blocked (24h):   {blocked_24h:,}")
     print(f"  Block Rate:      {rate}%")
 except:
-    print("  Could not fetch stats")
+    print("  Stats unavailable")
 PYEOF
     
     echo ""
-    echo -e "  Dashboard: ${BLUE}http://127.0.0.1:8080${NC}"
+    echo -e "  Installation: ${MAGENTA}$INSTALL_PATH${NC}"
+    echo -e "  Dashboard:    ${BLUE}http://127.0.0.1:8080${NC}"
 }
 
 cmd_reload() {
-    if ! is_running; then
-        err "DNS Filter not running"
-        return 1
-    fi
+    is_running || { err "DNS Filter not running"; return 1; }
     
     info "Reloading custom blocklists..."
     local resp=$(api_post "/blocklist/reload-custom")
     
     if echo "$resp" | grep -q "success"; then
         local count=$(echo "$resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('count',0))" 2>/dev/null)
-        ok "Reloaded $count custom domains (cache cleared)"
+        ok "Reloaded $count domains (cache cleared)"
     else
         err "Reload failed"
     fi
 }
 
 cmd_clear() {
-    if ! is_running; then
-        err "DNS Filter not running"
-        return 1
-    fi
-    
+    is_running || { err "DNS Filter not running"; return 1; }
     api_post "/system/clear-cache" >/dev/null
     ok "DNS cache cleared"
+}
+
+cmd_update() {
+    is_running || { err "DNS Filter not running"; return 1; }
+    
+    info "Updating ALL blocklists (30-60 seconds)..."
+    api_post "/blocklist/update" >/dev/null
+    ok "Update started (check dashboard for progress)"
+}
+
+cmd_info() {
+    title "Installation Info"
+    echo ""
+    echo -e "  Install Path:  ${MAGENTA}$INSTALL_PATH${NC}"
+    echo -e "  Config:        $CONFIG_FILE"
+    echo -e "  Custom List:   $CUSTOM_BLOCKLIST"
+    echo -e "  API:           $API"
+    echo -e "  Dashboard:     ${BLUE}http://127.0.0.1:8080${NC}"
+    echo ""
+    
+    if [ -f "$CONFIG_FILE" ]; then
+        local dns_port=$(grep "dns_port:" "$CONFIG_FILE" | head -1 | awk '{print $2}')
+        local api_port=$(grep "api_port:" "$CONFIG_FILE" | head -1 | awk '{print $2}')
+        echo "  DNS Port:      $dns_port"
+        echo "  API Port:      $api_port"
+    fi
 }
 
 cmd_help() {
@@ -265,39 +353,48 @@ cmd_help() {
 DNS Filter CLI Commands:
 
   Domain Management:
-    block <domain>       Block a domain
-    unblock <domain>     Unblock a domain
-    whitelist <domain>   Never block this domain
+    block <domain>       Add & enable domain
+    unblock <domain>     Disable domain (set enabled: false)
+    remove <domain>      Completely remove from list
+    enable <domain>      Enable a disabled domain
+    disable <domain>     Disable an enabled domain
+    whitelist <domain>   Never block (global whitelist)
     test <domain>        Test if domain is blocked
     
   Information:
-    status               Show server status
-    list                 Show custom blocked domains
+    status               Server status & stats
+    list                 Show all custom domains
+    info                 Installation paths
     
   System:
     reload               Reload custom-blocklist.yaml
+    update               Update ALL blocklists (slow)
     clear                Clear DNS cache
     
-  Other:
-    help                 Show this help
-    exit / quit          Exit CLI
+  Navigation:
+    help                 This help
+    exit / quit          Exit
     
 Examples:
   block tiktok.com
+  disable tiktok.com
+  enable tiktok.com
   test pornhub.com
+  list
   status
   
 EOF
 }
 
-# Print banner
+# ── Shell ─────────────────────────────────────────────────────────
+
 print_banner() {
     clear
     echo -e "${GREEN}"
     cat << 'BANNER'
 ╔═══════════════════════════════════════════════════╗
 ║                                                   ║
-║         DNS FILTER - Interactive CLI v2.0        ║
+║       DNS FILTER - Interactive CLI v2.1          ║
 ║                                                   ║
 ║     Type 'help' for commands, 'exit' to quit     ║
 ║                                                   ║
@@ -305,102 +402,58 @@ print_banner() {
 BANNER
     echo -e "${NC}"
     
-    # Check connection
+    echo -e "  Path: ${MAGENTA}$INSTALL_PATH${NC}"
+    
     if is_running; then
-        ok "Connected to DNS Filter API"
+        ok "Connected to API"
     else
-        warn "DNS Filter not responding (is it running?)"
+        warn "DNS Filter not responding"
     fi
     echo ""
 }
 
-# Interactive shell
 interactive_shell() {
     print_banner
     
-    # Enable readline if available
-    if command -v rlwrap >/dev/null 2>&1; then
-        USE_RLWRAP=1
-    else
-        USE_RLWRAP=0
-    fi
-    
     while true; do
-        # Prompt
         echo -ne "${GREEN}dns-filter>${NC} "
-        
-        # Read command
         read -e -r input
         
-        # Add to history
-        [ -n "$input" ] && echo "$input" >> "$HISTFILE"
-        
-        # Trim whitespace
+        [ -n "$input" ] && echo "$input" >> "$HISTFILE" 2>/dev/null
         input=$(echo "$input" | xargs)
-        
-        # Skip empty
         [ -z "$input" ] && continue
         
-        # Parse command and args
         local cmd=$(echo "$input" | awk '{print $1}')
         local args=$(echo "$input" | cut -d' ' -f2-)
+        [ "$cmd" = "$args" ] && args=""
         
-        # Handle commands
         case "$cmd" in
-            block)
-                cmd_block "$args"
-                ;;
-            unblock)
-                cmd_unblock "$args"
-                ;;
-            whitelist)
-                cmd_whitelist "$args"
-                ;;
-            test)
-                cmd_test "$args"
-                ;;
-            list|ls)
-                cmd_list
-                ;;
-            status|stat)
-                cmd_status
-                ;;
-            reload)
-                cmd_reload
-                ;;
-            clear|cache)
-                cmd_clear
-                ;;
-            help|h|\?)
-                cmd_help
-                ;;
-            exit|quit|q)
-                echo "Goodbye!"
-                exit 0
-                ;;
-            "")
-                ;;
-            *)
-                err "Unknown command: $cmd"
-                echo "Type 'help' for available commands"
-                ;;
+            block)      cmd_block "$args" ;;
+            unblock)    cmd_unblock "$args" ;;
+            remove|rm)  cmd_remove "$args" ;;
+            enable)     cmd_enable "$args" ;;
+            disable)    cmd_disable "$args" ;;
+            whitelist)  cmd_whitelist "$args" ;;
+            test)       cmd_test "$args" ;;
+            list|ls)    cmd_list ;;
+            status|stat) cmd_status ;;
+            reload)     cmd_reload ;;
+            update)     cmd_update ;;
+            clear)      cmd_clear ;;
+            info)       cmd_info ;;
+            help|h|\?)  cmd_help ;;
+            exit|quit|q) echo "Goodbye!"; exit 0 ;;
+            "") ;;
+            *) err "Unknown: $cmd"; echo "Type 'help' for commands" ;;
         esac
         
         echo ""
     done
 }
 
-# Main entry point
+# ── Main ──────────────────────────────────────────────────────────
+
 case "${1:-run}" in
-    run)
-        interactive_shell
-        ;;
-    *)
-        echo "DNS Filter CLI"
-        echo ""
-        echo "Usage:"
-        echo "  dns-cli run          Start interactive shell"
-        echo ""
-        exit 1
-        ;;
+    run) interactive_shell ;;
+    *) echo "Usage: dns-cli run"; exit 1 ;;
 esac
