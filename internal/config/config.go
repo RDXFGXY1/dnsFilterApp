@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Config struct {
@@ -135,6 +136,16 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.Blocklists.CustomPath == "" {
 		cfg.Blocklists.CustomPath = "./configs/custom*.yaml"
+	}
+
+	// Historical/example hash in configs may not match the documented default
+	// password (`changeme`). If the shipped example bcrypt hash is present,
+	// regenerate a bcrypt hash for the documented default so users can log in
+	// with the expected password on first run.
+	if cfg.Security.AdminPasswordHash == "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy" {
+		if h, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost); err == nil {
+			cfg.Security.AdminPasswordHash = string(h)
+		}
 	}
 
 	return &cfg, nil

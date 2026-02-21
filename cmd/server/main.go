@@ -10,12 +10,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yourusername/dns-filter-app/internal/api"
-	"github.com/yourusername/dns-filter-app/internal/config"
-	"github.com/yourusername/dns-filter-app/internal/database"
-	"github.com/yourusername/dns-filter-app/internal/dns"
-	"github.com/yourusername/dns-filter-app/internal/filter"
-	"github.com/yourusername/dns-filter-app/pkg/logger"
+	"github.com/RDXFGXY1/dns-filter-app/internal/api"
+	"github.com/RDXFGXY1/dns-filter-app/internal/config"
+	"github.com/RDXFGXY1/dns-filter-app/internal/database"
+	"github.com/RDXFGXY1/dns-filter-app/internal/dns"
+	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
+	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
 )
 
 var (

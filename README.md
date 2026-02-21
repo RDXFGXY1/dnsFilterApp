@@ -206,6 +206,18 @@ MIT License - see [LICENSE](LICENSE) file for details
 - Issues: GitHub Issues
 - Discussions: GitHub Discussions
 
+If you find a bug, encounter unexpected behavior, or have a feature request, please open an issue on GitHub so we can track and address it:
+
+- **Report an issue:** https://github.com/RDXFGXY1/dnsFilterApp/issues
+
+When opening an issue, include as much of the following as possible:
+- **Description:** what you expected vs what happened
+- **Steps to reproduce:** exact commands or actions
+- **Environment:** OS, Go version, installation method (setup.sh or manual)
+- **Logs / error output:** relevant log lines or stack traces
+
+This helps maintainers triage and fix problems faster. Thank you for contributing!
+
 ## Roadmap
 
 - [ ] DNS-over-HTTPS (DoH) support

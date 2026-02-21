@@ -12,9 +12,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/yourusername/dns-filter-app/internal/config"
-	"github.com/yourusername/dns-filter-app/internal/database"
-	"github.com/yourusername/dns-filter-app/pkg/logger"
+	"github.com/RDXFGXY1/dns-filter-app/internal/config"
+	"github.com/RDXFGXY1/dns-filter-app/internal/database"
+	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
 )
 
 // CustomBlocklistEntry represents a single entry in a custom YAML blocklist

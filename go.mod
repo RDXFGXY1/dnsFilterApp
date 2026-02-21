@@ -1,4 +1,4 @@
-module github.com/yourusername/dns-filter-app
+module github.com/RDXFGXY1/dns-filter-app
 
 go 1.21
 
