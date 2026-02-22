@@ -23,6 +23,7 @@ type Server struct {
 	router    *gin.Engine
 	server    *http.Server
 	log       *logger.Logger
+	
 }
 
 func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine, dnsServer *dns.Server) *Server {
