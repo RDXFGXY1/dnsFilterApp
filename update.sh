@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+
 # Update script for DNS Filter
 # Usage: curl -fsSL <url>/update.sh | sudo bash
 
