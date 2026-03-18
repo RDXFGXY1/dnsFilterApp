@@ -1,6 +1,5 @@
 # Binaries
 build/
-./wwwroot
 *.exe
 *.exe~
 *.dll
@@ -17,7 +16,7 @@ dns-filter-*
 
 # Dependency directories
 vendor/
-
+wwwroot/
 # Go workspace file
 go.work
 
