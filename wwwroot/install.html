@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Install — DNS Filter</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+#scroll-bar{position:fixed;top:62px;left:0;height:2px;width:0%;background:var(--red);z-index:7999;transition:width 0.1s linear;}
+
+.install-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 64px;
+  padding: 64px 0;
+}
+
+/* SIDEBAR */
+.sidebar { position: sticky; top: 80px; height: fit-content; }
+.sidebar-title { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);margin-bottom:10px;margin-top:24px; }
+.sidebar-title:first-child { margin-top:0; }
+
+.s-item {
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;
+  font-size:13px;color:var(--dim2);
+  cursor:pointer;
+  border-left:2px solid transparent;
+  transition:all 0.2s;
+  user-select:none;
+}
+.s-item:hover { color:var(--white); border-left-color:var(--border2); }
+.s-item.active { color:var(--red); border-left-color:var(--red); background:var(--red-glow); }
+.s-item i { width:16px;text-align:center;flex-shrink:0; }
+
+/* CONTENT */
+.sec { display:none; }
+.sec.active { display:block; }
+
+.sec-title { font-family:var(--display);font-size:44px;color:var(--white);letter-spacing:1px;line-height:1;margin-bottom:10px; }
+.sec-desc { color:var(--dim2);font-size:14px;line-height:1.85;max-width:620px;margin-bottom:36px; }
+
+/* STEP */
+.step-list { display:flex;flex-direction:column;gap:28px; }
+
+.step {
+  display:grid;grid-template-columns:52px 1fr;gap:20px;
+}
+
+.step-num {
+  width:52px;height:52px;
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:26px;color:var(--red);
+  flex-shrink:0;
+}
+
+.step-body {}
+.step-title { font-size:14px;font-weight:500;color:var(--white);margin-bottom:6px; }
+.step-desc { color:var(--dim2);font-size:13px;line-height:1.85;margin-bottom:12px; }
+
+/* OS TABS */
+.os-tabs { display:flex;gap:2px;margin-bottom:20px; }
+.os-tab {
+  font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 20px;cursor:pointer;border:1px solid var(--border2);color:var(--dim2);
+  background:none;transition:all 0.2s;
+}
+.os-tab:hover { color:var(--white); }
+.os-tab.active { background:var(--red);border-color:var(--red);color:var(--white); }
+.os-content { display:none; }
+.os-content.active { display:block; }
+
+/* PREREQ GRID */
+.prereq-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px; }
+.prereq-item {
+  background:var(--card);border:1px solid var(--border);padding:20px;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.prereq-item i { color:var(--red);font-size:18px;flex-shrink:0;margin-top:2px; }
+.prereq-title { font-size:13px;font-weight:500;color:var(--white);margin-bottom:3px; }
+.prereq-desc { font-size:12px;color:var(--dim2); }
+
+@media(max-width:1024px){
+  .install-layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .prereq-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:640px){ .prereq-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div id="scroll-bar"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo"><i class="fa-solid fa-shield-halved"></i> DNSFILTER</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="features.html" class="nav-link">Features</a>
+    <a href="install.html" class="nav-link active">Install</a>
+    <a href="api.html" class="nav-link">API</a>
+    <a href="roadmap.html" class="nav-link">Roadmap</a>
+  </div>
+  <a href="https://github.com/RDXFGXY1/dnsFilterApp" target="_blank" class="nav-gh"><i class="fa-brands fa-github"></i> GitHub</a>
+</nav>
+
+<main class="pt">
+  <section style="padding-top:0;border:none;padding-bottom:0;">
+    <div class="wrap">
+      <div style="padding:72px 0 0;">
+        <div class="eyebrow">Setup Guide</div>
+        <h1 class="display">INSTALL<br>&amp; <span class="accent">CONFIGURE</span></h1>
+        <p class="lead">Get DNS Filter running in under 5 minutes. It's a single binary, a service file, and a config. We'll walk through every step so nothing gets mysteriously broken. (You're welcome.)</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="install-layout" data-sidebar="install">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-title">Getting Started</div>
+        <div class="s-item active" data-section="prereqs"><i class="fa-solid fa-clipboard-check"></i> Prerequisites</div>
+        <div class="s-item" data-section="quick"><i class="fa-solid fa-rocket"></i> Quick Install</div>
+        <div class="s-item" data-section="manual"><i class="fa-solid fa-code"></i> Manual Build</div>
+        <div class="sidebar-title">Run It</div>
+        <div class="s-item" data-section="service"><i class="fa-solid fa-gears"></i> Run as Service</div>
+        <div class="s-item" data-section="dns-setup"><i class="fa-solid fa-globe"></i> Set System DNS</div>
+        <div class="sidebar-title">Configure</div>
+        <div class="s-item" data-section="config"><i class="fa-solid fa-sliders"></i> Config File</div>
+        <div class="s-item" data-section="dashboard"><i class="fa-solid fa-gauge"></i> Dashboard Setup</div>
+        <div class="s-item" data-section="blocklists"><i class="fa-solid fa-list"></i> Custom Blocklists</div>
+      </div>
+
+      <!-- CONTENT AREA -->
+      <div data-sections="install">
+
+        <!-- PREREQS -->
+        <div class="sec active" data-sec="prereqs">
+          <div class="sec-title">Prerequisites</div>
+          <p class="sec-desc">Before you start, make sure you have these. None of them are unusual — if you're running a modern Linux system you probably already have most of this.</p>
+          <div class="prereq-grid">
+            <div class="prereq-item">
+              <i class="fa-brands fa-golang"></i>
+              <div>
+                <div class="prereq-title">Go 1.21 or higher</div>
+                <div class="prereq-desc">Required to build from source. Not needed if using the pre-built binary (coming soon).</div>
+              </div>
+            </div>
+            <div class="prereq-item">
+              <i class="fa-solid fa-user-shield"></i>
+              <div>
+                <div class="prereq-title">Root / Admin privileges</div>
+                <div class="prereq-desc">DNS runs on port 53. Port 53 requires root on Linux/macOS. On Windows, run as Administrator.</div>
+              </div>
+            </div>
+            <div class="prereq-item">
+              <i class="fa-brands fa-git-alt"></i>
+              <div>
+                <div class="prereq-title">git (optional)</div>
+                <div class="prereq-desc">Used by the setup script to clone the repo. Falls back to tarball download if git isn't available.</div>
+              </div>
+            </div>
+          </div>
+          <div class="notice notice-warn">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>DNS Filter listens on port 53. If you have another DNS service running (like systemd-resolved or dnsmasq), you may need to disable it first to avoid a port conflict. We'll cover this in the service setup section.</span>
+          </div>
+        </div>
+
+        <!-- QUICK -->
+        <div class="sec" data-sec="quick">
+          <div class="sec-title">Quick Install</div>
+          <p class="sec-desc">The fastest path. One curl command clones the repo, builds the binary, installs the systemd service, and starts everything. Requires Git and Go on your machine.</p>
+          <div class="notice notice-red">
+            <i class="fa-solid fa-skull-crossbones"></i>
+            <span><strong>Important:</strong> Always review a shell script before piping it to sudo bash. We're not saying don't do it — we're saying know what you're running. The script is at <a href="https://github.com/RDXFGXY1/dnsFilterApp/blob/main/setup.sh" target="_blank" style="color:var(--red)">setup.sh</a> and is fully readable on GitHub.</span>
+          </div>
+          <div class="step-list">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Run the one-liner</div>
+                <p class="step-desc">This downloads, builds, and installs everything. Grab a coffee — the Go build takes about 30 seconds.</p>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">curl -fsSL https://raw.githubusercontent.com/RDXFGXY1/dnsFilterApp/main/setup.sh | sudo bash</div>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Verify the service is running</div>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">sudo systemctl status dns-filter</div>
+                </div>
+                <div class="notice notice-ok"><i class="fa-solid fa-circle-check"></i><span>You should see "Active: active (running)". If not, check the service logs: <code style="font-family:var(--mono)">journalctl -u dns-filter -n 50</code></span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Test DNS filtering</div>
+                <p class="step-desc">Point a dig query at localhost to confirm it's responding.</p>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body"><span class="cm"># This should resolve normally</span>
+dig google.com @127.0.0.1
+
+<span class="cm"># A blocked domain should return 0.0.0.0</span>
+dig blocked-example.com @127.0.0.1</div>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Open the dashboard</div>
+                <p class="step-desc">Navigate to the web interface in your browser. Default credentials are <code style="font-family:var(--mono);color:var(--red)">admin / changeme</code> — please, <em>please</em> change the password.</p>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-globe"></i> browser</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">http://localhost:8080</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MANUAL BUILD -->
+        <div class="sec" data-sec="manual">
+          <div class="sec-title">Manual Build</div>
+          <p class="sec-desc">For those who want to see exactly what's happening, or who want to customize the build. Clone, build, run. No magic.</p>
+          <div class="step-list">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Clone the repository</div>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-brands fa-git-alt"></i> git</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">git clone https://github.com/RDXFGXY1/dnsFilterApp.git
+cd dnsFilterApp</div>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Install dependencies</div>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-brands fa-golang"></i> go</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">go mod download</div>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Build the binary</div>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-hammer"></i> make</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body"><span class="cm"># Build for your current platform</span>
+make build
+
+<span class="cm"># Or build for all platforms at once</span>
+make build-all
+
+<span class="cm"># Or go directly without make</span>
+go build -o build/dns-filter ./cmd/server</div>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Run the installer</div>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">sudo bash scripts/install.sh</div>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-title">Development mode (no install required)</div>
+                <p class="step-desc">Want to hack on it without installing? Run directly with auto-reload.</p>
+                <div class="code-box">
+                  <div class="code-header"><div class="code-lang"><i class="fa-solid fa-code"></i> dev</div><button class="copy-btn">Copy</button></div>
+                  <div class="code-body">go run cmd/server/main.go --dev</div>
+                </div>
+                <div class="notice notice-warn"><i class="fa-solid fa-circle-info"></i><span>In dev mode, port 53 may still require sudo. Use <code style="font-family:var(--mono)">sudo -E go run cmd/server/main.go --dev</code> if you see a permission error.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SERVICE -->
+        <div class="sec" data-sec="service">
+          <div class="sec-title">Run as a Service</div>
+          <p class="sec-desc">DNS Filter is designed to run as a background system service that starts automatically on boot. Here's how to set that up on each platform.</p>
+
+          <div class="os-tabs" data-tab-group="service-os">
+            <button class="os-tab active" data-tab="linux"><i class="fa-brands fa-linux"></i> Linux (systemd)</button>
+            <button class="os-tab" data-tab="windows"><i class="fa-brands fa-windows"></i> Windows</button>
+            <button class="os-tab" data-tab="macos"><i class="fa-brands fa-apple"></i> macOS (launchd)</button>
+          </div>
+
+          <div data-tab-content="linux" class="os-content active">
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-body">
+                <div class="step-title">Install the service file</div>
+                <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> systemd</div><button class="copy-btn">Copy</button></div>
+                <div class="code-body">sudo cp scripts/dns-filter.service /etc/systemd/system/
+sudo systemctl daemon-reload</div></div>
+              </div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-body">
+                <div class="step-title">Enable &amp; start</div>
+                <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                <div class="code-body">sudo systemctl enable dns-filter   <span class="cm"># start on boot</span>
+sudo systemctl start dns-filter    <span class="cm"># start now</span>
+sudo systemctl status dns-filter   <span class="cm"># verify</span></div></div>
+              </div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-body">
+                <div class="step-title">Handle systemd-resolved conflict (if needed)</div>
+                <p class="step-desc">On modern Ubuntu/Debian, systemd-resolved may already be using port 53. Disable it first:</p>
+                <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                <div class="code-body">sudo systemctl disable systemd-resolved
+sudo systemctl stop systemd-resolved
+<span class="cm"># Then recreate resolv.conf pointing to dns-filter</span>
+sudo rm /etc/resolv.conf
+sudo bash -c 'echo "nameserver 127.0.0.1" > /etc/resolv.conf'</div></div>
+                <div class="notice notice-warn"><i class="fa-solid fa-triangle-exclamation"></i><span>Disabling systemd-resolved on Ubuntu can break DNS until dns-filter is running. Do this step last, right before starting the service.</span></div>
+              </div></div>
+            </div>
+          </div>
+
+          <div data-tab-content="windows" class="os-content">
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-body">
+                <div class="step-title">Open PowerShell as Administrator</div>
+                <p class="step-desc">Right-click Start → Windows PowerShell (Admin). DNS requires admin on Windows too.</p>
+              </div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-body">
+                <div class="step-title">Install and start the service</div>
+                <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-brands fa-windows"></i> powershell</div><button class="copy-btn">Copy</button></div>
+                <div class="code-body">.\dns-filter.exe install
+.\dns-filter.exe start</div></div>
+              </div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-body">
+                <div class="step-title">Verify via Services Manager</div>
+                <p class="step-desc">Open <code style="font-family:var(--mono)">services.msc</code> and look for "DNS Filter". It should show as Running.</p>
+              </div></div>
+            </div>
+          </div>
+
+          <div data-tab-content="macos" class="os-content">
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-body">
+                <div class="step-title">Install the launchd plist</div>
+                <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-brands fa-apple"></i> launchd</div><button class="copy-btn">Copy</button></div>
+                <div class="code-body">sudo cp scripts/com.dnsfilter.plist /Library/LaunchDaemons/
+sudo launchctl load /Library/LaunchDaemons/com.dnsfilter.plist</div></div>
+              </div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-body">
+                <div class="step-title">Verify it loaded</div>
+                <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+                <div class="code-body">sudo launchctl list | grep dnsfilter</div></div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DNS SETUP -->
+        <div class="sec" data-sec="dns-setup">
+          <div class="sec-title">Set System DNS</div>
+          <p class="sec-desc">DNS Filter needs to be your system's DNS resolver to intercept queries. Point your OS at <code style="font-family:var(--mono);color:var(--red)">127.0.0.1</code> and every DNS lookup goes through it.</p>
+
+          <div class="os-tabs" data-tab-group="dns-os">
+            <button class="os-tab active" data-tab="dns-linux"><i class="fa-brands fa-linux"></i> Linux</button>
+            <button class="os-tab" data-tab="dns-windows"><i class="fa-brands fa-windows"></i> Windows</button>
+            <button class="os-tab" data-tab="dns-macos"><i class="fa-brands fa-apple"></i> macOS</button>
+          </div>
+
+          <div data-tab-content="dns-linux" class="os-content active">
+            <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> bash</div><button class="copy-btn">Copy</button></div>
+            <div class="code-body"><span class="cm"># Direct resolv.conf edit (simplest)</span>
+sudo rm -f /etc/resolv.conf
+sudo bash -c 'echo "nameserver 127.0.0.1" > /etc/resolv.conf'
+
+<span class="cm"># Lock it so NetworkManager doesn't overwrite it</span>
+sudo chattr +i /etc/resolv.conf
+
+<span class="cm"># Test it</span>
+dig google.com</div></div>
+            <div class="notice notice-warn"><i class="fa-solid fa-circle-info"></i><span>To undo the immutable flag later: <code style="font-family:var(--mono)">sudo chattr -i /etc/resolv.conf</code></span></div>
+          </div>
+
+          <div data-tab-content="dns-windows" class="os-content">
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Control Panel → Network and Internet → Network Connections</div></div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Right-click your active connection → Properties</div></div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Select "Internet Protocol Version 4 (TCP/IPv4)" → Properties</div></div></div>
+              <div class="step"><div class="step-num">4</div><div class="step-body">
+                <div class="step-title">Set Preferred DNS to <code style="font-family:var(--mono);color:var(--red)">127.0.0.1</code></div>
+                <p class="step-desc">Leave Alternate DNS blank or set it to 8.8.8.8 as a fallback (for when dns-filter isn't running).</p>
+              </div></div>
+            </div>
+          </div>
+
+          <div data-tab-content="dns-macos" class="os-content">
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">System Preferences → Network</div></div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Select your active connection → Advanced → DNS tab</div></div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Click + and add <code style="font-family:var(--mono);color:var(--red)">127.0.0.1</code> as the first DNS server</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONFIG -->
+        <div class="sec" data-sec="config">
+          <div class="sec-title">Config File</div>
+          <p class="sec-desc">Everything lives in <code style="font-family:var(--mono);color:var(--red)">configs/config.yaml</code>. Edit it, save it, restart the service. That's the whole workflow.</p>
+          <div class="code-box">
+            <div class="code-header"><div class="code-lang"><i class="fa-solid fa-file-code"></i> configs/config.yaml</div><button class="copy-btn">Copy</button></div>
+            <div class="code-body"><span class="cm"># ── DNS Filter Configuration ──────────────────────────────</span>
+
+<span class="kw">server:</span>
+  <span class="kw">dns_port:</span> <span class="st">53</span>           <span class="cm"># needs root privileges on Linux/macOS</span>
+  <span class="kw">api_port:</span> <span class="st">8080</span>         <span class="cm"># dashboard and REST API port</span>
+  <span class="kw">upstream_dns:</span> <span class="st">"8.8.8.8:53"</span>  <span class="cm"># where to forward allowed queries</span>
+
+<span class="kw">filtering:</span>
+  <span class="kw">enabled:</span> <span class="st">true</span>
+  <span class="kw">block_categories:</span>
+    - <span class="st">adult</span>       <span class="cm"># explicit content</span>
+    - <span class="st">malware</span>     <span class="cm"># malware C&C, phishing</span>
+    - <span class="st">gambling</span>    <span class="cm"># gambling sites</span>
+    <span class="cm"># - ads        # ad networks (optional)</span>
+    <span class="cm"># - tracking   # tracker domains (optional)</span>
+
+<span class="kw">database:</span>
+  <span class="kw">path:</span> <span class="st">"./data/dns-filter.db"</span>
+
+<span class="kw">schedule:</span>
+  <span class="kw">enabled:</span> <span class="st">false</span>
+  <span class="cm"># rules are configured through the web dashboard</span></div>
+          </div>
+          <div class="notice notice-warn"><i class="fa-solid fa-rotate"></i><span>After editing config.yaml, restart the service to apply changes: <code style="font-family:var(--mono)">sudo systemctl restart dns-filter</code></span></div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="sec" data-sec="dashboard">
+          <div class="sec-title">Dashboard Setup</div>
+          <p class="sec-desc">The web dashboard runs at <code style="font-family:var(--mono);color:var(--red)">http://localhost:8080</code> and gives you full control without touching the terminal.</p>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div class="step-body">
+              <div class="step-title">Open the dashboard</div>
+              <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-globe"></i> browser</div></div>
+              <div class="code-body">http://localhost:8080</div></div>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body">
+              <div class="step-title">Log in and immediately change the password</div>
+              <p class="step-desc">Default credentials are <code style="font-family:var(--mono);color:var(--red)">admin / changeme</code>. Go to Settings → Change Password. This is not optional. The dashboard is on your local network and accessible to anyone on it.</p>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body">
+              <div class="step-title">Check your stats</div>
+              <p class="step-desc">The home screen shows total queries, block rate, and top blocked domains. If you see queries coming in, DNS Filter is working correctly. If nothing shows up, your system DNS hasn't been pointed to 127.0.0.1 yet.</p>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- BLOCKLISTS -->
+        <div class="sec" data-sec="blocklists">
+          <div class="sec-title">Custom Blocklists</div>
+          <p class="sec-desc">The built-in categories cover most use cases, but you can add any external blocklist URL or define your own entries via the CLI or API.</p>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div class="step-body">
+              <div class="step-title">Add a blocklist via CLI</div>
+              <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-terminal"></i> dns-filter cli</div><button class="copy-btn">Copy</button></div>
+              <div class="code-body">./dns-filter blocklist add --url "https://example.com/blocklist.txt"</div></div>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body">
+              <div class="step-title">Add a blocklist via API</div>
+              <div class="code-box"><div class="code-header"><div class="code-lang"><i class="fa-solid fa-plug"></i> REST API</div><button class="copy-btn">Copy</button></div>
+              <div class="code-body">curl -X POST http://localhost:8080/api/blocklists \
+  -H <span class="st">"Authorization: Bearer YOUR_TOKEN"</span> \
+  -H <span class="st">"Content-Type: application/json"</span> \
+  -d <span class="st">'{"url": "https://example.com/blocklist.txt", "enabled": true}'</span></div></div>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body">
+              <div class="step-title">Or manage via the dashboard</div>
+              <p class="step-desc">Go to Dashboard → Blocklists → Add New. Paste the URL, click Add, and it's immediately active. You can toggle, remove, or force-refresh any list from the same screen.</p>
+            </div></div>
+          </div>
+        </div>
+
+      </div><!-- /data-sections -->
+    </div><!-- /install-layout -->
+  </div><!-- /wrap -->
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div><div class="footer-logo"><i class="fa-solid fa-shield-halved"></i> DNSFILTER</div><p class="footer-tagline">High-performance DNS content filtering. Open source. No nonsense.</p></div>
+    <div><div class="footer-col-title">Pages</div><ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="features.html">Features</a></li><li><a href="install.html">Install</a></li><li><a href="api.html">API Docs</a></li><li><a href="roadmap.html">Roadmap</a></li></ul></div>
+    <div><div class="footer-col-title">Resources</div><ul class="footer-links"><li><a href="https://github.com/RDXFGXY1/dnsFilterApp" target="_blank">GitHub</a></li><li><a href="https://github.com/RDXFGXY1/dnsFilterApp/issues" target="_blank">Issues</a></li></ul></div>
+    <div></div>
+  </footer>
+  <div class="footer-bottom"><span>© 2026 dnsFilterApp — MIT License</span><span>github.com/RDXFGXY1/dnsFilterApp</span></div>
+</main>
+
+<script src="assets/js/main.js"></script>
+<script>
+// init: hide all sections except first
+document.querySelectorAll('[data-sec]').forEach((s,i) => { if(i > 0) s.style.display = 'none'; });
+</script>
+</body>
+</html>
