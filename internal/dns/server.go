@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/miekg/dns"
 	"github.com/RDXFGXY1/dns-filter-app/internal/config"
 	"github.com/RDXFGXY1/dns-filter-app/internal/database"
 	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
+	"github.com/miekg/dns"
 )
 
 type Server struct {
@@ -129,16 +129,20 @@ func (s *Server) handleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 	}
 
 	// Check if domain should be blocked
-	if s.cfg.Filtering.Enabled && s.filter.ShouldBlock(domain, clientIP) {
-		s.handleBlockedDomain(w, r, m, domain, clientIP)
-		return
+	if s.cfg.Filtering.Enabled {
+		blocked, reason := s.filter.ShouldBlock(domain, clientIP)
+		if blocked {
+			s.log.Infof("🛡️  BLOCKED: %s (reason: %s)", domain, reason)
+			s.handleBlockedDomain(w, r, m, domain, clientIP, reason)
+			return
+		}
 	}
 
 	// Forward to upstream DNS
 	s.forwardToUpstream(w, r, m, domain, question.Qtype)
 }
 
-func (s *Server) handleBlockedDomain(w dns.ResponseWriter, r *dns.Msg, m *dns.Msg, domain string, clientIP string) {
+func (s *Server) handleBlockedDomain(w dns.ResponseWriter, r *dns.Msg, m *dns.Msg, domain string, clientIP string, reason string) {
 	// Increment blocked queries
 	s.stats.mu.Lock()
 	s.stats.BlockedQueries++
@@ -181,7 +185,7 @@ func (s *Server) handleBlockedDomain(w dns.ResponseWriter, r *dns.Msg, m *dns.Ms
 					Class:  dns.ClassINET,
 					Ttl:    300,
 				},
-				A: net.ParseIP("127.0.0.1"),
+				A: net.ParseIP("127.0.0.1"), // Assuming block page server runs on this IP:port
 			}
 			m.Answer = append(m.Answer, rr)
 		}
@@ -228,12 +232,12 @@ func (s *Server) GetStatistics() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_queries":     s.stats.TotalQueries,
-		"blocked_queries":   s.stats.BlockedQueries,
-		"cached_responses":  s.stats.CachedResponses,
-		"block_rate":        fmt.Sprintf("%.2f%%", blockRate),
-		"uptime_seconds":    uptime.Seconds(),
-		"uptime_human":      uptime.String(),
+		"total_queries":      s.stats.TotalQueries,
+		"blocked_queries":    s.stats.BlockedQueries,
+		"cached_responses":   s.stats.CachedResponses,
+		"block_rate":         fmt.Sprintf("%.2f%%", blockRate),
+		"uptime_seconds":     uptime.Seconds(),
+		"uptime_human":       uptime.String(),
 		"queries_per_minute": float64(s.stats.TotalQueries) / uptime.Minutes(),
 	}
 }

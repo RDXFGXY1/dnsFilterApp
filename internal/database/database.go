@@ -19,6 +19,10 @@ type BlockedQuery struct {
 	Timestamp time.Time
 }
 
+func (db *DB) GetDB() *sql.DB {
+	return db.conn // Assuming your DB struct has a field called 'conn' of type *sql.DB
+}
+
 func New(dbPath string) (*DB, error) {
 	conn, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
