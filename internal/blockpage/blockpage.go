@@ -20,6 +20,9 @@ type BlockPageServer struct {
 	template *template.Template
 	stats    *BlockStats
 	mu       sync.RWMutex
+
+	handler http.Handler // shared by the HTTP and HTTPS servers
+	tlsMgr  *tlsManager  // dynamic per-SNI certificate authority (nil until EnableTLS)
 }
 
 type BlockStats struct {
@@ -30,25 +33,25 @@ type BlockStats struct {
 }
 
 type BlockPageData struct {
-	Domain           string
-	Reason           string
-	Category         string
-	Keywords         []string
-	Timestamp        string
-	UserAgent        string
-	ClientIP         string
-	BlockedToday     int
-	TotalBlocks      int
-	TimeSaved        int
-	Quote            string
-	ShowRamadanMode  bool
+	Domain            string
+	Reason            string
+	Category          string
+	Keywords          []string
+	Timestamp         string
+	UserAgent         string
+	ClientIP          string
+	BlockedToday      int
+	TotalBlocks       int
+	TimeSaved         int
+	Quote             string
+	ShowRamadanMode   bool
 	CanRequestUnblock bool
-	UnblockMinutes   int
+	UnblockMinutes    int
 }
 
 func NewBlockPageServer(db *sql.DB, port int) (*BlockPageServer, error) {
 	bps := &BlockPageServer{
-		db: db,
+		db:    db,
 		stats: &BlockStats{},
 	}
 
@@ -68,6 +71,7 @@ func NewBlockPageServer(db *sql.DB, port int) (*BlockPageServer, error) {
 	mux.HandleFunc("/request-unblock", bps.handleUnblockRequest)
 	mux.HandleFunc("/stats", bps.handleStats)
 
+	bps.handler = mux
 	bps.server = &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
@@ -89,7 +93,7 @@ func (bps *BlockPageServer) initTables() error {
 			user_agent TEXT,
 			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS unblock_requests (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			domain TEXT,
@@ -120,226 +124,80 @@ func (bps *BlockPageServer) loadTemplate() error {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🛡️ Site Blocked - DNS Filter</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #f6f1e7; --surface: #fffdf9; --surface-2: #f3ecdf;
+            --ink: #1a1a1a; --muted: #6b6558; --faint: #9a9384;
+            --coral: #d1553b; --coral-soft: #f7e2dc; --green: #2f8a55;
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            background: var(--bg); color: var(--ink);
+            font-family: "JetBrains Mono", "Cascadia Code", "Segoe UI Mono", Consolas, monospace;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
         }
-
         .container {
-            max-width: 800px;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
-            padding: 40px;
-            animation: slideIn 0.5s ease-out;
+            max-width: 640px; width: 100%;
+            background: var(--surface); border: 2px solid var(--ink);
+            box-shadow: 8px 8px 0 var(--ink); padding: 40px;
         }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
+        .header { text-align: center; margin-bottom: 28px; }
         .shield {
-            font-size: 80px;
-            animation: pulse 2s infinite;
+            display: inline-grid; place-items: center; width: 64px; height: 64px;
+            background: var(--coral); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+            font-size: 34px; margin-bottom: 16px;
         }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
         h1 {
-            color: #ff0000;
-            font-size: 2.5em;
-            margin: 20px 0;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            color: var(--coral); font-size: 2.2em; letter-spacing: -.02em;
+            text-transform: uppercase; margin-bottom: 6px;
         }
-
+        .header p { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: .8em; }
         .domain {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff0000;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            word-break: break-all;
-            font-size: 1.2em;
-            color: #ff6666;
+            background: var(--coral-soft); border: 1.5px solid var(--ink);
+            padding: 14px 16px; margin: 22px 0; word-break: break-all; font-size: 1.05em;
         }
-
+        .domain strong { color: var(--coral); }
         .reason-box {
-            background: rgba(0, 255, 0, 0.05);
-            border-left: 4px solid #00ff00;
-            padding: 20px;
-            margin: 20px 0;
+            background: var(--surface-2); border: 1.5px solid var(--ink); border-left: 6px solid var(--coral);
+            padding: 18px 20px; margin: 20px 0;
         }
-
-        .reason-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
+        .reason-title { font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .02em; }
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 30px 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px; margin: 26px 0;
         }
-
         .stat-card {
-            background: rgba(0, 255, 0, 0.05);
-            border: 1px solid #00ff00;
-            border-radius: 5px;
-            padding: 15px;
-            text-align: center;
+            background: var(--surface-2); border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+            padding: 16px; text-align: center;
         }
-
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00ff00;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #888;
-            margin-top: 5px;
-        }
-
+        .stat-number { font-size: 1.9em; font-weight: 700; color: var(--coral); display: block; letter-spacing: -.02em; }
+        .stat-label { font-size: .72em; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: .04em; }
         .quote-box {
-            background: rgba(0, 100, 255, 0.1);
-            border-left: 4px solid #0066ff;
-            padding: 20px;
-            margin: 30px 0;
-            font-style: italic;
-            color: #66ccff;
+            background: var(--surface-2); border: 1.5px solid var(--ink); border-left: 6px solid var(--green);
+            padding: 16px 20px; margin: 26px 0; font-style: italic;
         }
-
-        .ramadan-mode {
-            background: linear-gradient(135deg, #1a5f1a 0%, #0d4d0d 100%);
-            border-color: #ffd700;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-        }
-
-        .ramadan-mode h1 {
-            color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        .buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
+        .buttons { display: flex; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
         .btn {
-            flex: 1;
-            min-width: 200px;
-            padding: 15px 30px;
-            border: 2px solid #00ff00;
-            background: transparent;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
+            flex: 1; min-width: 200px; padding: 14px 24px; cursor: pointer;
+            border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+            background: var(--coral); color: #fff;
+            font-family: inherit; font-size: .95em; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+            text-decoration: none; display: inline-block; text-align: center;
+            transition: transform .08s, box-shadow .08s;
         }
-
-        .btn:hover {
-            background: #00ff00;
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-        }
-
-        .btn-secondary {
-            border-color: #666;
-            color: #666;
-        }
-
-        .btn-secondary:hover {
-            background: #666;
-            color: #000;
-        }
-
-        .keywords {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .keyword-tag {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff0000;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .timestamp {
-            color: #666;
-            font-size: 0.9em;
-            text-align: center;
-            margin-top: 20px;
-        }
-
+        .btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+        .btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+        .btn-secondary { background: var(--surface); color: var(--ink); }
+        .keywords { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .keyword-tag { background: var(--coral-soft); border: 1.5px solid var(--ink); padding: 4px 12px; font-size: .85em; }
+        .footer { text-align: center; margin-top: 36px; padding-top: 18px; border-top: 2px solid var(--ink); color: var(--muted); font-size: .85em; }
+        .footer a { color: var(--coral); }
+        .timestamp { color: var(--faint); font-size: .82em; text-align: center; margin-top: 18px; }
+        .ramadan-mode { border-color: var(--ink); }
         @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 1.8em;
-            }
-            
-            .buttons {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
+            .container { padding: 24px; }
+            h1 { font-size: 1.7em; }
+            .buttons { flex-direction: column; }
+            .btn { width: 100%; }
         }
     </style>
 </head>
@@ -406,8 +264,8 @@ func (bps *BlockPageServer) loadTemplate() error {
         </div>
 
         <div class="footer">
-            <p>🔒 Protected by DNS Filter v2.5</p>
-            <p>Dashboard: <a href="http://127.0.0.1:8080" style="color: #00ff00;">127.0.0.1:8080</a></p>
+            <p>🔒 Protected by DNS Filter v2.6</p>
+            <p>Dashboard: <a href="http://127.0.0.1:8080">127.0.0.1:8080</a></p>
         </div>
     </div>
 
@@ -452,9 +310,23 @@ func (bps *BlockPageServer) handleBlockPage(w http.ResponseWriter, r *http.Reque
 	domain := r.URL.Query().Get("domain")
 	reason := r.URL.Query().Get("reason")
 	category := r.URL.Query().Get("category")
-	
+
 	if domain == "" {
 		domain = r.Host
+	}
+
+	// SAFETY CHECK: If domain is whitelisted, don't show block page
+	// This handles the case where unblocking takes effect but browser
+	// still connects to 127.0.0.1 due to connection pooling
+	if bps.isWhitelisted(domain) {
+		// Redirect to actual domain instead of showing block page
+		scheme := "http"
+		if r.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+		w.Header().Set("Location", scheme+"://"+domain)
+		w.WriteHeader(http.StatusMovedPermanently)
+		return
 	}
 
 	// Log block
@@ -528,8 +400,8 @@ func (bps *BlockPageServer) handleStats(w http.ResponseWriter, r *http.Request) 
 		"blocks_today": %d,
 		"time_saved_minutes": %d,
 		"top_blocked_domain": "%s"
-	}`, bps.stats.TotalBlocks, bps.stats.BlocksToday, 
-	    bps.stats.TimeSavedMinutes, bps.stats.TopBlockedDomain)
+	}`, bps.stats.TotalBlocks, bps.stats.BlocksToday,
+		bps.stats.TimeSavedMinutes, bps.stats.TopBlockedDomain)
 }
 
 // ── Helper Functions ─────────────────────────────────────────────
@@ -584,7 +456,37 @@ func (bps *BlockPageServer) formatReason(reason string) string {
 	return "This site has been blocked by your DNS filter"
 }
 
+func (bps *BlockPageServer) getSetting(key string) string {
+	var v string
+	if err := bps.db.QueryRow("SELECT value FROM settings WHERE key = ?", key).Scan(&v); err != nil {
+		return ""
+	}
+	return v
+}
+
 func (bps *BlockPageServer) getRandomQuote() string {
+	// Custom message overrides everything.
+	if msg := bps.getSetting("blockpage_message"); msg != "" {
+		return msg
+	}
+
+	roast := []string{
+		"Nice try. This site was NOT it.",
+		"Blocked. Go touch some grass. 🌱",
+		"Imagine getting stopped by your own DNS. Embarrassing.",
+		"That's a no from us, champ.",
+		"You really thought? Blocked.",
+		"Denied. Your future self says you're welcome.",
+		"This ain't the app for that. Back to work.",
+	}
+	meme := []string{
+		"🚫 This is not the website you're looking for.",
+		"404: Willpower found. Site blocked.",
+		"One does not simply visit this site. 🧙",
+		"Task failed successfully — you've been blocked.",
+		"Ain't nobody got time for that. Blocked.",
+		"Sir, this is a Wendy's. (It's blocked.)",
+	}
 	quotes := []string{
 		"Every temptation resisted is a victory won.",
 		"You're building a better future, one block at a time.",
@@ -594,6 +496,13 @@ func (bps *BlockPageServer) getRandomQuote() string {
 		"Discipline is choosing between what you want now and what you want most.",
 		"Small choices today, big results tomorrow.",
 		"You have the power to control your digital life.",
+	}
+
+	switch bps.getSetting("blockpage_mode") {
+	case "roast":
+		return roast[time.Now().Unix()%int64(len(roast))]
+	case "meme":
+		return meme[time.Now().Unix()%int64(len(meme))]
 	}
 
 	// Islamic quotes for Ramadan
@@ -616,6 +525,22 @@ func (bps *BlockPageServer) isRamadanMode() bool {
 	// Check if Ramadan mode is enabled in config
 	// For now, return false - implement config check
 	return false
+}
+
+// isWhitelisted checks if a domain is in the whitelist
+func (bps *BlockPageServer) isWhitelisted(domain string) bool {
+	if domain == "" {
+		return false
+	}
+
+	// Query the whitelist table from database
+	var count int
+	err := bps.db.QueryRow("SELECT COUNT(*) FROM whitelist WHERE domain = ?", domain).Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
 }
 
 // ── Server Control ───────────────────────────────────────────────

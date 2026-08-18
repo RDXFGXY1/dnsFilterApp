@@ -37,6 +37,14 @@ type FilteringConfig struct {
 	BlockCategories  []string         `yaml:"block_categories"`
 	SafeSearch       bool             `yaml:"safe_search"`
 	YoutubeRestrict  bool             `yaml:"youtube_restricted"`
+
+	// Detection modules — which engines contribute to a block decision.
+	UseBlocklist         bool `yaml:"use_blocklist"`
+	UseCategories        bool `yaml:"use_categories"`
+	UseKeywords          bool `yaml:"use_keywords"`
+	UseAI                bool `yaml:"use_ai"`
+	UseContentInspection bool `yaml:"use_content_inspection"`
+
 	Schedule         ScheduleConfig   `yaml:"schedule"`
 }
 
@@ -86,10 +94,10 @@ type BlocklistsConfig struct {
 }
 
 type BlocklistSource struct {
-	Name     string `yaml:"name"`
-	URL      string `yaml:"url"`
-	Category string `yaml:"category"`
-	Enabled  bool   `yaml:"enabled"`
+	Name     string `yaml:"name" json:"name"`
+	URL      string `yaml:"url" json:"url"`
+	Category string `yaml:"category" json:"category"`
+	Enabled  bool   `yaml:"enabled" json:"enabled"`
 }
 
 type WhitelistConfig struct {
@@ -107,15 +115,29 @@ type AdvancedConfig struct {
 	RateLimit       int  `yaml:"rate_limit"`
 }
 
+// loadedPath remembers where the config was read from so SaveDefault can
+// persist changes back to the same file.
+var loadedPath string
+
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
+	loadedPath = path
 
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	// If no detection module is enabled (e.g. an older config without these
+	// keys), default to the sensible set so filtering still works.
+	if !cfg.Filtering.UseBlocklist && !cfg.Filtering.UseCategories &&
+		!cfg.Filtering.UseKeywords && !cfg.Filtering.UseAI {
+		cfg.Filtering.UseBlocklist = true
+		cfg.Filtering.UseCategories = true
+		cfg.Filtering.UseKeywords = true
 	}
 
 	// Set defaults
@@ -162,4 +184,18 @@ func (c *Config) Save(path string) error {
 	}
 
 	return nil
+}
+
+// SaveDefault persists the config back to the file it was loaded from.
+func (c *Config) SaveDefault() error {
+	if loadedPath == "" {
+		return fmt.Errorf("no config path known")
+	}
+	return c.Save(loadedPath)
+}
+
+// HashPassword returns a bcrypt hash for the given plaintext password.
+func HashPassword(password string) (string, error) {
+	h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(h), err
 }

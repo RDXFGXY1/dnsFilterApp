@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 type DB struct {
@@ -24,7 +24,11 @@ func (db *DB) GetDB() *sql.DB {
 }
 
 func New(dbPath string) (*DB, error) {
-	conn, err := sql.Open("sqlite3", dbPath)
+	// WAL mode allows concurrent readers with a writer, and busy_timeout makes
+	// writers wait for a lock instead of failing immediately. This keeps the DNS
+	// hot path from stalling under concurrent blocked-query writes.
+	dsn := fmt.Sprintf("file:%s?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_pragma=synchronous(NORMAL)", dbPath)
+	conn, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
@@ -169,6 +173,49 @@ func (db *DB) GetTopBlockedDomains(limit int) (map[string]int, error) {
 	}
 
 	return results, rows.Err()
+}
+
+// TimelinePoint is one hourly bucket of blocked queries.
+type TimelinePoint struct {
+	Label string `json:"label"` // "15:00"
+	Count int    `json:"count"`
+}
+
+// GetBlockedTimeline returns a continuous per-hour series of blocked-query
+// counts for the last `hours` hours (empty hours included as zero).
+func (db *DB) GetBlockedTimeline(hours int) ([]TimelinePoint, error) {
+	since := time.Now().Add(-time.Duration(hours) * time.Hour)
+
+	rows, err := db.conn.Query(
+		`SELECT timestamp FROM blocked_queries WHERE timestamp > ?`, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	buckets := make(map[string]int)
+	for rows.Next() {
+		var t time.Time
+		if err := rows.Scan(&t); err != nil {
+			return nil, err
+		}
+		buckets[t.Local().Format("2006-01-02T15")]++
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	points := make([]TimelinePoint, 0, hours)
+	for i := hours - 1; i >= 0; i-- {
+		h := now.Add(-time.Duration(i) * time.Hour)
+		key := h.Format("2006-01-02T15")
+		points = append(points, TimelinePoint{
+			Label: h.Format("15:04"),
+			Count: buckets[key],
+		})
+	}
+	return points, nil
 }
 
 func (db *DB) SaveBlocklist(domains map[string]bool) error {

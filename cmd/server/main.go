@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/internal/database"
 	"github.com/RDXFGXY1/dns-filter-app/internal/dns"
 	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
+	"github.com/RDXFGXY1/dns-filter-app/internal/netdns"
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
 )
 
@@ -25,6 +27,22 @@ var (
 )
 
 func main() {
+	// Make relative asset paths (configs/, web/, data/) resolve no matter how
+	// the app is launched — double-click, scheduled task, or from another CWD.
+	chdirToExeDir()
+
+	// Handle subcommands before flag parsing.
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "setup-dns":
+			runDNSCommand("setup")
+			return
+		case "reset-dns":
+			runDNSCommand("reset")
+			return
+		}
+	}
+
 	flag.Parse()
 
 	printBanner()
@@ -134,6 +152,44 @@ func setBootstrapDNS() {
 			d := net.Dialer{Timeout: 10 * time.Second}
 			return d.DialContext(ctx, "udp", "8.8.8.8:53")
 		},
+	}
+}
+
+// runDNSCommand points the OS resolver at (or away from) the local filter.
+func runDNSCommand(action string) {
+	switch action {
+	case "setup":
+		fmt.Printf("Pointing system DNS at the local filter (%s)...\n", netdns.LocalDNS)
+		if err := netdns.SetDNS(); err != nil {
+			fmt.Printf("✗ Failed: %v\n", err)
+			fmt.Println("  Tip: run this from an Administrator (Windows) / root (Linux/macOS) shell.")
+			os.Exit(1)
+		}
+		fmt.Println("✓ System DNS now points to the DNS Filter.")
+		fmt.Println("  Make sure the filter is running. To undo: dns-filter reset-dns")
+	case "reset":
+		fmt.Println("Restoring system DNS to automatic (DHCP)...")
+		if err := netdns.ResetDNS(); err != nil {
+			fmt.Printf("✗ Failed: %v\n", err)
+			fmt.Println("  Tip: run this from an Administrator (Windows) / root (Linux/macOS) shell.")
+			os.Exit(1)
+		}
+		fmt.Println("✓ System DNS restored to automatic.")
+	}
+}
+
+// chdirToExeDir switches the working directory to the executable's folder when
+// the app's assets live there (portable/installed layout). It intentionally
+// does nothing when assets aren't beside the exe (e.g. `go run`, or a build/
+// binary run from the project root), preserving the existing CWD.
+func chdirToExeDir() {
+	exe, err := os.Executable()
+	if err != nil {
+		return
+	}
+	dir := filepath.Dir(exe)
+	if _, err := os.Stat(filepath.Join(dir, "configs", "config.yaml")); err == nil {
+		_ = os.Chdir(dir)
 	}
 }
 

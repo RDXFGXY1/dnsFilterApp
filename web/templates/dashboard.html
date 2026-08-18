@@ -7,96 +7,510 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>DNS FILTER</h1>
-        <nav>
-            <a href="/">DASHBOARD</a>
-            <a href="#" onclick="updateBlocklists()">UPDATE LISTS</a>
-            <a href="#" onclick="clearCache()">CLEAR CACHE</a>
-            <a href="/logout">LOGOUT</a>
-        </nav>
-    </header>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </span>
+                <span class="brand-name">DNS Filter</span>
+            </div>
 
-    <div class="container">
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>BLOCKED DOMAINS</h3>
-                <div class="stat-value" id="stat-blocked">...</div>
-            </div>
-            <div class="stat-card">
-                <h3>QUERIES (24H)</h3>
-                <div class="stat-value" id="stat-queries">...</div>
-            </div>
-            <div class="stat-card">
-                <h3>BLOCKED (24H)</h3>
-                <div class="stat-value" id="stat-blocked-24h">...</div>
-            </div>
-            <div class="stat-card">
-                <h3>BLOCK RATE</h3>
-                <div class="stat-value" id="stat-rate">...%</div>
-            </div>
-        </div>
+            <nav class="sidenav">
+                <span class="nav-label">Monitor</span>
+                <a href="#" class="active" data-view="overview">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    Overview</a>
+                <a href="#" data-view="live">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
+                    Live</a>
+                <a href="#" data-view="activity">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Activity</a>
+                <a href="#" data-view="focus">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Focus</a>
+                <a href="#" data-view="wellbeing">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Wellbeing</a>
 
-        <!-- Action Buttons -->
-        <div class="panel">
-            <h2>CONTROLS</h2>
-            <div class="action-buttons">
-                <button onclick="updateBlocklists()">↻ UPDATE BLOCKLISTS</button>
-                <button onclick="clearCache()">⊘ CLEAR CACHE</button>
-                <button onclick="loadStats()">↺ REFRESH STATS</button>
-            </div>
-        </div>
+                <span class="nav-label">Filtering</span>
+                <a href="#" data-view="apps">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    App Blocker</a>
+                <a href="#" data-view="categories">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Categories</a>
+                <a href="#" data-view="keywords">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                    Keywords</a>
+                <a href="#" data-view="blocklist">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
+                    Blocklist</a>
+                <a href="#" data-view="whitelist">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Whitelist</a>
+                <a href="#" data-view="ai">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
+                    AI Blocker</a>
 
-        <!-- Custom Blocklist -->
-        <div class="panel">
-            <h2>CUSTOM BLOCKLIST</h2>
-            <div class="whitelist-controls">
-                <input type="text" id="custom-block-input" placeholder="Enter domain to block (e.g. tiktok.com)" />
-                <button onclick="addCustomBlock()">+ BLOCK</button>
-            </div>
-            <ul class="whitelist" id="custom-blocks-list">
-                <li class="no-data">Loading...</li>
-            </ul>
-        </div>
+                <span class="nav-label">System</span>
+                <a href="/discipline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    Discipline</a>
+                <a href="#" data-view="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings</a>
+                <a href="#" data-view="requests">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Requests <span id="request-count">0</span></a>
+                </a>
+            </nav>
 
-        <!-- Whitelist -->
-        <div class="panel">
-            <h2>WHITELIST (NEVER BLOCK)</h2>
-            <div class="whitelist-controls">
-                <input type="text" id="whitelist-input" placeholder="Enter domain to whitelist (e.g. github.com)" />
-                <button onclick="addWhitelist()">+ ALLOW</button>
+            <div class="sidebar-foot">
+                <a href="/logout" class="side-logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sign out</a>
             </div>
-            <ul class="whitelist" id="whitelist-list">
-                <li class="no-data">Loading...</li>
-            </ul>
-        </div>
+        </aside>
 
-        <!-- Recent Blocked -->
-        <div class="panel">
-            <h2>RECENT BLOCKED QUERIES</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>DOMAIN</th>
-                            <th>CLIENT IP</th>
-                            <th>TIME</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-table">
-                        <tr><td colspan="3" class="no-data">Loading...</td></tr>
-                    </tbody>
-                </table>
+        <!-- Main -->
+        <div class="main">
+            <header class="page-head">
+                <div>
+                    <h1 class="page-title" id="page-title">Overview</h1>
+                    <p class="page-sub" id="page-sub">Real-time DNS filtering status</p>
+                </div>
+                <div class="page-actions">
+                    <span class="server-status"><span class="dot on"></span>Filter running</span>
+                    <button class="btn btn-ghost" onclick="clearCache()">Clear cache</button>
+                    <button class="btn" onclick="updateBlocklists()">Update lists</button>
+                </div>
+            </header>
+
+        <!-- ═══ OVERVIEW ═══ -->
+        <section class="view active" data-view="overview">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon ic-blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        </div>
+                        <span class="stat-label">Queries (24h)</span>
+                    </div>
+                    <div class="stat-value" id="stat-queries">…</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon ic-red">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
+                        </div>
+                        <span class="stat-label">Blocked (24h)</span>
+                    </div>
+                    <div class="stat-value" id="stat-blocked-24h">…</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon ic-amber">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <span class="stat-label">Block rate</span>
+                    </div>
+                    <div class="stat-value" id="stat-rate">…%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon ic-green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <span class="stat-label">Domains on blocklist</span>
+                    </div>
+                    <div class="stat-value" id="stat-blocked">…</div>
+                </div>
             </div>
-        </div>
 
-        <!-- Top Blocked -->
-        <div class="panel">
-            <h2>TOP BLOCKED DOMAINS</h2>
-            <ul class="top-blocked-list" id="top-blocked-list">
-                <li class="no-data">Loading...</li>
-            </ul>
+            <!-- Chart -->
+            <section class="panel panel-wide">
+                <div class="panel-head">
+                    <h2>Blocked queries · last 24h</h2>
+                    <span class="chart-legend"><span class="legend-swatch"></span>Blocked</span>
+                </div>
+                <div id="chart" class="chart"></div>
+            </section>
+
+            <div class="panel-grid">
+                <section class="panel">
+                    <div class="panel-head"><h2>System DNS</h2></div>
+                    <p class="panel-desc">Route this machine's DNS through the filter so every lookup is checked.</p>
+                    <div class="middleman-bar">
+                        <div class="middleman-status">
+                            <span class="dot" id="mm-dot"></span>
+                            <span id="mm-text">Checking DNS status…</span>
+                        </div>
+                        <button id="mm-toggle" class="btn" onclick="toggleMiddleman()" disabled>…</button>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-head"><h2>Your Progress</h2></div>
+                    <div class="gami-profile" id="gami-profile">
+                        <span class="no-data">Loading…</span>
+                    </div>
+                    <h3 class="subhead">Leaderboard</h3>
+                    <ul class="data-list" id="leaderboard-list">
+                        <li class="no-data">Loading…</li>
+                    </ul>
+                </section>
+
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Top Blocked Domains</h2></div>
+                    <ul class="data-list" id="top-blocked-list">
+                        <li class="no-data">Loading…</li>
+                    </ul>
+                </section>
+            </div>
+        </section>
+
+        <!-- ═══ LIVE MONITOR ═══ -->
+        <section class="view" data-view="live">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><span class="stat-label">Queries/sec</span></div>
+                    <div class="stat-value" id="live-qps">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-label">Allowed (session)</span></div>
+                    <div class="stat-value" id="live-allowed">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><span class="stat-label">Blocked (session)</span></div>
+                    <div class="stat-value" id="live-blocked">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-top"><div class="stat-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4"/></svg></div><span class="stat-label">Total seen</span></div>
+                    <div class="stat-value" id="live-total">0</div>
+                </div>
+            </div>
+
+            <section class="panel panel-wide">
+                <div class="panel-head">
+                    <h2><span class="live-pulse" id="live-pulse"></span>Live Query Stream</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-ghost" id="live-pause" onclick="toggleLivePause()">⏸ Pause</button>
+                        <button class="btn btn-ghost" onclick="clearLive()">Clear</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th style="width:40px;">●</th><th>Domain</th><th>Type</th><th>Client</th><th>Result</th><th style="text-align:right;">Time</th></tr>
+                        </thead>
+                        <tbody id="live-table">
+                            <tr><td colspan="6" class="no-data">Waiting for DNS queries… browse something to see it live.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <!-- ═══ FOCUS MODE ═══ -->
+        <section class="view" data-view="focus">
+            <section class="panel focus-panel">
+                <div class="panel-head"><h2>Focus Mode</h2></div>
+                <p class="panel-desc">Block distracting apps (social, video, games) for a set time and get things done.</p>
+                <div id="focus-idle">
+                    <div class="focus-timerbig" id="focus-preview">25:00</div>
+                    <div class="action-buttons" style="justify-content:center;margin:1rem 0;">
+                        <button class="btn btn-ghost" onclick="startFocus(25)">25 min</button>
+                        <button class="btn btn-ghost" onclick="startFocus(45)">45 min</button>
+                        <button class="btn btn-ghost" onclick="startFocus(60)">1 hour</button>
+                        <button class="btn btn-ghost" onclick="startFocus(120)">2 hours</button>
+                    </div>
+                </div>
+                <div id="focus-active" style="display:none;text-align:center;">
+                    <div class="focus-timerbig live" id="focus-countdown">25:00</div>
+                    <p class="panel-desc" style="text-align:center;">Stay focused — distractions are blocked.</p>
+                    <button class="btn btn-danger" onclick="stopFocus()">End session</button>
+                </div>
+            </section>
+        </section>
+
+        <!-- ═══ APP BLOCKER ═══ -->
+        <section class="view" data-view="apps">
+            <section class="panel">
+                <div class="panel-head"><h2>App Blocker</h2></div>
+                <p class="panel-desc">Tap an app to block it everywhere on your network. One tap = a whole bundle of that service's domains.</p>
+                <div class="app-grid" id="apps-grid">
+                    <span class="no-data">Loading…</span>
+                </div>
+            </section>
+        </section>
+
+        <!-- ═══ WELLBEING ═══ -->
+        <section class="view" data-view="wellbeing">
+            <div class="panel-grid">
+                <!-- Doom-scroll Guard -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Doom-scroll Guard</h2></div>
+                    <p class="panel-desc">Auto-blocks a social/video app when a device binges past the limit, then cools it down.</p>
+                    <div class="middleman-bar">
+                        <div class="middleman-status"><span class="dot" id="guard-dot"></span><span id="guard-text">Checking…</span></div>
+                        <button id="guard-toggle" class="btn" onclick="toggleGuard()">…</button>
+                    </div>
+                    <h3 class="subhead">Sensitivity</h3>
+                    <div class="input-row">
+                        <input type="text" id="guard-threshold" placeholder="Hits" style="flex:0 0 30%;" title="Requests within the window before it trips" />
+                        <input type="text" id="guard-minutes" placeholder="Cooldown min" title="How long to block after tripping" />
+                        <button class="btn btn-ghost" onclick="saveGuard()">Save</button>
+                    </div>
+                    <h3 class="subhead">Recent interventions</h3>
+                    <ul class="data-list" id="guard-trips"><li class="no-data">None yet</li></ul>
+                </section>
+
+                <!-- Screen-Time Bank -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Screen-Time Bank</h2></div>
+                    <p class="panel-desc">Earn tokens by staying clean. Spend them to unlock a blocked app for a while.</p>
+                    <div class="gami-profile">
+                        <div class="gami-stat"><span class="gami-num" id="bank-tokens">0</span><span class="gami-label">Tokens</span></div>
+                        <div class="gami-stat"><span class="gami-num" id="bank-points">0</span><span class="gami-label">Points</span></div>
+                        <div class="gami-stat"><span class="gami-num" id="bank-spent">0</span><span class="gami-label">Spent</span></div>
+                    </div>
+                    <h3 class="subhead">Spend an unlock</h3>
+                    <div class="input-row">
+                        <select id="bank-app"></select>
+                        <select id="bank-minutes" style="flex:0 0 32%;">
+                            <option value="15">15 min · 1</option>
+                            <option value="30">30 min · 2</option>
+                            <option value="60">60 min · 4</option>
+                        </select>
+                        <button class="btn" onclick="spendUnlock()">Unlock</button>
+                    </div>
+                    <ul class="data-list" id="bank-unlocks"><li class="no-data">No active unlocks</li></ul>
+                </section>
+            </div>
+        </section>
+
+        <!-- ═══ ACTIVITY ═══ -->
+        <section class="view" data-view="activity">
+            <section class="panel">
+                <div class="panel-head"><h2>Recent Blocked Queries</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Domain</th><th>Client IP</th><th>Time</th></tr>
+                        </thead>
+                        <tbody id="recent-table">
+                            <tr><td colspan="3" class="no-data">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <!-- ═══ CATEGORIES ═══ -->
+        <section class="view" data-view="categories">
+            <section class="panel">
+                <div class="panel-head"><h2>Block Categories</h2></div>
+                <ul class="data-list list-tall" id="categories-list">
+                    <li class="no-data">Loading…</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- ═══ KEYWORDS ═══ -->
+        <section class="view" data-view="keywords">
+            <section class="panel">
+                <div class="panel-head"><h2>Keyword Lists</h2></div>
+                <ul class="data-list list-tall" id="keywords-list">
+                    <li class="no-data">Loading…</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- ═══ BLOCKLIST ═══ -->
+        <section class="view" data-view="blocklist">
+            <section class="panel">
+                <div class="panel-head"><h2>Custom Blocklist</h2></div>
+                <div class="input-row">
+                    <input type="text" id="custom-block-input" placeholder="Block a domain, e.g. tiktok.com" />
+                    <button class="btn btn-danger" onclick="addCustomBlock()">Block</button>
+                </div>
+                <ul class="data-list list-tall" id="custom-blocks-list">
+                    <li class="no-data">Loading…</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- ═══ WHITELIST ═══ -->
+        <section class="view" data-view="whitelist">
+            <section class="panel">
+                <div class="panel-head"><h2>Whitelist <span class="tag">Never block</span></h2></div>
+                <div class="input-row">
+                    <input type="text" id="whitelist-input" placeholder="Allow a domain, e.g. github.com" />
+                    <button class="btn" onclick="addWhitelist()">Allow</button>
+                </div>
+                <ul class="data-list list-tall" id="whitelist-list">
+                    <li class="no-data">Loading…</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- ═══ AI BLOCKER ═══ -->
+        <section class="view" data-view="ai">
+            <section class="panel">
+                <div class="panel-head"><h2>AI Blocker</h2></div>
+                <div class="gami-profile" id="ai-stats">
+                    <span class="no-data">Loading…</span>
+                </div>
+            </section>
+        </section>
+
+        <!-- ═══ UNBLOCK REQUESTS ═══ -->
+        <section class="view" data-view="requests">
+            <section class="panel">
+                <div class="panel-head"><h2>Unblock Requests</h2></div>
+                <ul class="data-list list-tall" id="unblock-requests-list">
+                    <li class="no-data">Comming soon</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- ═══ SETTINGS ═══ -->
+        <section class="view" data-view="settings">
+            <div class="panel-grid">
+                <!-- Filtering master switch -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Filtering</h2></div>
+                    <p class="panel-desc">Master switch for all DNS filtering.</p>
+                    <div class="middleman-bar">
+                        <div class="middleman-status">
+                            <span class="dot" id="filt-dot"></span>
+                            <span id="filt-text">Checking…</span>
+                        </div>
+                        <button id="filt-toggle" class="btn" onclick="toggleFiltering()">…</button>
+                    </div>
+                    <h3 class="subhead">Pause temporarily</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-ghost" onclick="pauseFiltering(5)">5 min</button>
+                        <button class="btn btn-ghost" onclick="pauseFiltering(15)">15 min</button>
+                        <button class="btn btn-ghost" onclick="pauseFiltering(60)">1 hour</button>
+                    </div>
+                </section>
+
+                <!-- Domain tester -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Test a Domain</h2></div>
+                    <p class="panel-desc">Check whether a domain is blocked and why.</p>
+                    <div class="input-row">
+                        <input type="text" id="test-input" placeholder="e.g. ads.example.com" />
+                        <button class="btn" onclick="testDomain()">Test</button>
+                    </div>
+                    <div id="test-result"></div>
+                </section>
+
+                <!-- Maintenance actions -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Maintenance</h2></div>
+                    <p class="panel-desc">Refresh lists and caches without restarting.</p>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="updateBlocklists()">↻ Update all blocklists</button>
+                        <button class="btn btn-ghost" onclick="reloadCustom()">⟳ Reload custom lists</button>
+                        <button class="btn btn-ghost" onclick="clearCache()">⊘ Clear DNS cache</button>
+                    </div>
+                </section>
+
+                <!-- Detection modules -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Detection Modules</h2></div>
+                    <p class="panel-desc">Choose which engines decide a block.</p>
+                    <ul class="data-list" id="modules-list">
+                        <li class="no-data">Loading…</li>
+                    </ul>
+                    <h3 class="subhead">Block action</h3>
+                    <div class="input-row">
+                        <select id="block-action" onchange="setBlockAction()">
+                            <option value="block_page">Block page (127.0.0.1)</option>
+                            <option value="nxdomain">NXDOMAIN (not found)</option>
+                            <option value="redirect">Redirect to IP</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Block page appearance -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Block Page Style</h2></div>
+                    <p class="panel-desc">What visitors see when a site is blocked.</p>
+                    <div class="input-row">
+                        <select id="bp-mode">
+                            <option value="motivational">💪 Motivational</option>
+                            <option value="roast">🔥 Savage roast</option>
+                            <option value="meme">😂 Meme</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="bp-message" placeholder="Custom message (optional — overrides the mode)" />
+                        <button class="btn" onclick="saveBlockPage()">Save</button>
+                    </div>
+                    <h3 class="subhead">HTTPS block page</h3>
+                    <p class="panel-desc" style="margin-bottom:.6rem;">To show the block page on HTTPS sites, install this certificate as trusted (Admin required), then restart your browser.</p>
+                    <div class="action-buttons">
+                        <a class="btn" href="/api/blockpage/ca" download>⬇ Download CA certificate</a>
+                    </div>
+                    <p class="panel-desc" style="margin-top:.7rem;font-size:.78rem;">Windows (Admin PowerShell): <code>certutil -addstore -f ROOT dns-filter-ca.crt</code></p>
+                </section>
+
+                <!-- Change password -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Admin Password</h2></div>
+                    <p class="panel-desc">Change the dashboard login password.</p>
+                    <div class="input-row"><input type="password" id="pw-current" placeholder="Current password" /></div>
+                    <div class="input-row"><input type="password" id="pw-new" placeholder="New password (min 6 chars)" /></div>
+                    <div class="input-row">
+                        <input type="password" id="pw-confirm" placeholder="Confirm new password" />
+                        <button class="btn" onclick="changePassword()">Save</button>
+                    </div>
+                </section>
+
+                <!-- Start on login -->
+                <section class="panel">
+                    <div class="panel-head"><h2>Start on Login</h2></div>
+                    <p class="panel-desc">Launch DNS Filter automatically (elevated) when you sign in to Windows.</p>
+                    <div class="middleman-bar">
+                        <div class="middleman-status"><span class="dot" id="auto-dot"></span><span id="auto-text">Checking…</span></div>
+                        <button id="auto-toggle" class="btn" onclick="toggleAutostart()">…</button>
+                    </div>
+                </section>
+
+                <!-- System info -->
+                <section class="panel">
+                    <div class="panel-head"><h2>System Info</h2></div>
+                    <ul class="data-list" id="system-info">
+                        <li class="no-data">Loading…</li>
+                    </ul>
+                </section>
+
+                <!-- Blocklist sources -->
+                <section class="panel panel-wide">
+                    <div class="panel-head">
+                        <h2>Blocklist Sources</h2>
+                        <span class="chart-legend">Auto-update every
+                            <input type="text" id="auto-update" style="width:52px;text-align:center;margin:0 4px;" />h
+                            <button class="btn btn-ghost" style="padding:.3rem .7rem;" onclick="saveAutoUpdate()">Set</button>
+                        </span>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="src-name" placeholder="Name" style="flex:0 0 26%;" />
+                        <input type="text" id="src-url" placeholder="Blocklist URL (hosts / adblock format)" />
+                        <button class="btn" onclick="addSource()">Add</button>
+                    </div>
+                    <ul class="data-list list-tall" id="sources-list">
+                        <li class="no-data">Loading…</li>
+                    </ul>
+                </section>
+            </div>
+        </section>
         </div>
     </div>
 
@@ -106,14 +520,11 @@
         // ── Notifications ──────────────────────────────────────────
         function showNotification(msg, isError = false) {
             const el = document.getElementById('notification');
-            el.textContent = (isError ? '⚠ ' : '✓ ') + msg;
-            el.style.borderColor = isError ? '#ff0000' : '#00ff00';
-            el.style.color = isError ? '#ff0000' : '#00ff00';
-            el.style.boxShadow = isError
-                ? '0 0 25px rgba(255,0,0,0.3)'
-                : '0 0 25px rgba(0,255,0,0.3)';
+            el.textContent = (isError ? '⚠  ' : '✓  ') + msg;
+            el.classList.toggle('error', !!isError);
             el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 3000);
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.classList.remove('show'), 3000);
         }
 
         // ── API Helper ─────────────────────────────────────────────
@@ -298,6 +709,369 @@
             }
         }
 
+        // ── Gamification ───────────────────────────────────────────
+        async function loadGamification() {
+            try {
+                const p = await api('GET', '/gamification/profile');
+                const el = document.getElementById('gami-profile');
+                if (p && !p.error) {
+                    el.innerHTML = `
+                        <div class="gami-stat"><span class="gami-num">${p.level || 0}</span><span class="gami-label">LEVEL</span></div>
+                        <div class="gami-stat"><span class="gami-num">${(p.points || 0).toLocaleString()}</span><span class="gami-label">POINTS</span></div>
+                        <div class="gami-stat"><span class="gami-num">${escapeHtml(p.rank || '-')}</span><span class="gami-label">RANK</span></div>
+                        <div class="gami-stat"><span class="gami-num">${p.current_streak || 0}</span><span class="gami-label">STREAK</span></div>`;
+                } else {
+                    el.innerHTML = '<span class="no-data">No profile data yet</span>';
+                }
+
+                const board = await api('GET', '/gamification/leaderboard');
+                const list = document.getElementById('leaderboard-list');
+                if (board && board.length) {
+                    list.innerHTML = board.map(e => `
+                        <li>
+                            <span class="domain">#${e.rank} ${escapeHtml(e.username || e.user_id)}</span>
+                            <span class="count">L${e.level} · ${(e.points || 0).toLocaleString()} pts</span>
+                        </li>`).join('');
+                } else {
+                    list.innerHTML = '<li class="no-data">No players yet</li>';
+                }
+            } catch (e) { console.error('gamification:', e); }
+        }
+
+        // ── Categories ─────────────────────────────────────────────
+        async function loadCategories() {
+            try {
+                const data = await api('GET', '/categories');
+                const list = document.getElementById('categories-list');
+                if (!data || !data.length) {
+                    list.innerHTML = '<li class="no-data">No categories</li>';
+                    return;
+                }
+                list.innerHTML = data.map(c => `
+                    <li>
+                        <span>${escapeHtml(c.name)} <small style="opacity:.6">(${(c.domain_count||0).toLocaleString()})</small></span>
+                        <button class="btn-toggle ${c.enabled ? 'on' : 'off'}"
+                            onclick="toggleCategory('${escapeHtml(c.id)}', ${!c.enabled})">
+                            ${c.enabled ? 'ON' : 'OFF'}
+                        </button>
+                    </li>`).join('');
+            } catch (e) { console.error('categories:', e); }
+        }
+
+        async function toggleCategory(id, enabled) {
+            const data = await api('POST', '/categories/' + encodeURIComponent(id) + '/toggle', { enabled });
+            if (data && data.success) {
+                showNotification((enabled ? 'Enabled' : 'Disabled') + ' category: ' + id);
+                loadCategories();
+                loadStats();
+            } else {
+                showNotification('Failed to toggle category', true);
+            }
+        }
+
+        // ── Keyword Lists ──────────────────────────────────────────
+        async function loadKeywordLists() {
+            try {
+                const data = await api('GET', '/keywords');
+                const list = document.getElementById('keywords-list');
+                if (!data || !data.length) {
+                    list.innerHTML = '<li class="no-data">No keyword lists</li>';
+                    return;
+                }
+                list.innerHTML = data.map(k => `
+                    <li>
+                        <span>${escapeHtml(k.name)} <small style="opacity:.6">(${(k.keywords||[]).length} kw · ${escapeHtml(k.severity||'')})</small></span>
+                        <button class="btn-toggle ${k.enabled ? 'on' : 'off'}"
+                            onclick="toggleKeywordList('${escapeHtml(k.id)}', ${!k.enabled})">
+                            ${k.enabled ? 'ON' : 'OFF'}
+                        </button>
+                    </li>`).join('');
+            } catch (e) { console.error('keywords:', e); }
+        }
+
+        async function toggleKeywordList(id, enabled) {
+            const data = await api('POST', '/keywords/' + encodeURIComponent(id) + '/toggle', { enabled });
+            if (data && data.success) {
+                showNotification((enabled ? 'Enabled' : 'Disabled') + ' list: ' + id);
+                loadKeywordLists();
+            } else {
+                showNotification('Failed to toggle list', true);
+            }
+        }
+
+        // ── AI Blocker ─────────────────────────────────────────────
+        async function loadAIStats() {
+            try {
+                const s = await api('GET', '/ai/stats');
+                const el = document.getElementById('ai-stats');
+                if (s && !s.error) {
+                    el.innerHTML = Object.entries(s).map(([k, v]) => `
+                        <div class="gami-stat">
+                            <span class="gami-num">${typeof v === 'number' ? v.toLocaleString() : escapeHtml(String(v))}</span>
+                            <span class="gami-label">${escapeHtml(k.replace(/_/g, ' ').toUpperCase())}</span>
+                        </div>`).join('');
+                } else {
+                    el.innerHTML = '<span class="no-data">AI blocker not available</span>';
+                }
+            } catch (e) { console.error('ai:', e); }
+        }
+
+        // ── Middleman Mode (system DNS) ────────────────────────────
+        let mmActive = false;
+        async function loadMiddlemanStatus() {
+            try {
+                const s = await api('GET', '/system/dns/status');
+                const dot = document.getElementById('mm-dot');
+                const text = document.getElementById('mm-text');
+                const btn = document.getElementById('mm-toggle');
+                if (!s) return;
+                mmActive = !!s.active;
+                if (s.error) {
+                    dot.className = 'dot unknown';
+                    text.textContent = 'DNS status unavailable';
+                } else if (mmActive) {
+                    dot.className = 'dot on';
+                    text.textContent = `Middleman ON · ${s.interface} → ${s.dns}`;
+                } else {
+                    dot.className = 'dot off';
+                    text.textContent = `Middleman OFF · ${s.interface} → ${s.dns || 'auto'}`;
+                }
+                btn.disabled = false;
+                btn.textContent = mmActive ? '⊘ DISABLE MIDDLEMAN' : '▶ ENABLE MIDDLEMAN';
+                btn.className = mmActive ? 'btn-toggle on' : 'btn-toggle off';
+            } catch (e) { console.error('middleman status:', e); }
+        }
+
+        async function toggleMiddleman() {
+            const btn = document.getElementById('mm-toggle');
+            btn.disabled = true;
+            const endpoint = mmActive ? '/system/dns/reset' : '/system/dns/setup';
+            const data = await api('POST', endpoint);
+            if (data && data.success) {
+                showNotification(mmActive ? 'Middleman disabled — DNS restored' : 'Middleman enabled — you are now the DNS');
+            } else {
+                showNotification((data && (data.hint || data.error)) || 'Failed to change system DNS', true);
+            }
+            loadMiddlemanStatus();
+        }
+
+        // ── Settings: filtering master switch ──────────────────────
+        async function loadFilteringStatus() {
+            try {
+                const s = await api('GET', '/filtering');
+                if (!s) return;
+                const dot = document.getElementById('filt-dot');
+                const text = document.getElementById('filt-text');
+                const btn = document.getElementById('filt-toggle');
+                const now = Math.floor(Date.now() / 1000);
+                if (s.paused_until && s.paused_until > now) {
+                    const mins = Math.ceil((s.paused_until - now) / 60);
+                    dot.className = 'dot unknown';
+                    text.textContent = `Paused · resumes in ${mins} min`;
+                    btn.textContent = 'Resume now';
+                    btn.className = 'btn';
+                } else if (s.enabled) {
+                    dot.className = 'dot on';
+                    text.textContent = 'Filtering is ON';
+                    btn.textContent = '⏻ Disable';
+                    btn.className = 'btn btn-danger';
+                } else {
+                    dot.className = 'dot off';
+                    text.textContent = 'Filtering is OFF';
+                    btn.textContent = '⏻ Enable';
+                    btn.className = 'btn';
+                }
+                btn.dataset.enabled = s.enabled ? '1' : '0';
+                btn.dataset.paused = (s.paused_until && s.paused_until > now) ? '1' : '0';
+            } catch (e) { console.error('filtering:', e); }
+        }
+        async function toggleFiltering() {
+            const btn = document.getElementById('filt-toggle');
+            const on = btn.dataset.enabled === '1' && btn.dataset.paused !== '1';
+            const data = await api('POST', '/filtering', { enabled: !on });
+            if (data && data.success) {
+                showNotification('Filtering ' + (!on ? 'enabled' : 'disabled'));
+                loadFilteringStatus();
+            } else { showNotification('Failed to change filtering', true); }
+        }
+        async function pauseFiltering(minutes) {
+            const data = await api('POST', '/filtering/pause', { minutes });
+            if (data && data.success) {
+                showNotification(`Filtering paused for ${minutes} min`);
+                loadFilteringStatus();
+            } else { showNotification('Failed to pause', true); }
+        }
+
+        // ── Settings: domain tester ────────────────────────────────
+        async function testDomain() {
+            const input = document.getElementById('test-input');
+            const domain = input.value.trim().toLowerCase();
+            const box = document.getElementById('test-result');
+            if (!domain) return;
+            box.innerHTML = '<span class="no-data">Testing…</span>';
+            const r = await api('GET', '/test?domain=' + encodeURIComponent(domain));
+            if (!r) return;
+            if (r.error) { box.innerHTML = `<div class="test-badge test-err">${escapeHtml(r.error)}</div>`; return; }
+            if (r.blocked) {
+                box.innerHTML = `<div class="test-badge test-blocked">⛔ BLOCKED — ${escapeHtml(r.reason || 'blocklist')}</div>`;
+            } else {
+                box.innerHTML = `<div class="test-badge test-allowed">✓ ALLOWED${r.reason ? ' — ' + escapeHtml(r.reason) : ''}</div>`;
+            }
+        }
+
+        // ── Settings: maintenance ──────────────────────────────────
+        async function reloadCustom() {
+            const data = await api('POST', '/blocklist/reload-custom');
+            if (data && data.success) showNotification(`Reloaded ${data.count || 0} custom domains`);
+            else showNotification('Reload failed', true);
+        }
+
+        // ── Settings: system info ──────────────────────────────────
+        async function loadSystemInfo() {
+            try {
+                const s = await api('GET', '/system/info');
+                const el = document.getElementById('system-info');
+                if (!s) return;
+                const rows = [
+                    ['Version', s.version],
+                    ['DNS port', `${s.dns_host || '0.0.0.0'}:${s.dns_port}`],
+                    ['API port', s.api_port],
+                    ['Upstream DNS', (s.upstream_dns || []).join(', ')],
+                    ['Cache TTL', (s.cache_ttl || 0) + 's'],
+                ];
+                el.innerHTML = rows.map(([k, v]) =>
+                    `<li><span>${escapeHtml(k)}</span><span class="count">${escapeHtml(String(v))}</span></li>`).join('');
+            } catch (e) { console.error('sysinfo:', e); }
+        }
+
+        // ── Settings: detection modules ────────────────────────────
+        const MODULE_META = {
+            blocklist:  ['Blocklists', 'Downloaded + custom domain lists'],
+            categories: ['Categories', 'Predefined content categories'],
+            keywords:   ['Keywords', 'Keyword pattern matching'],
+            ai:         ['AI Blocker', 'Machine-learning detection'],
+        };
+        async function loadModules() {
+            try {
+                const r = await api('GET', '/filtering/modules');
+                if (!r) return;
+                const list = document.getElementById('modules-list');
+                const m = r.modules || {};
+                list.innerHTML = Object.keys(MODULE_META).map(k => {
+                    const on = !!m[k];
+                    const [name, desc] = MODULE_META[k];
+                    return `<li>
+                        <span>${name} <small>${desc}</small></span>
+                        <button class="btn-toggle ${on ? 'on' : 'off'}" onclick="setModule('${k}', ${!on})">${on ? 'ON' : 'OFF'}</button>
+                    </li>`;
+                }).join('');
+                if (r.block_action) document.getElementById('block-action').value = r.block_action;
+            } catch (e) { console.error('modules:', e); }
+        }
+        async function setModule(name, enabled) {
+            const data = await api('POST', '/filtering/module', { name, enabled });
+            if (data && data.success) { showNotification(`${MODULE_META[name][0]} ${enabled ? 'enabled' : 'disabled'}`); loadModules(); }
+            else showNotification('Failed to toggle module', true);
+        }
+        async function setBlockAction() {
+            const action = document.getElementById('block-action').value;
+            const data = await api('POST', '/filtering/block-action', { action });
+            if (data && data.success) showNotification('Block action: ' + action);
+            else showNotification('Failed to set block action', true);
+        }
+
+        // ── Settings: change password ──────────────────────────────
+        async function changePassword() {
+            const cur = document.getElementById('pw-current').value;
+            const nw = document.getElementById('pw-new').value;
+            const cf = document.getElementById('pw-confirm').value;
+            if (!cur || !nw) { showNotification('Fill in all fields', true); return; }
+            if (nw !== cf) { showNotification('New passwords do not match', true); return; }
+            const data = await api('POST', '/settings/password', { current: cur, new: nw });
+            if (data && data.success) {
+                showNotification('Password changed');
+                ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
+            } else {
+                showNotification((data && data.error) || 'Failed to change password', true);
+            }
+        }
+
+        // ── Settings: blocklist sources ────────────────────────────
+        async function loadSources() {
+            try {
+                const r = await api('GET', '/blocklist/sources');
+                if (!r) return;
+                document.getElementById('auto-update').value = r.auto_update_interval || 0;
+                const list = document.getElementById('sources-list');
+                const srcs = r.sources || [];
+                if (!srcs.length) { list.innerHTML = '<li class="no-data">No sources. Add one above.</li>'; return; }
+                list.innerHTML = srcs.map((s, i) => `
+                    <li>
+                        <span>${escapeHtml(s.name || s.url)} <small>${escapeHtml(s.category || '')}</small></span>
+                        <span style="display:flex;gap:8px;flex-shrink:0;">
+                            <button class="btn-toggle ${s.enabled ? 'on' : 'off'}" onclick="toggleSource(${i}, ${!s.enabled})">${s.enabled ? 'ON' : 'OFF'}</button>
+                            <button class="btn-remove" onclick="removeSource(${i})">DEL</button>
+                        </span>
+                    </li>`).join('');
+            } catch (e) { console.error('sources:', e); }
+        }
+        async function addSource() {
+            const name = document.getElementById('src-name').value.trim();
+            const url = document.getElementById('src-url').value.trim();
+            if (!url) { showNotification('URL required', true); return; }
+            const data = await api('POST', '/blocklist/sources', { name, url, category: 'custom' });
+            if (data && data.success) {
+                showNotification('Source added — run Update to fetch it');
+                document.getElementById('src-name').value = '';
+                document.getElementById('src-url').value = '';
+                loadSources();
+            } else showNotification((data && data.error) || 'Failed to add', true);
+        }
+        async function toggleSource(index, enabled) {
+            const data = await api('POST', '/blocklist/sources/toggle', { index, enabled });
+            if (data && data.success) loadSources();
+            else showNotification('Failed to toggle', true);
+        }
+        async function removeSource(index) {
+            const data = await api('DELETE', '/blocklist/sources/' + index);
+            if (data && data.success) { showNotification('Source removed'); loadSources(); }
+            else showNotification('Failed to remove', true);
+        }
+        async function saveAutoUpdate() {
+            const hours = parseInt(document.getElementById('auto-update').value, 10);
+            if (isNaN(hours) || hours < 0) { showNotification('Enter valid hours', true); return; }
+            const data = await api('POST', '/blocklist/auto-update', { hours });
+            if (data && data.success) showNotification(`Auto-update set to ${hours}h (applies on restart)`);
+            else showNotification('Failed to set', true);
+        }
+
+        // // ── Requests ───────────────────────────────────
+        // async function LoadRequests() {
+        //     const r = await api('GET', '/requests');
+        //     if (!r) return;
+        //     const list = document.getElementById('requests-list');
+        //     if (!r.length) { list.innerHTML = '<li class="no-data">No requests</li>'; return; }
+        //     list.innerHTML = r.map(req => `
+        //         <li>
+        //             <span>${escapeHtml(req.domain || '')} <small>${escapeHtml(req.client_ip || '')}</small></span>
+        //             <span style="display:flex;gap:8px;flex-shrink:0;">
+        //                 <button class="btn" onclick="approveRequest('${escapeHtml(req.id)}')">APPROVE</button>
+        //                 <button class="btn btn-danger" onclick="denyRequest('${escapeHtml(req.id)}')">DENY</button>
+        //             </span>
+        //         </li>`).join('');
+        // }
+
+        // // ── Requests: approve/deny ─────────────────────────────
+        // async function approveRequest(id) {
+        //     const data = await api('POST', '/requests/' + encodeURIComponent(id) + '/approve');
+        //     if (data && data.success) {
+        //         showNotification('Request approved');
+        //         LoadRequests();
+        //     } else {
+        //         showNotification('Failed to approve request', true);
+        //     }
+        // }
+
         // ── System Actions ─────────────────────────────────────────
         async function updateBlocklists() {
             showNotification('Updating blocklists... (this takes ~30 seconds)');
@@ -322,6 +1096,10 @@
             if (e.key === 'Enter') addCustomBlock();
         });
 
+        document.getElementById('test-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') testDomain();
+        });
+
         // ── Helpers ────────────────────────────────────────────────
         function escapeHtml(str) {
             return String(str)
@@ -336,18 +1114,350 @@
             return new Date(ts * 1000).toLocaleTimeString();
         }
 
+        // ── Tabs ───────────────────────────────────────────────────
+        const VIEW_META = {
+            overview:   ['Overview',      'Real-time DNS filtering status'],
+            live:       ['Live Monitor',  'Real-time DNS queries as they happen'],
+            focus:      ['Focus Mode',    'Block distractions and get things done'],
+            wellbeing:  ['Wellbeing',     'Doom-scroll guard and screen-time bank'],
+            apps:       ['App Blocker',   'Block apps with one tap'],
+            activity:   ['Activity',      'Recent blocked DNS queries'],
+            categories: ['Categories',    'Toggle predefined blocking categories'],
+            keywords:   ['Keywords',      'Keyword-based blocking lists'],
+            blocklist:  ['Custom Blocklist', 'Manually block specific domains'],
+            whitelist:  ['Whitelist',     'Domains that are never blocked'],
+            ai:         ['AI Blocker',    'Machine-learning threat detection'],
+            settings:   ['Settings',      'Controls, testing, and maintenance'],
+            requests:   ['Requests',      'Manage unblock requests'],
+        };
+        function switchView(name) {
+            document.querySelectorAll('.view').forEach(v =>
+                v.classList.toggle('active', v.dataset.view === name));
+            document.querySelectorAll('.sidenav a[data-view]').forEach(a =>
+                a.classList.toggle('active', a.dataset.view === name));
+            const meta = VIEW_META[name] || VIEW_META.overview;
+            document.getElementById('page-title').textContent = meta[0];
+            document.getElementById('page-sub').textContent = meta[1];
+            if (name === 'overview') drawChart(chartData);
+            if (name === 'live') startLive(); else stopLive();
+            if (name === 'apps') loadApps();
+            if (name === 'focus') loadFocus();
+            if (name === 'wellbeing') { loadGuard(); loadBank(); }
+            if (name === 'settings') { loadFilteringStatus(); loadSystemInfo(); loadModules(); loadSources(); loadBlockPage(); loadAutostart(); }
+            window.scrollTo(0, 0);
+            location.hash = name;
+        }
+        document.querySelectorAll('.sidenav a[data-view]').forEach(a => {
+            a.addEventListener('click', e => { e.preventDefault(); switchView(a.dataset.view); });
+        });
+
+        // ── Doom-scroll Guard ──────────────────────────────────────
+        let guardEnabledState = false;
+        async function loadGuard() {
+            const g = await api('GET', '/guard');
+            if (!g) return;
+            guardEnabledState = !!g.enabled;
+            const dot = document.getElementById('guard-dot');
+            const text = document.getElementById('guard-text');
+            const btn = document.getElementById('guard-toggle');
+            dot.className = 'dot ' + (g.enabled ? 'on' : 'off');
+            text.textContent = g.enabled ? 'Guard is ON' : 'Guard is OFF';
+            btn.textContent = g.enabled ? '⏻ Disable' : '⏻ Enable';
+            btn.className = g.enabled ? 'btn btn-danger' : 'btn';
+            document.getElementById('guard-threshold').value = g.threshold;
+            document.getElementById('guard-minutes').value = g.minutes;
+            const trips = document.getElementById('guard-trips');
+            if (g.trips && g.trips.length) {
+                trips.innerHTML = g.trips.map(t => `<li><span>${escapeHtml(t.app)} <small>${escapeHtml(t.client_ip||'')}</small></span><span class="count">${t.minutes}m</span></li>`).join('');
+            } else { trips.innerHTML = '<li class="no-data">None yet</li>'; }
+        }
+        async function toggleGuard() {
+            const th = parseInt(document.getElementById('guard-threshold').value,10)||40;
+            const mn = parseInt(document.getElementById('guard-minutes').value,10)||10;
+            const d = await api('POST','/guard',{enabled:!guardEnabledState, threshold:th, minutes:mn});
+            if (d && d.success) { showNotification('Guard ' + (!guardEnabledState?'enabled':'disabled')); loadGuard(); }
+        }
+        async function saveGuard() {
+            const th = parseInt(document.getElementById('guard-threshold').value,10)||40;
+            const mn = parseInt(document.getElementById('guard-minutes').value,10)||10;
+            const d = await api('POST','/guard',{enabled:guardEnabledState, threshold:th, minutes:mn});
+            if (d && d.success) showNotification('Guard settings saved');
+        }
+
+        // ── Screen-Time Bank ───────────────────────────────────────
+        async function loadBank() {
+            const b = await api('GET','/bank');
+            if (!b) return;
+            document.getElementById('bank-tokens').textContent = b.tokens_available;
+            document.getElementById('bank-points').textContent = (b.points||0).toLocaleString();
+            document.getElementById('bank-spent').textContent = b.tokens_spent;
+            // populate app select from blocked apps
+            const apps = await api('GET','/apps');
+            const sel = document.getElementById('bank-app');
+            if (apps) {
+                const blocked = apps.filter(a => a.blocked);
+                sel.innerHTML = (blocked.length ? blocked : apps).map(a => `<option value="${a.id}">${a.emoji} ${escapeHtml(a.name)}</option>`).join('');
+            }
+            const ul = document.getElementById('bank-unlocks');
+            if (b.active_unlocks && b.active_unlocks.length) {
+                ul.innerHTML = b.active_unlocks.map(u => `<li><span>${escapeHtml(u.app)}</span><span class="count">${Math.ceil(u.remaining/60)}m left</span></li>`).join('');
+            } else { ul.innerHTML = '<li class="no-data">No active unlocks</li>'; }
+        }
+        async function spendUnlock() {
+            const app = document.getElementById('bank-app').value;
+            const minutes = parseInt(document.getElementById('bank-minutes').value,10);
+            if (!app) { showNotification('Pick an app', true); return; }
+            const d = await api('POST','/bank/spend',{app, minutes});
+            if (d && d.success) { showNotification(`Unlocked ${app} for ${minutes} min`); loadBank(); }
+            else showNotification((d && d.error) || 'Not enough tokens', true);
+        }
+
+        // ── Start on login ─────────────────────────────────────────
+        let autostartState = false;
+        async function loadAutostart() {
+            const a = await api('GET','/autostart');
+            if (!a) return;
+            autostartState = !!a.enabled;
+            const dot = document.getElementById('auto-dot');
+            const text = document.getElementById('auto-text');
+            const btn = document.getElementById('auto-toggle');
+            if (!a.supported) {
+                dot.className = 'dot unknown';
+                text.textContent = 'Windows only';
+                btn.disabled = true; btn.textContent = 'N/A';
+                return;
+            }
+            btn.disabled = false;
+            dot.className = 'dot ' + (a.enabled ? 'on' : 'off');
+            text.textContent = a.enabled ? 'Starts on login' : 'Does not start on login';
+            btn.textContent = a.enabled ? '⏻ Disable' : '⏻ Enable';
+            btn.className = a.enabled ? 'btn btn-danger' : 'btn';
+        }
+        async function toggleAutostart() {
+            const d = await api('POST','/autostart',{enabled:!autostartState});
+            if (d && d.success) { showNotification('Start on login ' + (!autostartState?'enabled':'disabled')); loadAutostart(); }
+            else showNotification((d && (d.hint||d.error)) || 'Failed', true);
+        }
+
+        // ── Block page style ───────────────────────────────────────
+        async function loadBlockPage() {
+            const b = await api('GET','/blockpage');
+            if (!b) return;
+            document.getElementById('bp-mode').value = b.mode || 'motivational';
+            document.getElementById('bp-message').value = b.message || '';
+        }
+        async function saveBlockPage() {
+            const mode = document.getElementById('bp-mode').value;
+            const message = document.getElementById('bp-message').value.trim();
+            const d = await api('POST','/blockpage',{mode, message});
+            if (d && d.success) showNotification('Block page style saved');
+            else showNotification((d && d.error) || 'Failed to save', true);
+        }
+
+        // ── App Blocker ────────────────────────────────────────────
+        async function loadApps() {
+            try {
+                const data = await api('GET', '/apps');
+                const grid = document.getElementById('apps-grid');
+                if (!data || !data.length) { grid.innerHTML = '<span class="no-data">No apps</span>'; return; }
+                grid.innerHTML = data.map(a => `
+                    <button class="app-tile ${a.blocked ? 'blocked' : ''}" onclick="toggleApp('${a.id}', ${!a.blocked})">
+                        <span class="app-emoji">${a.emoji || '📦'}</span>
+                        <span class="app-name">${escapeHtml(a.name)}</span>
+                        <span class="app-state">${a.blocked ? 'BLOCKED' : 'allowed'}</span>
+                    </button>`).join('');
+            } catch (e) { console.error('apps:', e); }
+        }
+        async function toggleApp(id, enabled) {
+            const data = await api('POST', '/apps/' + encodeURIComponent(id) + '/toggle', { enabled });
+            if (data && data.success) { showNotification((enabled ? 'Blocked ' : 'Unblocked ') + id); loadApps(); }
+            else showNotification('Failed to toggle app', true);
+        }
+
+        // ── Focus Mode ─────────────────────────────────────────────
+        let focusTimer = null;
+        async function loadFocus() {
+            const r = await api('GET', '/focus');
+            if (!r) return;
+            renderFocus(r.active, r.until);
+        }
+        function renderFocus(active, until) {
+            const idle = document.getElementById('focus-idle');
+            const act = document.getElementById('focus-active');
+            clearInterval(focusTimer);
+            if (active) {
+                idle.style.display = 'none'; act.style.display = 'block';
+                const tick = () => {
+                    const left = until - Math.floor(Date.now()/1000);
+                    if (left <= 0) { clearInterval(focusTimer); loadFocus(); return; }
+                    const m = Math.floor(left/60), s = left%60;
+                    document.getElementById('focus-countdown').textContent = `${m}:${String(s).padStart(2,'0')}`;
+                };
+                tick(); focusTimer = setInterval(tick, 1000);
+            } else {
+                idle.style.display = 'block'; act.style.display = 'none';
+            }
+        }
+        async function startFocus(minutes) {
+            const data = await api('POST', '/focus/start', { minutes });
+            if (data && data.success) { showNotification(`Focus started — ${minutes} min`); renderFocus(true, data.until); }
+            else showNotification('Failed to start focus', true);
+        }
+        async function stopFocus() {
+            const data = await api('POST', '/focus/stop');
+            if (data && data.success) { showNotification('Focus ended'); renderFocus(false, 0); }
+        }
+
+        // ── Live Activity Monitor (SSE) ────────────────────────────
+        let liveES = null, livePaused = false;
+        let liveStats = { allowed: 0, blocked: 0, total: 0 };
+        let liveWindow = []; // timestamps (ms) for queries/sec
+        const LIVE_MAX_ROWS = 200;
+
+        function startLive() {
+            if (liveES) return;
+            liveES = new EventSource('/api/stream');
+            liveES.addEventListener('query', e => {
+                if (livePaused) return;
+                let ev;
+                try { ev = JSON.parse(e.data); } catch { return; }
+                addLiveRow(ev);
+            });
+            liveES.onerror = () => { document.getElementById('live-pulse')?.classList.add('stale'); };
+            liveES.onopen = () => { document.getElementById('live-pulse')?.classList.remove('stale'); };
+        }
+        function stopLive() { if (liveES) { liveES.close(); liveES = null; } }
+
+        function addLiveRow(ev) {
+            liveStats.total++;
+            if (ev.blocked) liveStats.blocked++; else liveStats.allowed++;
+            liveWindow.push(Date.now());
+            document.getElementById('live-total').textContent = liveStats.total.toLocaleString();
+            document.getElementById('live-allowed').textContent = liveStats.allowed.toLocaleString();
+            document.getElementById('live-blocked').textContent = liveStats.blocked.toLocaleString();
+
+            const tbody = document.getElementById('live-table');
+            if (tbody.querySelector('.no-data')) tbody.innerHTML = '';
+            const tr = document.createElement('tr');
+            tr.className = 'live-row ' + (ev.blocked ? 'r-blocked' : 'r-allowed');
+            const dot = ev.blocked ? '⛔' : (ev.cached ? '⚡' : '✓');
+            const result = ev.blocked ? escapeHtml(ev.reason || 'blocked')
+                        : (ev.cached ? 'cached' : 'allowed');
+            tr.innerHTML =
+                `<td>${dot}</td>` +
+                `<td>${escapeHtml(ev.domain || '')}</td>` +
+                `<td><small>${escapeHtml(ev.type || '')}</small></td>` +
+                `<td><small>${escapeHtml(ev.client_ip || '')}</small></td>` +
+                `<td>${result}</td>` +
+                `<td style="text-align:right;"><small>${new Date((ev.time||0)*1000).toLocaleTimeString()}</small></td>`;
+            tbody.insertBefore(tr, tbody.firstChild);
+            while (tbody.children.length > LIVE_MAX_ROWS) tbody.removeChild(tbody.lastChild);
+        }
+
+        function toggleLivePause() {
+            livePaused = !livePaused;
+            const btn = document.getElementById('live-pause');
+            btn.textContent = livePaused ? '▶ Resume' : '⏸ Pause';
+            document.getElementById('live-pulse').classList.toggle('paused', livePaused);
+        }
+        function clearLive() {
+            document.getElementById('live-table').innerHTML =
+                '<tr><td colspan="6" class="no-data">Cleared. Waiting for queries…</td></tr>';
+            liveStats = { allowed: 0, blocked: 0, total: 0 };
+            liveWindow = [];
+            ['live-total','live-allowed','live-blocked','live-qps'].forEach(id => document.getElementById(id).textContent = '0');
+        }
+        // queries/sec: count events in the last second
+        setInterval(() => {
+            const cutoff = Date.now() - 1000;
+            liveWindow = liveWindow.filter(t => t > cutoff);
+            const el = document.getElementById('live-qps');
+            if (el) el.textContent = liveWindow.length;
+        }, 1000);
+
+        // ── Chart (dependency-free inline SVG) ─────────────────────
+        let chartData = [];
+        async function loadTimeline() {
+            try {
+                const data = await api('GET', '/stats/timeline');
+                if (data && Array.isArray(data)) { chartData = data; drawChart(chartData); }
+            } catch (e) { console.error('timeline:', e); }
+        }
+        function drawChart(points) {
+            const el = document.getElementById('chart');
+            if (!el) return;
+            if (!points || !points.length) { el.innerHTML = '<div class="no-data">No data yet</div>'; return; }
+
+            const W = el.clientWidth || 800, H = 220;
+            const pad = { t: 12, r: 12, b: 24, l: 34 };
+            const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+            const max = Math.max(1, ...points.map(p => p.count));
+            const n = points.length;
+            const x = i => pad.l + (n === 1 ? iw / 2 : (i * iw) / (n - 1));
+            const y = v => pad.t + ih - (v / max) * ih;
+
+            const line = points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.count).toFixed(1)}`).join(' ');
+            const area = `${line} L${x(n - 1).toFixed(1)},${(pad.t + ih).toFixed(1)} L${x(0).toFixed(1)},${(pad.t + ih).toFixed(1)} Z`;
+
+            // y gridlines (0, mid, max)
+            const yticks = [0, Math.round(max / 2), max];
+            const grid = yticks.map(v => `
+                <line x1="${pad.l}" y1="${y(v).toFixed(1)}" x2="${W - pad.r}" y2="${y(v).toFixed(1)}" class="chart-grid"/>
+                <text x="${pad.l - 8}" y="${(y(v) + 3).toFixed(1)}" class="chart-ytick">${v}</text>`).join('');
+
+            // x labels every 4h
+            const xlabels = points.map((p, i) =>
+                (i % 4 === 0 || i === n - 1)
+                    ? `<text x="${x(i).toFixed(1)}" y="${H - 6}" class="chart-xtick">${p.label}</text>` : ''
+            ).join('');
+
+            const dots = points.map((p, i) =>
+                `<circle cx="${x(i).toFixed(1)}" cy="${y(p.count).toFixed(1)}" r="2.5" class="chart-dot"><title>${p.label} — ${p.count} blocked</title></circle>`
+            ).join('');
+
+            el.innerHTML = `
+                <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+                    <defs>
+                        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" class="grad-top"/>
+                            <stop offset="100%" class="grad-bottom"/>
+                        </linearGradient>
+                    </defs>
+                    ${grid}
+                    <path d="${area}" class="chart-area"/>
+                    <path d="${line}" class="chart-line"/>
+                    ${dots}
+                    ${xlabels}
+                </svg>`;
+        }
+        window.addEventListener('resize', () => {
+            if (document.querySelector('.view[data-view="overview"]').classList.contains('active')) drawChart(chartData);
+        });
+
         // ── Initial Load ───────────────────────────────────────────
         loadStats();
+        loadTimeline();
         loadRecent();
         loadTopBlocked();
         loadWhitelist();
         loadCustomBlocklist();
+        loadGamification();
+        loadCategories();
+        loadKeywordLists();
+        loadAIStats();
+        loadMiddlemanStatus();
+
+        // Honor deep-link hash (e.g. #categories)
+        if (location.hash && VIEW_META[location.hash.slice(1)]) switchView(location.hash.slice(1));
 
         // Auto-refresh every 30 seconds
         setInterval(() => {
             loadStats();
+            loadTimeline();
             loadRecent();
             loadTopBlocked();
+            loadGamification();
+            loadAIStats();
         }, 30000);
     </script>
 </body>

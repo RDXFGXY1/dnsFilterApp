@@ -8,12 +8,12 @@ DNS Filter is a high-performance content filtering application built in Go that 
 ┌─────────────────────────────────────────────────────┐
 │                  User's Device                      │
 │                                                     │
-│  Browser requests: bad-website.com                 │
+│  Browser requests: bad-website.com                  │
 └──────────────────┬──────────────────────────────────┘
                    │ DNS Query
                    ▼
-┌─────────────────────────────────────────────────────┐
-│              DNS Filter Server                      │
+┌────────────────────────────────────────────────────┐
+│              DNS Filter Server                     │
 │  ┌─────────────────────────────────────────────┐   │
 │  │  1. Receive DNS Query                       │   │
 │  │     ↓                                       │   │
@@ -21,22 +21,22 @@ DNS Filter is a high-performance content filtering application built in Go that 
 │  │     ↓                                       │   │
 │  │  3. Check Whitelist                         │   │
 │  │     ↓                                       │   │
-│  │  4. Check Blocklist (adult, malware, etc)  │   │
+│  │  4. Check Blocklist (adult, malware, etc)   │   │
 │  │     ↓                                       │   │
 │  │  5. If blocked: Return NXDOMAIN             │   │
 │  │     If allowed: Forward to upstream DNS     │   │
 │  └─────────────────────────────────────────────┘   │
-│                                                     │
-│  ┌─────────────┐  ┌──────────┐  ┌──────────────┐  │
-│  │   Database  │  │  Cache   │  │  Blocklists  │  │
-│  │   (SQLite)  │  │ (Memory) │  │   (Memory)   │  │
-│  └─────────────┘  └──────────┘  └──────────────┘  │
-│                                                     │
+│                                                    │
+│  ┌─────────────┐  ┌──────────┐  ┌──────────────┐   │
+│  │   Database  │  │  Cache   │  │  Blocklists  │   │
+│  │   (SQLite)  │  │ (Memory) │  │   (Memory)   │   │
+│  └─────────────┘  └──────────┘  └──────────────┘   │
+│                                                    │
 │  ┌─────────────────────────────────────────────┐   │
 │  │        Web Dashboard (Gin + HTML)           │   │
 │  │    http://localhost:8080                    │   │
 │  └─────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────┘
                    │
                    ▼
          ┌──────────────────┐

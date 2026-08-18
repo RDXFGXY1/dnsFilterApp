@@ -4,26 +4,28 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/RDXFGXY1/dns-filter-app/internal/config"
 	"github.com/RDXFGXY1/dns-filter-app/internal/database"
+	"github.com/RDXFGXY1/dns-filter-app/internal/discipline"
 	"github.com/RDXFGXY1/dns-filter-app/internal/dns"
 	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Server struct {
-	cfg       *config.Config
-	db        *database.DB
-	filter    *filter.Engine
-	dnsServer *dns.Server
-	router    *gin.Engine
-	server    *http.Server
-	log       *logger.Logger
-	
+	cfg        *config.Config
+	db         *database.DB
+	filter     *filter.Engine
+	dnsServer  *dns.Server
+	router     *gin.Engine
+	server     *http.Server
+	log        *logger.Logger
+	discipline *discipline.Manager
 }
 
 func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine, dnsServer *dns.Server) *Server {
@@ -43,6 +45,12 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 		log:       logger.Get(),
 	}
 
+	if mgr, err := discipline.New(db.GetDB()); err != nil {
+		s.log.Warnf("Discipline module unavailable: %v", err)
+	} else {
+		s.discipline = mgr
+	}
+
 	s.setupRoutes()
 	return s
 }
@@ -58,6 +66,8 @@ func (s *Server) setupRoutes() {
 
 	// Protected page routes
 	s.router.GET("/", s.authCheck(), s.handleDashboard)
+	s.router.GET("/discipline", s.authCheck(), s.handleDiscipline)
+	s.router.GET("/discipline/", s.authCheck(), s.handleDiscipline)
 
 	// Protected API routes
 	api := s.router.Group("/api")
@@ -66,6 +76,7 @@ func (s *Server) setupRoutes() {
 		api.GET("/stats", s.getStats)
 		api.GET("/stats/blocked", s.getBlockedStats)
 		api.GET("/stats/top-blocked", s.getTopBlocked)
+		api.GET("/stats/timeline", s.getTimeline)
 		api.GET("/recent", s.getRecentBlocked)
 		api.GET("/whitelist", s.getWhitelist)
 		api.POST("/whitelist", s.addToWhitelist)
@@ -80,7 +91,15 @@ func (s *Server) setupRoutes() {
 		api.POST("/custom-blocklist/add", s.addToCustomBlocklist)
 		api.DELETE("/custom-blocklist/:domain", s.removeFromCustomBlocklist)
 		api.POST("/blocklist/reload-custom", s.reloadCustomBlocklists)
+
+		// Newer features: categories, keywords, gamification, AI
+		s.registerFeatureRoutes(api)
+		s.registerDisciplineRoutes(api)
 	}
+}
+
+func (s *Server) handleDiscipline(c *gin.Context) {
+	c.HTML(http.StatusOK, "discipline.html", gin.H{"title": "Discipline"})
 }
 
 func (s *Server) Start() error {
@@ -232,7 +251,24 @@ func (s *Server) getTopBlocked(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, topBlocked)
+	// Convert the map to a sorted [{domain, count}] array the dashboard expects.
+	out := make([]gin.H, 0, len(topBlocked))
+	for domain, count := range topBlocked {
+		out = append(out, gin.H{"domain": domain, "count": count})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return out[i]["count"].(int) > out[j]["count"].(int)
+	})
+	c.JSON(http.StatusOK, out)
+}
+
+func (s *Server) getTimeline(c *gin.Context) {
+	points, err := s.db.GetBlockedTimeline(24)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, points)
 }
 
 func (s *Server) getRecentBlocked(c *gin.Context) {
@@ -241,7 +277,16 @@ func (s *Server) getRecentBlocked(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, recent)
+	// Map to the lowercase keys + unix timestamp the dashboard expects.
+	out := make([]gin.H, 0, len(recent))
+	for _, r := range recent {
+		out = append(out, gin.H{
+			"domain":    r.Domain,
+			"client_ip": r.ClientIP,
+			"timestamp": r.Timestamp.Unix(),
+		})
+	}
+	c.JSON(http.StatusOK, out)
 }
 
 func (s *Server) getWhitelist(c *gin.Context) {
@@ -256,12 +301,23 @@ func (s *Server) addToWhitelist(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+
+	//! Clear the DNS cache after adding to the whitelist to ensure immediate effect
+	if s.dnsServer != nil {
+		s.dnsServer.ClearCache()
+	}
+
+	fmt.Print("Adding to whitelist: ", data.Domain)
 	s.filter.AddToWhitelist(data.Domain)
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (s *Server) removeFromWhitelist(c *gin.Context) {
 	s.filter.RemoveFromWhitelist(c.Param("domain"))
+	if s.dnsServer != nil {
+		s.dnsServer.ClearCache()
+	}
+	fmt.Print("Removing from whitelist: ", c.Param("domain"))
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 

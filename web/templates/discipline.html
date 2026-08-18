@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }} — DNS Filter</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=19">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </span>
+                <span class="brand-name">Discipline</span>
+            </div>
+            <nav class="sidenav">
+                <span class="nav-label">Workspace</span>
+                <a href="#" class="active" data-view="today">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+                    Today</a>
+                <a href="#" data-view="home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Home</a>
+                <a href="#" data-view="goals">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    Goals</a>
+                <a href="#" data-view="habits">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Habits</a>
+                <a href="#" data-view="calendar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Calendar</a>
+                <a href="#" data-view="reminders">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Reminders</a>
+                <a href="#" data-view="projects">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    Projects</a>
+                <a href="#" data-view="analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Analytics</a>
+                <a href="#" data-view="activity">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Activity</a>
+            </nav>
+            <div class="sidebar-foot">
+                <a href="/" class="side-logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Back to Dashboard</a>
+            </div>
+        </aside>
+
+        <div class="main wide">
+            <header class="page-head">
+                <div>
+                    <h1 class="page-title" id="page-title">Home</h1>
+                    <p class="page-sub" id="page-sub">Your tasks, projects, and momentum</p>
+                </div>
+                <div class="page-actions" id="page-actions"></div>
+            </header>
+
+            <!-- ═══ TODAY (daily mission tracker) ═══ -->
+            <section class="view active" data-view="today">
+                <div class="today-hero">
+                    <div>
+                        <h2 id="today-date">Today</h2>
+                        <p class="page-sub" id="today-sub"></p>
+                    </div>
+                    <div class="today-ring" id="today-ring"></div>
+                </div>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-head"><h2>Today's Missions</h2><span class="chart-legend" id="today-count">0/0</span></div>
+                        <div class="input-row">
+                            <input type="text" id="today-add" placeholder="Add a mission for today…" />
+                            <button class="btn" onclick="addTodayTask()">Add</button>
+                        </div>
+                        <ul class="data-list list-tall" id="today-list"><li class="no-data">Loading…</li></ul>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><h2>Momentum</h2></div>
+                        <div class="today-momentum" id="today-momentum"></div>
+                        <h3 class="subhead">Upcoming · next 7 days</h3>
+                        <ul class="data-list" id="today-upcoming"><li class="no-data">Loading…</li></ul>
+                    </section>
+                </div>
+
+                <section class="panel">
+                    <div class="panel-head"><h2>Goals in motion</h2></div>
+                    <ul class="data-list" id="today-goals"><li class="no-data">Loading…</li></ul>
+                </section>
+            </section>
+
+            <!-- ═══ HOME ═══ -->
+            <section class="view" data-view="home">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-label">Tasks done</span></div><div class="stat-value" id="h-done">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div><span class="stat-label">Current streak</span></div><div class="stat-value" id="h-streak">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="stat-label">Active days</span></div><div class="stat-value" id="h-active">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><span class="stat-label">Projects</span></div><div class="stat-value" id="h-projects">0</div></div>
+                </div>
+
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Activity</h2><span class="chart-legend" id="h-contrib">0 contributions</span></div>
+                    <div id="home-heatmap" class="heatmap"></div>
+                </section>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-head"><h2>Task breakdown</h2></div>
+                        <div id="home-status" class="hbars"></div>
+                        <div id="home-completion" class="completion" style="margin-top:1.1rem;"></div>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><h2>By priority</h2></div>
+                        <div id="home-priority" class="hbars"></div>
+                    </section>
+                </div>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-head"><h2>Today's Tasks</h2></div>
+                        <div class="input-row">
+                            <input type="text" id="quick-task" placeholder="Add a quick task…" />
+                            <button class="btn" onclick="quickAddTask()">Add</button>
+                        </div>
+                        <ul class="data-list list-tall" id="today-tasks"><li class="no-data">Loading…</li></ul>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><h2>Active Projects</h2></div>
+                        <ul class="data-list list-tall" id="home-projects"><li class="no-data">Loading…</li></ul>
+                    </section>
+                </div>
+            </section>
+
+            <!-- ═══ GLOBAL ANALYTICS ═══ -->
+            <section class="view" data-view="analytics">
+                <div class="stats-grid" id="ga-tiles"></div>
+                <div class="analytics-grid">
+                    <div class="an-card"><h3 class="an-title">By priority</h3><div id="ga-priority" class="hbars"></div></div>
+                    <div class="an-card"><h3 class="an-title">By status</h3><div id="ga-status" class="hbars"></div></div>
+                    <div class="an-card"><h3 class="an-title">By label</h3><div id="ga-label" class="hbars"></div></div>
+                    <div class="an-card"><h3 class="an-title">Completion</h3><div id="ga-completion" class="completion"></div></div>
+                </div>
+                <div class="an-card"><h3 class="an-title">Tasks completed · last 30 days</h3><div id="ga-perday" class="barchart"></div></div>
+                <div class="an-card"><h3 class="an-title">Projects</h3><ul class="data-list" id="ga-projects"></ul></div>
+            </section>
+
+            <!-- ═══ GOALS ═══ -->
+            <section class="view" data-view="goals">
+                <section class="panel">
+                    <div class="panel-head"><h2>New Goal</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="goal-name" placeholder="Goal name (e.g. Launch v1.0)" style="flex:0 0 34%;" />
+                        <input type="text" id="goal-cat" placeholder="Category (optional)" style="flex:0 0 20%;" />
+                        <input type="date" id="goal-date" title="Target date" style="flex:0 0 16%;" />
+                        <input type="text" id="goal-target" placeholder="Count target (optional)" title="For count goals like 'read 12 books'" />
+                        <button class="btn" onclick="createGoal()">Create</button>
+                    </div>
+                    <p class="panel-desc" style="margin-top:.6rem;">Progress is computed automatically — link projects to a goal, or set a count target.</p>
+                </section>
+                <div class="goals-grid" id="goals-grid"><span class="no-data">Loading…</span></div>
+            </section>
+
+            <!-- ═══ HABITS ═══ -->
+            <section class="view" data-view="habits">
+                <section class="panel">
+                    <div class="panel-head"><h2>New Habit</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="habit-name" placeholder="Habit (e.g. Study, Read, Exercise)" />
+                        <select id="habit-freq" style="flex:0 0 22%;">
+                            <option value="daily">Daily</option>
+                            <option value="weekdays">Weekdays</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                        <button class="btn" onclick="createHabit()">Add</button>
+                    </div>
+                </section>
+                <div class="habits-list" id="habits-list"><span class="no-data">Loading…</span></div>
+            </section>
+
+            <!-- ═══ CALENDAR ═══ -->
+            <section class="view" data-view="calendar">
+                <div class="cal-head">
+                    <button class="ws-tab" onclick="calMonth(-1)">‹</button>
+                    <h2 id="cal-title">Month</h2>
+                    <button class="ws-tab" onclick="calMonth(1)">›</button>
+                    <button class="ws-tab" onclick="calToday()">Today</button>
+                </div>
+                <div class="cal-dow" id="cal-dow"></div>
+                <div class="cal-grid" id="cal-grid"></div>
+                <div class="an-card" id="cal-day"><span class="no-data">Click a day to see its tasks.</span></div>
+            </section>
+
+            <!-- ═══ REMINDERS ═══ -->
+            <section class="view" data-view="reminders">
+                <section class="panel">
+                    <div class="panel-head"><h2>New Reminder</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="rem-text" placeholder="Remind me to…" />
+                        <input type="date" id="rem-date" style="flex:0 0 16%;" />
+                        <input type="time" id="rem-time" style="flex:0 0 14%;" />
+                        <button class="btn" onclick="createReminder()">Add</button>
+                    </div>
+                    <p class="panel-desc" style="margin-top:.6rem;">Reminders pop up (and send a browser notification) when their time arrives — while Discipline is open.</p>
+                </section>
+                <ul class="data-list list-tall" id="rem-list"><li class="no-data">Loading…</li></ul>
+            </section>
+
+            <!-- ═══ PROJECTS ═══ -->
+            <section class="view" data-view="projects">
+                <section class="panel">
+                    <div class="panel-head"><h2>New Project</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="proj-name" placeholder="Project name" style="flex:0 0 32%;" />
+                        <input type="text" id="proj-desc" placeholder="Description (optional)" />
+                        <button class="btn" onclick="createProject()">Create</button>
+                    </div>
+                </section>
+                <div class="proj-summary" id="proj-summary"></div>
+                <div class="proj-grid" id="projects-grid"><span class="no-data">Loading…</span></div>
+            </section>
+
+            <!-- ═══ PROJECT WORKSPACE ═══ -->
+            <section class="view" data-view="workspace">
+                <div class="ws-head">
+                    <div>
+                        <h2 id="ws-name">Project</h2>
+                        <div class="progress-bar"><div class="progress-fill" id="ws-progress"></div></div>
+                    </div>
+                    <div class="ws-tabs">
+                        <button class="ws-tab active" data-ws="table" onclick="setWsView('table')">Tasks</button>
+                        <button class="ws-tab" data-ws="board" onclick="setWsView('board')">Board</button>
+                        <button class="ws-tab" data-ws="list" onclick="setWsView('list')">List</button>
+                        <button class="ws-tab" data-ws="insights" onclick="setWsView('insights')">Analytics</button>
+                        <button class="btn btn-danger" onclick="deleteProject()">Delete</button>
+                    </div>
+                </div>
+                <section class="panel">
+                    <div class="input-row">
+                        <input type="text" id="ws-task-title" placeholder="Add a task to this project…" />
+                        <select id="ws-task-priority" style="flex:0 0 22%;">
+                            <option value="high">High</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <button class="btn" onclick="addWsTask()">Add</button>
+                    </div>
+                    <div class="ws-toolbar" id="ws-toolbar">
+                        <span class="tb-label">Group by</span>
+                        <select id="group-by" onchange="setGroupBy(this.value)">
+                            <option value="none" selected>None</option>
+                            <option value="status">Status</option>
+                            <option value="priority">Priority</option>
+                            <option value="size">Size</option>
+                        </select>
+                    </div>
+                    <div id="ws-table" class="ws-table-wrap"></div>
+                    <div id="ws-list" style="display:none;"><ul class="data-list list-tall" id="ws-tasks"><li class="no-data">Loading…</li></ul></div>
+                    <div id="ws-board" class="kanban" style="display:none;"></div>
+                    <div id="ws-insights" style="display:none;">
+                        <div class="proj-stats" id="proj-stats"></div>
+
+                        <div class="analytics-grid">
+                            <div class="an-card"><h3 class="an-title">By priority</h3><div id="an-priority" class="hbars"></div></div>
+                            <div class="an-card"><h3 class="an-title">By status</h3><div id="an-status" class="hbars"></div></div>
+                            <div class="an-card"><h3 class="an-title">By label</h3><div id="an-label" class="hbars"></div></div>
+                            <div class="an-card"><h3 class="an-title">Completion</h3><div id="an-completion" class="completion"></div></div>
+                        </div>
+
+                        <div class="an-card">
+                            <h3 class="an-title">Tasks completed · last 21 days</h3>
+                            <div id="an-perday" class="barchart"></div>
+                        </div>
+
+                        <div class="an-card">
+                            <div class="panel-head"><h3 class="an-title">Contribution activity</h3><span class="chart-legend" id="proj-contrib">0 contributions</span></div>
+                            <div id="proj-heatmap" class="heatmap"></div>
+                            <div id="proj-day-detail" class="day-detail"></div>
+                        </div>
+
+                        <div class="an-card">
+                            <h3 class="an-title">Recent activity</h3>
+                            <ul class="data-list" id="an-recent"><li class="no-data">Loading…</li></ul>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ═══ ACTIVITY ═══ -->
+            <section class="view" data-view="activity">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Current streak</span></div><div class="stat-value" id="a-streak">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Longest streak</span></div><div class="stat-value" id="a-longest">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Active days</span></div><div class="stat-value" id="a-active">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Total events</span></div><div class="stat-value" id="a-total">0</div></div>
+                </div>
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Contribution Activity</h2><span class="chart-legend" id="a-contrib">0 contributions</span></div>
+                    <div id="activity-heatmap" class="heatmap"></div>
+                    <div id="day-detail" class="day-detail"></div>
+                </section>
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Recent Activity</h2></div>
+                    <ul class="data-list list-tall" id="activity-recent"><li class="no-data">Loading…</li></ul>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+    <script src="/static/js/discipline.js?v=19"></script>
+</body>
+</html>

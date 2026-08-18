@@ -114,6 +114,29 @@ sudo launchctl load /Library/LaunchDaemons/com.dnsfilter.plist
 
 ### Setting as System DNS
 
+#### Automatic (recommended, cross-platform)
+
+The binary can point your system's DNS at the filter and undo it. Run from an
+elevated shell (Administrator on Windows, `sudo` on Linux/macOS):
+
+```bash
+# Point system DNS at the local filter (127.0.0.1)
+./dns-filter setup-dns
+
+# Restore automatic (DHCP) DNS
+./dns-filter reset-dns
+```
+
+> On Windows PowerShell, call the binary by its path, e.g.
+> `.\build\dns-filter.exe setup-dns` (the name `dns-filter` only works if the
+> binary is on your PATH). You can also toggle this from the web dashboard's
+> **Middleman** button once the server is running as Administrator.
+
+It auto-detects the active network interface and uses the right mechanism per OS
+(`netsh` on Windows, `resolvectl`/`resolv.conf` on Linux, `networksetup` on macOS).
+
+#### Manual
+
 **Windows:**
 1. Control Panel → Network Connections
 2. Right-click your connection → Properties

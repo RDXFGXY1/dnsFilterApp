@@ -1,86 +1,88 @@
 server:
-  dns_port: 53
-  dns_host: "0.0.0.0"
-  api_port: 8080
-  api_host: "127.0.0.1"
-  upstream_dns:
-    - "8.8.8.8:53"
-    - "1.1.1.1:53"
-  cache_size: 10000
-  cache_ttl: 3600
-  workers: 4
-
+    dns_port: 53
+    dns_host: 0.0.0.0
+    api_port: 8080
+    api_host: 127.0.0.1
+    upstream_dns:
+        - 8.8.8.8:53
+        - 1.1.1.1:53
+    workers: 4
+    cache_size: 10000
+    cache_ttl: 3600
 filtering:
-  enabled: true
-
-  block_action: "block_page"
-  redirect_ip: "127.0.0.1"
-  use_blocklist: true
-  use_categories: true
-  use_keywords: true
-  use_ai: true
-  use_content_inspection: true
-  ai_confidence_threshold: 60
-  content_match_threshold: 2 # Words needed
-  content_inspection_timeout: 10
-  block_categories:
-    - adult
-    - gambling
-    - malware
-    - phishing
-    - ads
-  safe_search: false
-  youtube_restricted: false
-  schedule:
-    enabled: false
-    rules:
-      - name: "School Hours"
-        days: ["monday", "tuesday", "wednesday", "thursday", "friday"]
-        start_time: "08:00"
-        end_time: "15:00"
-        strict_mode: true
-
+    enabled: true
+    block_action: block_page
+    redirect_ip: 127.0.0.1
+    block_categories:
+        - adult
+        - gambling
+        - malware
+        - phishing
+        - ads
+    safe_search: false
+    youtube_restricted: false
+    use_blocklist: true
+    use_categories: true
+    use_keywords: true
+    use_ai: true
+    use_content_inspection: true
+    schedule:
+        enabled: false
+        rules:
+            - name: School Hours
+              days:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+              start_time: "08:00"
+              end_time: "15:00"
+              strict_mode: true
 database:
-  path: "./data/dns-filter.db"
-  max_log_entries: 100000
-  log_retention_days: 30
-
+    path: ./data/dns-filter.db
+    max_log_entries: 100000
+    log_retention_days: 30
 logging:
-  level: "info"
-  file: "./data/logs/dns-filter.log"
-  max_size_mb: 100
-  max_backups: 5
-  max_age_days: 30
-  log_queries: true
-  log_blocked_only: false
-
+    level: info
+    file: ./data/logs/dns-filter.log
+    max_size_mb: 100
+    max_backups: 5
+    max_age_days: 30
+    log_queries: true
+    log_blocked_only: false
 security:
-  admin_username: "admin"
-  # Password: changeme
-  admin_password_hash: "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
-  jwt_secret: "change-this-secret-in-production"
-  session_timeout: 60
-  https_enabled: true
-
+    admin_username: admin
+    admin_password_hash: $2a$10$znTfWrnOqyxf7JN4ifJ7l.2W.EJxruk5X25VWXaerMiZzxzoVRTmG
+    jwt_secret: change-this-secret-in-production
+    session_timeout: 60
+    https_enabled: true
+    https_cert: ""
+    https_key: ""
 blocklists:
-  auto_update_interval: 24
-  custom_path: "./configs/custom*.yaml"
-  sources:
-    - name: "StevenBlack Unified"
-      url: "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
-      category: "general"
-      enabled: true
-
-    - name: "AdGuard DNS Filter"
-      url: "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt"
-      category: "ads"
-      enabled: true
-
-    # OISD disabled - frequently times out
-    # - name: "OISD Adult"
-    #   url: "https://dbl.oisd.nl/adult"
-    #   category: "adult"
-    #   enabled: false
-
+    auto_update_interval: 24
+    sources:
+        - name: StevenBlack Unified
+          url: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+          category: general
+          enabled: true
+        - name: AdGuard DNS Filter
+          url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+          category: ads
+          enabled: true
+        - name: AntiPorn Host
+          url: https://github.com/4skinSkywalker/Anti-Porn-HOSTS-File/blob/master/HOSTS.txt
+          category: custom
+          enabled: true
+    custom_path: ./configs/custom*.yaml
 whitelist:
-  domains: []
+    domains: []
+advanced:
+    doh_enabled: false
+    doh_port: 0
+    dot_enabled: false
+    dot_port: 0
+    dnssec_enabled: false
+    ipv6_enabled: false
+    block_private_ip: false
+    rate_limit: 0

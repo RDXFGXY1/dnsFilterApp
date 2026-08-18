@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/RDXFGXY1/dns-filter-app/internal/config"
@@ -13,6 +15,17 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
 	"github.com/miekg/dns"
 )
+
+// QueryEvent is a single DNS query outcome, streamed to live-monitor clients.
+type QueryEvent struct {
+	Time     int64  `json:"time"`
+	Domain   string `json:"domain"`
+	ClientIP string `json:"client_ip"`
+	Type     string `json:"type"`
+	Blocked  bool   `json:"blocked"`
+	Reason   string `json:"reason"`
+	Cached   bool   `json:"cached"`
+}
 
 type Server struct {
 	cfg          *config.Config
@@ -23,6 +36,53 @@ type Server struct {
 	upstreamPool *UpstreamPool
 	log          *logger.Logger
 	stats        *Statistics
+
+	filterEnabled atomic.Bool   // runtime on/off toggle
+	pauseUntil    atomic.Int64  // unix seconds; 0 = not paused
+	blockAction   atomic.Value  // string: nxdomain | redirect | block_page
+
+	// Live-query pub/sub for the activity monitor.
+	subs   map[chan QueryEvent]struct{}
+	subsMu sync.Mutex
+}
+
+// Subscribe returns a channel that receives live query events. Call Unsubscribe
+// when done.
+func (s *Server) Subscribe() chan QueryEvent {
+	ch := make(chan QueryEvent, 128)
+	s.subsMu.Lock()
+	if s.subs == nil {
+		s.subs = make(map[chan QueryEvent]struct{})
+	}
+	s.subs[ch] = struct{}{}
+	s.subsMu.Unlock()
+	return ch
+}
+
+// Unsubscribe removes and closes a subscriber channel.
+func (s *Server) Unsubscribe(ch chan QueryEvent) {
+	s.subsMu.Lock()
+	if _, ok := s.subs[ch]; ok {
+		delete(s.subs, ch)
+		close(ch)
+	}
+	s.subsMu.Unlock()
+}
+
+// publish fans an event out to subscribers, dropping it for any slow consumer.
+func (s *Server) publish(ev QueryEvent) {
+	s.subsMu.Lock()
+	if len(s.subs) == 0 {
+		s.subsMu.Unlock()
+		return
+	}
+	for ch := range s.subs {
+		select {
+		case ch <- ev:
+		default: // subscriber is slow; drop this event for it
+		}
+	}
+	s.subsMu.Unlock()
 }
 
 type Statistics struct {
@@ -54,6 +114,13 @@ func NewServer(cfg *config.Config, filterEngine *filter.Engine, db *database.DB)
 		},
 	}
 
+	server.filterEnabled.Store(cfg.Filtering.Enabled)
+	action := cfg.Filtering.BlockAction
+	if action == "" {
+		action = "nxdomain"
+	}
+	server.blockAction.Store(action)
+
 	// Setup DNS server
 	dns.HandleFunc(".", server.handleDNSRequest)
 
@@ -73,6 +140,53 @@ func (s *Server) Start() error {
 func (s *Server) Shutdown(ctx context.Context) error {
 	s.log.Info("Shutting down DNS server...")
 	return s.dnsServer.ShutdownContext(ctx)
+}
+
+// FilteringActive reports whether filtering is currently applied (enabled and
+// not within a temporary pause window).
+func (s *Server) FilteringActive() bool {
+	if !s.filterEnabled.Load() {
+		return false
+	}
+	if pu := s.pauseUntil.Load(); pu > 0 && time.Now().Unix() < pu {
+		return false
+	}
+	return true
+}
+
+// SetFiltering turns filtering on or off and clears any active pause.
+func (s *Server) SetFiltering(on bool) {
+	s.filterEnabled.Store(on)
+	s.pauseUntil.Store(0)
+	s.ClearCache()
+}
+
+// PauseFiltering disables filtering for the given duration, then it resumes.
+func (s *Server) PauseFiltering(d time.Duration) {
+	s.pauseUntil.Store(time.Now().Add(d).Unix())
+	s.ClearCache()
+}
+
+// SetBlockAction changes how blocked domains are answered at runtime.
+func (s *Server) SetBlockAction(action string) {
+	s.blockAction.Store(action)
+	s.ClearCache()
+}
+
+// BlockAction returns the current block action.
+func (s *Server) BlockAction() string {
+	a, _ := s.blockAction.Load().(string)
+	return a
+}
+
+// FilteringStatus returns whether filtering is enabled and, if paused, the unix
+// timestamp when it resumes (0 = not paused).
+func (s *Server) FilteringStatus() (enabled bool, pausedUntil int64) {
+	pu := s.pauseUntil.Load()
+	if pu > 0 && time.Now().Unix() >= pu {
+		pu = 0
+	}
+	return s.filterEnabled.Load(), pu
 }
 
 // ClearCache removes all cached DNS responses
@@ -111,10 +225,11 @@ func (s *Server) handleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	question := r.Question[0]
 	domain := question.Name
+	qtype := dns.TypeToString[question.Qtype]
 
 	// Log query if enabled
 	if s.cfg.Logging.LogQueries {
-		s.log.Debugf("DNS Query: %s from %s (type: %s)", domain, clientIP, dns.TypeToString[question.Qtype])
+		s.log.Debugf("DNS Query: %s from %s (type: %s)", domain, clientIP, qtype)
 	}
 
 	// Check cache first
@@ -125,18 +240,23 @@ func (s *Server) handleDNSRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 		cachedResponse.SetReply(r)
 		w.WriteMsg(cachedResponse)
+		s.publish(QueryEvent{Time: time.Now().Unix(), Domain: strings.TrimSuffix(domain, "."), ClientIP: clientIP, Type: qtype, Cached: true})
 		return
 	}
 
 	// Check if domain should be blocked
-	if s.cfg.Filtering.Enabled {
+	if s.FilteringActive() {
 		blocked, reason := s.filter.ShouldBlock(domain, clientIP)
 		if blocked {
 			s.log.Infof("🛡️  BLOCKED: %s (reason: %s)", domain, reason)
+			s.publish(QueryEvent{Time: time.Now().Unix(), Domain: strings.TrimSuffix(domain, "."), ClientIP: clientIP, Type: qtype, Blocked: true, Reason: reason})
 			s.handleBlockedDomain(w, r, m, domain, clientIP, reason)
 			return
 		}
 	}
+
+	s.publish(QueryEvent{Time: time.Now().Unix(), Domain: strings.TrimSuffix(domain, "."), ClientIP: clientIP, Type: qtype})
+	s.filter.NoteActivity(clientIP, strings.TrimSuffix(domain, "."))
 
 	// Forward to upstream DNS
 	s.forwardToUpstream(w, r, m, domain, question.Qtype)
@@ -152,10 +272,11 @@ func (s *Server) handleBlockedDomain(w dns.ResponseWriter, r *dns.Msg, m *dns.Ms
 	s.log.Infof("BLOCKED: %s from %s", domain, clientIP)
 
 	// Save to database
-	s.db.LogBlockedQuery(domain, clientIP, time.Now())
+	s.db.LogBlockedQuery(strings.TrimSuffix(domain, "."), clientIP, time.Now())
 
-	// Handle based on block action
-	switch s.cfg.Filtering.BlockAction {
+	// Handle based on block action (runtime-settable)
+	action, _ := s.blockAction.Load().(string)
+	switch action {
 	case "nxdomain":
 		// Return NXDOMAIN (domain not found)
 		m.SetRcode(r, dns.RcodeNameError)
