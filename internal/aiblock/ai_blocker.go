@@ -8,11 +8,6 @@ import (
 	"sync"
 )
 
-// ════════════════════════════════════════════════════════════════
-//  AI-POWERED BLOCKING - DNS Filter v2.5
-//  Machine learning model for intelligent blocking
-// ════════════════════════════════════════════════════════════════
-
 type AIBlocker struct {
 	db      *sql.DB
 	model   *NaiveBayesModel
@@ -21,30 +16,30 @@ type AIBlocker struct {
 }
 
 type PredictionResult struct {
-	Domain     string  `json:"domain"`
-	Category   string  `json:"category"`
-	Confidence float64 `json:"confidence"`
-	Blocked    bool    `json:"blocked"`
-	Reason     string  `json:"reason"`
+	Domain     string             `json:"domain"`
+	Category   string             `json:"category"`
+	Confidence float64            `json:"confidence"`
+	Blocked    bool               `json:"blocked"`
+	Reason     string             `json:"reason"`
 	Features   map[string]float64 `json:"features"`
 }
 
 type NaiveBayesModel struct {
-	vocabulary  map[string]int
-	categoryCount map[string]int
+	vocabulary        map[string]int
+	categoryCount     map[string]int
 	wordCategoryCount map[string]map[string]int
-	totalDocs   int
+	totalDocs         int
 }
 
 type DomainFeatures struct {
-	Length           int
-	DigitCount       int
-	SpecialCharCount int
-	DotCount         int
-	HasNumbers       bool
-	HasHyphens       bool
-	TLD              string
-	Entropy          float64
+	Length             int
+	DigitCount         int
+	SpecialCharCount   int
+	DotCount           int
+	HasNumbers         bool
+	HasHyphens         bool
+	TLD                string
+	Entropy            float64
 	HasSuspiciousWords bool
 }
 
@@ -79,7 +74,7 @@ func (ab *AIBlocker) initTables() error {
 			source TEXT,
 			added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS ai_predictions (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			domain TEXT,
@@ -89,7 +84,7 @@ func (ab *AIBlocker) initTables() error {
 			features TEXT,
 			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS ai_false_positives (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			domain TEXT,
@@ -98,7 +93,7 @@ func (ab *AIBlocker) initTables() error {
 			reported_by TEXT,
 			reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS ai_model_stats (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			total_predictions INTEGER,
@@ -118,7 +113,7 @@ func (ab *AIBlocker) initTables() error {
 	// Initialize training data if empty
 	var count int
 	ab.db.QueryRow("SELECT COUNT(*) FROM ai_training_data").Scan(&count)
-	
+
 	if count == 0 {
 		return ab.seedTrainingData()
 	}
@@ -145,14 +140,14 @@ func (ab *AIBlocker) seedTrainingData() error {
 		{"xvideos", "adult"},
 		{"pornhub", "adult"},
 		{"xnxx", "adult"},
-		
+
 		// Gambling
 		{"casino", "gambling"},
 		{"bet", "gambling"},
 		{"poker", "gambling"},
 		{"slots", "gambling"},
 		{"gambling", "gambling"},
-		
+
 		// Safe sites
 		{"google", "safe"},
 		{"wikipedia", "safe"},
@@ -162,7 +157,7 @@ func (ab *AIBlocker) seedTrainingData() error {
 		{"news", "safe"},
 		{"education", "safe"},
 		{"university", "safe"},
-		
+
 		// Malware/suspicious
 		{"free", "suspicious"},
 		{"crack", "suspicious"},
@@ -209,7 +204,7 @@ func (ab *AIBlocker) loadTrainingData() error {
 
 func (ab *AIBlocker) extractFeatures(domain string) DomainFeatures {
 	domain = strings.ToLower(domain)
-	
+
 	features := DomainFeatures{
 		Length:     len(domain),
 		DotCount:   strings.Count(domain, "."),
@@ -286,10 +281,10 @@ func (m *NaiveBayesModel) Train(domain, category string) {
 
 	// Extract words from domain
 	words := m.extractWords(domain)
-	
+
 	for _, word := range words {
 		m.vocabulary[word]++
-		
+
 		if _, exists := m.wordCategoryCount[word]; !exists {
 			m.wordCategoryCount[word] = make(map[string]int)
 		}
@@ -299,7 +294,7 @@ func (m *NaiveBayesModel) Train(domain, category string) {
 
 func (m *NaiveBayesModel) Predict(domain string) (string, float64) {
 	words := m.extractWords(domain)
-	
+
 	bestCategory := "safe"
 	bestScore := -math.MaxFloat64
 
@@ -320,7 +315,7 @@ func (m *NaiveBayesModel) Predict(domain string) (string, float64) {
 func (m *NaiveBayesModel) calculateScore(words []string, category string) float64 {
 	// Prior probability
 	prior := math.Log(float64(m.categoryCount[category]) / float64(m.totalDocs))
-	
+
 	// Likelihood
 	likelihood := 0.0
 	vocabularySize := float64(len(m.vocabulary))
@@ -328,7 +323,7 @@ func (m *NaiveBayesModel) calculateScore(words []string, category string) float6
 	for _, word := range words {
 		wordCount := float64(m.wordCategoryCount[word][category])
 		categoryTotal := float64(m.categoryCount[category])
-		
+
 		// Laplace smoothing
 		probability := (wordCount + 1) / (categoryTotal + vocabularySize)
 		likelihood += math.Log(probability)
@@ -339,18 +334,18 @@ func (m *NaiveBayesModel) calculateScore(words []string, category string) float6
 
 func (m *NaiveBayesModel) extractWords(domain string) []string {
 	domain = strings.ToLower(domain)
-	
+
 	// Split by dots and hyphens
 	domain = strings.ReplaceAll(domain, ".", " ")
 	domain = strings.ReplaceAll(domain, "-", " ")
-	
+
 	// Also extract character n-grams (3-char substrings)
 	var words []string
 	parts := strings.Fields(domain)
-	
+
 	for _, part := range parts {
 		words = append(words, part)
-		
+
 		// Add 3-grams
 		if len(part) >= 3 {
 			for i := 0; i <= len(part)-3; i++ {
@@ -509,7 +504,7 @@ func (ab *AIBlocker) LearnFromBlock(domain, category string) error {
 	// Retrain model
 	ab.mu.Lock()
 	defer ab.mu.Unlock()
-	
+
 	ab.model.Train(domain, category)
 
 	return nil
@@ -535,8 +530,8 @@ func (ab *AIBlocker) logPrediction(result PredictionResult) {
 	ab.db.Exec(`
 		INSERT INTO ai_predictions (domain, category, confidence, blocked, features)
 		VALUES (?, ?, ?, ?, ?)
-	`, result.Domain, result.Category, result.Confidence, result.Blocked, 
-	   fmt.Sprintf("%v", result.Features))
+	`, result.Domain, result.Category, result.Confidence, result.Blocked,
+		fmt.Sprintf("%v", result.Features))
 }
 
 func (ab *AIBlocker) GetModelStats() map[string]interface{} {
@@ -614,7 +609,7 @@ func scoreToConfidence(score float64) float64 {
 	// Convert log probability to percentage (0-100)
 	// This is a simplified conversion
 	confidence := (1.0 / (1.0 + math.Exp(-score))) * 100
-	
+
 	if confidence < 0 {
 		confidence = 0
 	}

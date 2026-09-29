@@ -1,0 +1,1067 @@
+{
+  "generated_at": "2026-09-29T19:50:55.515269+00:00",
+  "nodes": {
+    "aiblock_aiblocker": {
+      "code_fingerprint": "789691cfd070dc0964f8b72db2d05c445c5dd8a0834c669f86fe76f23f165a54",
+      "label": "AIBlocker",
+      "last": "2026-08-23T03:48:00.735638+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:48:00.735638+00:00",
+          "outcome": "useful",
+          "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
+        },
+        {
+          "date": "2026-08-23T03:07:33.423285+00:00",
+          "outcome": "useful",
+          "q": "Consolidate App Blocker and Categories, and consolidate Blocklist, Whitelist, and AI Blocker into organized tabs"
+        },
+        {
+          "date": "2026-08-23T02:44:45.262927+00:00",
+          "outcome": "useful",
+          "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
+        }
+      ],
+      "score": 1.255741393,
+      "source_file": "internal/aiblock/ai_blocker.go",
+      "status": "preferred",
+      "uses": 3
+    },
+    "aiblock_domainfeatures": {
+      "code_fingerprint": "789691cfd070dc0964f8b72db2d05c445c5dd8a0834c669f86fe76f23f165a54",
+      "label": "DomainFeatures",
+      "last": "2026-08-23T03:48:00.735638+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:48:00.735638+00:00",
+          "outcome": "useful",
+          "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
+        }
+      ],
+      "score": 0.418812676,
+      "source_file": "internal/aiblock/ai_blocker.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "api_server_setuproutes": {
+      "code_fingerprint": "c6b24410e7c72e7187c4f2731398ace9cca2416d894495ef33b022e1635a396b",
+      "label": ".setupRoutes()",
+      "last": "2026-08-23T20:50:33.246457+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T20:50:33.246457+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the YAML todo importer"
+        },
+        {
+          "date": "2026-08-23T20:37:15.966847+00:00",
+          "outcome": "useful",
+          "q": "a tab for todo list with sub-todos and a note tab"
+        },
+        {
+          "date": "2026-08-23T17:05:03.192256+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the website"
+        }
+      ],
+      "score": 1.275593755,
+      "source_file": "internal/api/server.go",
+      "status": "preferred",
+      "uses": 3
+    },
+    "application_tui_readme_api_client": {
+      "code_fingerprint": "73460387bbaf890fc25c50c59d6299c0748e4de41e2b17d0a3a57bef544635f3",
+      "label": "Dashboard API Client",
+      "last": "2026-09-25T13:38:15.344575+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-25T13:38:15.344575+00:00",
+          "outcome": "useful",
+          "q": "Are the existing APIs enough to build a stable C# desktop application, and start building it"
+        }
+      ],
+      "score": 0.906287102,
+      "source_file": "application/TUI/README.md",
+      "status": "tentative",
+      "uses": 1
+    },
+    "blockpage_blockpageserver_getunblockrequests": {
+      "code_fingerprint": "9978bc53a211827e765f22b844bbba69cfebc8628f7208494891c8dc4d604eae",
+      "label": ".GetUnblockRequests()",
+      "last": "2026-08-23T03:28:18.109322+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:28:18.109322+00:00",
+          "outcome": "useful",
+          "q": "Complete the unblock request system and Requests dashboard tab"
+        }
+      ],
+      "score": 0.418680245,
+      "source_file": "internal/blockpage/blockpage.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "categories_categorymanager": {
+      "code_fingerprint": "b85b557802a8b483f4730a5b594375d8004841019499d878e52ce904028c26ac",
+      "label": "CategoryManager",
+      "last": "2026-08-23T03:21:39.610117+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:21:39.610117+00:00",
+          "outcome": "useful",
+          "q": "Prevent Blocklist, Whitelist, Categories, Keywords and Apps lists from making the workspace too long"
+        },
+        {
+          "date": "2026-08-23T03:07:33.423285+00:00",
+          "outcome": "useful",
+          "q": "Consolidate App Blocker and Categories, and consolidate Blocklist, Whitelist, and AI Blocker into organized tabs"
+        },
+        {
+          "date": "2026-08-23T02:44:45.262927+00:00",
+          "outcome": "useful",
+          "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
+        }
+      ],
+      "score": 1.255564347,
+      "source_file": "internal/categories/categories.go",
+      "status": "preferred",
+      "uses": 3
+    },
+    "certificate": {
+      "code_fingerprint": "",
+      "label": "Certificate",
+      "last": "2026-09-29T19:43:05.540951+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T19:43:05.540951+00:00",
+          "outcome": "useful",
+          "q": "next"
+        }
+      ],
+      "score": 0.999874328,
+      "source_file": "",
+      "status": "tentative",
+      "uses": 1
+    },
+    "config_blocklistsconfig": {
+      "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
+      "label": "BlocklistsConfig",
+      "last": "2026-08-23T03:21:39.610117+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:21:39.610117+00:00",
+          "outcome": "useful",
+          "q": "Prevent Blocklist, Whitelist, Categories, Keywords and Apps lists from making the workspace too long"
+        },
+        {
+          "date": "2026-08-23T03:13:00.829608+00:00",
+          "outcome": "useful",
+          "q": "Enhance and organize the Settings tab"
+        }
+      ],
+      "score": 0.837213188,
+      "source_file": "internal/config/config.go",
+      "status": "preferred",
+      "uses": 2
+    },
+    "config_config": {
+      "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
+      "label": "Config",
+      "last": "2026-09-29T13:32:40.288821+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T13:32:40.288821+00:00",
+          "outcome": "useful",
+          "q": "Trace and harden the end-to-end login, first-run setup, Vault unlock, account recovery, session invalidation, and recovery-key UX before release."
+        },
+        {
+          "date": "2026-09-29T12:20:41.902736+00:00",
+          "outcome": "useful",
+          "q": "Which API handlers mutate configuration and call SaveDefault without handling errors, and what runtime state must be rolled back?"
+        },
+        {
+          "date": "2026-09-29T00:12:41.247627+00:00",
+          "outcome": "useful",
+          "q": "Implement secure first-run setup beyond admin/changeme"
+        },
+        {
+          "date": "2026-09-28T23:54:37.031247+00:00",
+          "outcome": "useful",
+          "q": "Unify the application version before release"
+        },
+        {
+          "date": "2026-09-28T20:53:43.695879+00:00",
+          "outcome": "useful",
+          "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
+        }
+      ],
+      "score": 4.927157367,
+      "source_file": "internal/config/config.go",
+      "status": "preferred",
+      "uses": 5
+    },
+    "config_config_savedefault": {
+      "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
+      "label": ".SaveDefault()",
+      "last": "2026-09-29T12:20:41.902736+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T12:20:41.902736+00:00",
+          "outcome": "useful",
+          "q": "Which API handlers mutate configuration and call SaveDefault without handling errors, and what runtime state must be rolled back?"
+        }
+      ],
+      "score": 0.992802106,
+      "source_file": "internal/config/config.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "config_filteringconfig": {
+      "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
+      "label": "FilteringConfig",
+      "last": "2026-08-23T03:18:30.899231+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:18:30.899231+00:00",
+          "outcome": "useful",
+          "q": "Remove empty switching views from Protection, Rules and Intelligence, and Settings"
+        },
+        {
+          "date": "2026-08-23T03:13:00.829608+00:00",
+          "outcome": "useful",
+          "q": "Enhance and organize the Settings tab"
+        },
+        {
+          "date": "2026-08-23T02:44:45.262927+00:00",
+          "outcome": "useful",
+          "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
+        }
+      ],
+      "score": 1.255579868,
+      "source_file": "internal/config/config.go",
+      "status": "preferred",
+      "uses": 3
+    },
+    "config_securityconfig": {
+      "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
+      "label": "SecurityConfig",
+      "last": "2026-09-29T18:58:17.947823+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T18:58:17.947823+00:00",
+          "outcome": "useful",
+          "q": "Harden the dashboard Content Security Policy without breaking dashboard, login, setup, or Discipline."
+        },
+        {
+          "date": "2026-09-29T13:32:40.288821+00:00",
+          "outcome": "useful",
+          "q": "Trace and harden the end-to-end login, first-run setup, Vault unlock, account recovery, session invalidation, and recovery-key UX before release."
+        },
+        {
+          "date": "2026-09-29T00:12:41.247627+00:00",
+          "outcome": "useful",
+          "q": "Implement secure first-run setup beyond admin/changeme"
+        },
+        {
+          "date": "2026-09-28T20:53:43.695879+00:00",
+          "outcome": "useful",
+          "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
+        }
+      ],
+      "score": 3.95252303,
+      "source_file": "internal/config/config.go",
+      "status": "preferred",
+      "uses": 4
+    },
+    "configs_config_dns_filter_configuration": {
+      "code_fingerprint": "e43a52a33c29eace9ba837cebf1b9971e52ce451c2bdc526a7d150407f70bb5e",
+      "label": "DNS Filter Configuration",
+      "last": "2026-09-28T20:53:43.695879+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-28T20:53:43.695879+00:00",
+          "outcome": "useful",
+          "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
+        }
+      ],
+      "score": 0.978145128,
+      "source_file": "configs/config.yaml",
+      "status": "tentative",
+      "uses": 1
+    },
+    "contentinspector_contentinspector": {
+      "code_fingerprint": "6001cee17fae27d78bc094e8f3352c1da0fabe60def1db8bcdaed1800961b9ac",
+      "label": "ContentInspector",
+      "last": "2026-08-23T03:48:00.735638+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:48:00.735638+00:00",
+          "outcome": "useful",
+          "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
+        }
+      ],
+      "score": 0.418812676,
+      "source_file": "internal/contentinspector/contentinspector.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "discipline_manager": {
+      "code_fingerprint": "d8735d3acbf3e0064c496763c82c727df6abf74f45cfe2cba2fab0b0ebc43d52",
+      "label": "Manager",
+      "last": "2026-09-29T13:24:38.253909+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T13:24:38.253909+00:00",
+          "outcome": "useful",
+          "q": "Trace service startup and shutdown, Windows DNS routing setup/reset/status, DNS route watch behavior, adapter discovery, sleep/resume or network-change handling, autostart, and desktop health refresh. Identify reliability gaps for restart, resume, and adapter changes and the safest automated tests."
+        }
+      ],
+      "score": 0.993821154,
+      "source_file": "internal/discipline/discipline.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "discipline_project": {
+      "code_fingerprint": "d8735d3acbf3e0064c496763c82c727df6abf74f45cfe2cba2fab0b0ebc43d52",
+      "label": "Project",
+      "last": "2026-08-23T21:01:44.806267+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T21:01:44.806267+00:00",
+          "outcome": "useful",
+          "q": "Add project YAML import and export for AI-generated plans"
+        },
+        {
+          "date": "2026-08-23T02:30:36.833372+00:00",
+          "outcome": "useful",
+          "q": "Complete every requested project planning feature at production depth"
+        },
+        {
+          "date": "2026-08-23T01:56:01.635883+00:00",
+          "outcome": "useful",
+          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
+        },
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        }
+      ],
+      "score": 1.680146911,
+      "source_file": "internal/discipline/discipline.go",
+      "status": "preferred",
+      "uses": 4
+    },
+    "discipline_task": {
+      "code_fingerprint": "d8735d3acbf3e0064c496763c82c727df6abf74f45cfe2cba2fab0b0ebc43d52",
+      "label": "Task",
+      "last": "2026-08-23T02:39:49.151541+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T02:39:49.151541+00:00",
+          "outcome": "useful",
+          "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
+        },
+        {
+          "date": "2026-08-23T02:30:36.833372+00:00",
+          "outcome": "useful",
+          "q": "Complete every requested project planning feature at production depth"
+        },
+        {
+          "date": "2026-08-23T01:56:01.635883+00:00",
+          "outcome": "useful",
+          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
+        },
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        }
+      ],
+      "score": 1.672684411,
+      "source_file": "internal/discipline/discipline.go",
+      "status": "preferred",
+      "uses": 4
+    },
+    "dns_dnscache": {
+      "code_fingerprint": "ceb5c496ab2e1d0a2ec946a9ddd2c45f5060ac993c47f03acefa0921a1f2a50d",
+      "label": "DNSCache",
+      "last": "2026-09-29T12:20:41.902736+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T12:20:41.902736+00:00",
+          "outcome": "useful",
+          "q": "Which API handlers mutate configuration and call SaveDefault without handling errors, and what runtime state must be rolled back?"
+        },
+        {
+          "date": "2026-08-23T03:57:19.720400+00:00",
+          "outcome": "useful",
+          "q": "Make website unblocking apply immediately without restarting the browser"
+        }
+      ],
+      "score": 1.411677392,
+      "source_file": "internal/dns/cache.go",
+      "status": "preferred",
+      "uses": 2
+    },
+    "dns_server_handleblockeddomain": {
+      "code_fingerprint": "88f6956fe1da4898e5ab79342bfd9a5820a5f840e44679ef673d25c3bfc5a8b5",
+      "label": ".handleBlockedDomain()",
+      "last": "2026-08-23T03:57:19.720400+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:57:19.720400+00:00",
+          "outcome": "useful",
+          "q": "Make website unblocking apply immediately without restarting the browser"
+        }
+      ],
+      "score": 0.418875286,
+      "source_file": "internal/dns/server.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "internal_netdns_netdns_status": {
+      "code_fingerprint": "d1187a8bed124b87d0b4e400d120daeb120cfc0f7e506ab64bcec49e4b4f8287",
+      "label": "Status()",
+      "last": "2026-08-23T17:05:03.192256+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T17:05:03.192256+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the website"
+        }
+      ],
+      "score": 0.42420309,
+      "source_file": "internal/netdns/netdns.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "keywords_keywordlist": {
+      "code_fingerprint": "499b5e272ad8397bebdd0c147d6172b96ae917fa8422d0081c44adbf148f0176",
+      "label": "KeywordList",
+      "last": "2026-08-23T03:21:39.610117+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:21:39.610117+00:00",
+          "outcome": "useful",
+          "q": "Prevent Blocklist, Whitelist, Categories, Keywords and Apps lists from making the workspace too long"
+        }
+      ],
+      "score": 0.418635631,
+      "source_file": "internal/keywords/keywords.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "keywords_keywordmanager": {
+      "code_fingerprint": "499b5e272ad8397bebdd0c147d6172b96ae917fa8422d0081c44adbf148f0176",
+      "label": "KeywordManager",
+      "last": "2026-08-23T03:07:33.423285+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:07:33.423285+00:00",
+          "outcome": "useful",
+          "q": "Consolidate App Blocker and Categories, and consolidate Blocklist, Whitelist, and AI Blocker into organized tabs"
+        },
+        {
+          "date": "2026-08-23T02:44:45.262927+00:00",
+          "outcome": "useful",
+          "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
+        }
+      ],
+      "score": 0.836928717,
+      "source_file": "internal/keywords/keywords.go",
+      "status": "preferred",
+      "uses": 2
+    },
+    "pkg_github_com_rdxfgxy1_dns_filter_app": {
+      "code_fingerprint": "4ef36c19e48718fdc2545d9ff5739e8949742c99a8f6fe13ff7a0ccb16e3dc31",
+      "label": "github.com/RDXFGXY1/dns-filter-app",
+      "last": "2026-09-29T12:11:07.149060+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T12:11:07.149060+00:00",
+          "outcome": "useful",
+          "q": "Which release-critical fixes should be completed first before the official release?"
+        }
+      ],
+      "score": 0.992649525,
+      "source_file": "go.mod",
+      "status": "tentative",
+      "uses": 1
+    },
+    "releases_readme_release_changelog": {
+      "code_fingerprint": "45efce26946ee66011ab6ffe69d55f9c279f17d415aae47d997e31ccca690907",
+      "label": "Release Changelog",
+      "last": "2026-09-29T19:43:05.540951+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T19:43:05.540951+00:00",
+          "outcome": "useful",
+          "q": "next"
+        },
+        {
+          "date": "2026-09-29T12:11:07.149060+00:00",
+          "outcome": "useful",
+          "q": "Which release-critical fixes should be completed first before the official release?"
+        },
+        {
+          "date": "2026-09-28T23:54:37.031247+00:00",
+          "outcome": "useful",
+          "q": "Unify the application version before release"
+        },
+        {
+          "date": "2026-09-28T20:53:43.695879+00:00",
+          "outcome": "useful",
+          "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
+        }
+      ],
+      "score": 3.951657179,
+      "source_file": "releases/README.md",
+      "status": "preferred",
+      "uses": 4
+    },
+    "releases_unreleased_unreleased_changes": {
+      "code_fingerprint": "a0c3c5222104376ef96d793dd0d74cfc129a4b2e19f4d5fa813216d79f2da769",
+      "label": "Unreleased Changes",
+      "last": "2026-09-29T12:11:07.149060+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T12:11:07.149060+00:00",
+          "outcome": "useful",
+          "q": "Which release-critical fixes should be completed first before the official release?"
+        }
+      ],
+      "score": 0.992649525,
+      "source_file": "releases/UNRELEASED.md",
+      "status": "tentative",
+      "uses": 1
+    },
+    "scripts_build_portable": {
+      "code_fingerprint": "32c0826ef59e41936be4533596c3621472c3c4180274655d1fc7ca86395d5bd2",
+      "label": "build-portable.ps1",
+      "last": "2026-09-29T19:43:05.540951+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T19:43:05.540951+00:00",
+          "outcome": "useful",
+          "q": "next"
+        },
+        {
+          "date": "2026-09-29T12:11:07.149060+00:00",
+          "outcome": "useful",
+          "q": "Which release-critical fixes should be completed first before the official release?"
+        }
+      ],
+      "score": 1.992523853,
+      "source_file": "scripts/build-portable.ps1",
+      "status": "preferred",
+      "uses": 2
+    },
+    "template": {
+      "code_fingerprint": "",
+      "label": "Template",
+      "last": "2026-09-29T18:58:17.947823+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-29T18:58:17.947823+00:00",
+          "outcome": "useful",
+          "q": "Harden the dashboard Content Security Policy without breaking dashboard, login, setup, or Discipline."
+        }
+      ],
+      "score": 0.999155966,
+      "source_file": "",
+      "status": "tentative",
+      "uses": 1
+    },
+    "tui_view": {
+      "code_fingerprint": "",
+      "label": "View",
+      "last": "2026-08-23T03:18:30.899231+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:18:30.899231+00:00",
+          "outcome": "useful",
+          "q": "Remove empty switching views from Protection, Rules and Intelligence, and Settings"
+        }
+      ],
+      "score": 0.418614505,
+      "source_file": "application/TUI/tui.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "tui_whitelistitem": {
+      "code_fingerprint": "",
+      "label": "WhitelistItem",
+      "last": "2026-08-23T03:57:19.720400+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:57:19.720400+00:00",
+          "outcome": "useful",
+          "q": "Make website unblocking apply immediately without restarting the browser"
+        },
+        {
+          "date": "2026-08-23T03:28:18.109322+00:00",
+          "outcome": "useful",
+          "q": "Complete the unblock request system and Requests dashboard tab"
+        },
+        {
+          "date": "2026-08-23T03:21:39.610117+00:00",
+          "outcome": "useful",
+          "q": "Prevent Blocklist, Whitelist, Categories, Keywords and Apps lists from making the workspace too long"
+        },
+        {
+          "date": "2026-08-23T03:07:33.423285+00:00",
+          "outcome": "useful",
+          "q": "Consolidate App Blocker and Categories, and consolidate Blocklist, Whitelist, and AI Blocker into organized tabs"
+        },
+        {
+          "date": "2026-08-23T02:44:45.262927+00:00",
+          "outcome": "useful",
+          "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
+        }
+      ],
+      "score": 2.093119879,
+      "source_file": "application/TUI/tui.go",
+      "status": "preferred",
+      "uses": 5
+    },
+    "web_static_js_dashboard": {
+      "code_fingerprint": "3c65bb2c2b5056305c0bbd03a4a1fd551e3cee8c0d4353e1b38b2adc16d02b7e",
+      "label": "dashboard.js",
+      "last": "2026-08-23T20:55:24.087182+00:00",
+      "neg": 2,
+      "provenance": [
+        {
+          "date": "2026-08-23T20:55:24.087182+00:00",
+          "outcome": "corrected",
+          "q": "Notes editor appears at the bottom and requires scrolling after pressing New"
+        },
+        {
+          "date": "2026-08-23T20:50:33.246457+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the YAML todo importer"
+        },
+        {
+          "date": "2026-08-23T20:37:15.966847+00:00",
+          "outcome": "useful",
+          "q": "a tab for todo list with sub-todos and a note tab"
+        },
+        {
+          "date": "2026-08-23T17:05:03.192256+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the website"
+        },
+        {
+          "date": "2026-08-23T03:52:39.510935+00:00",
+          "outcome": "corrected",
+          "q": "Fix the dark mode because it looks like reversed colors"
+        }
+      ],
+      "score": 2.942412683,
+      "source_file": "web/static/js/dashboard.js",
+      "status": "contested",
+      "uses": 9,
+      "verdict": "useful"
+    },
+    "web_static_js_discipline": {
+      "code_fingerprint": "",
+      "label": "discipline.js",
+      "last": "2026-08-23T21:01:44.806267+00:00",
+      "neg": 1,
+      "provenance": [
+        {
+          "date": "2026-08-23T21:01:44.806267+00:00",
+          "outcome": "useful",
+          "q": "Add project YAML import and export for AI-generated plans"
+        },
+        {
+          "date": "2026-08-23T03:52:39.510935+00:00",
+          "outcome": "corrected",
+          "q": "Fix the dark mode because it looks like reversed colors"
+        },
+        {
+          "date": "2026-08-23T03:48:00.735638+00:00",
+          "outcome": "useful",
+          "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
+        }
+      ],
+      "score": 0.425785954,
+      "source_file": "web/static/js/discipline.js",
+      "status": "contested",
+      "uses": 2,
+      "verdict": "useful"
+    },
+    "web_static_js_discipline_addsubtask": {
+      "code_fingerprint": "",
+      "label": "addSubtask()",
+      "last": "2026-08-23T20:37:15.966847+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T20:37:15.966847+00:00",
+          "outcome": "useful",
+          "q": "a tab for todo list with sub-todos and a note tab"
+        },
+        {
+          "date": "2026-08-23T02:39:49.151541+00:00",
+          "outcome": "useful",
+          "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
+        },
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        }
+      ],
+      "score": 1.261980646,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 3
+    },
+    "web_static_js_discipline_api": {
+      "code_fingerprint": "",
+      "label": "api()",
+      "last": "2026-08-23T01:56:01.635883+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:56:01.635883+00:00",
+          "outcome": "useful",
+          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
+        },
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.836011851,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 2
+    },
+    "web_static_js_discipline_loadactivity": {
+      "code_fingerprint": "",
+      "label": "loadActivity()",
+      "last": "2026-08-23T01:39:39.358417+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.417951025,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_loadcalendar": {
+      "code_fingerprint": "",
+      "label": "loadCalendar()",
+      "last": "2026-08-23T03:48:00.735638+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T03:48:00.735638+00:00",
+          "outcome": "useful",
+          "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
+        },
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        },
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 1.254739718,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 3
+    },
+    "web_static_js_discipline_loadglobalanalytics": {
+      "code_fingerprint": "",
+      "label": "loadGlobalAnalytics()",
+      "last": "2026-08-23T02:30:36.833372+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T02:30:36.833372+00:00",
+          "outcome": "useful",
+          "q": "Complete every requested project planning feature at production depth"
+        },
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.836243916,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 2
+    },
+    "web_static_js_discipline_loadgoals": {
+      "code_fingerprint": "",
+      "label": "loadGoals()",
+      "last": "2026-08-23T01:43:22.955622+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        },
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.835927041,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 2
+    },
+    "web_static_js_discipline_loadhabits": {
+      "code_fingerprint": "",
+      "label": "loadHabits()",
+      "last": "2026-08-23T01:39:39.358417+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.417951025,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_loadprojectactivity": {
+      "code_fingerprint": "",
+      "label": "loadProjectActivity()",
+      "last": "2026-08-23T01:43:22.955622+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        }
+      ],
+      "score": 0.417976017,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_loadprojects": {
+      "code_fingerprint": "",
+      "label": "loadProjects()",
+      "last": "2026-08-23T01:39:39.358417+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.417951025,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_loadtoday": {
+      "code_fingerprint": "",
+      "label": "loadToday()",
+      "last": "2026-08-23T01:39:39.358417+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.417951025,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_loadwstasks": {
+      "code_fingerprint": "",
+      "label": "loadWsTasks()",
+      "last": "2026-08-23T02:30:36.833372+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T02:30:36.833372+00:00",
+          "outcome": "useful",
+          "q": "Complete every requested project planning feature at production depth"
+        },
+        {
+          "date": "2026-08-23T01:56:01.635883+00:00",
+          "outcome": "useful",
+          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
+        },
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        }
+      ],
+      "score": 1.254329734,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 3
+    },
+    "web_static_js_discipline_rendercards": {
+      "code_fingerprint": "",
+      "label": "renderCards()",
+      "last": "2026-08-23T02:39:49.151541+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T02:39:49.151541+00:00",
+          "outcome": "useful",
+          "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
+        }
+      ],
+      "score": 0.418354678,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_switchview": {
+      "code_fingerprint": "",
+      "label": "switchView()",
+      "last": "2026-08-23T01:39:39.358417+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T01:39:39.358417+00:00",
+          "outcome": "useful",
+          "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
+        }
+      ],
+      "score": 0.417951025,
+      "source_file": "web/static/js/discipline.js",
+      "status": "tentative",
+      "uses": 1
+    },
+    "web_static_js_discipline_taskrowhtml": {
+      "code_fingerprint": "",
+      "label": "taskRowHTML()",
+      "last": "2026-08-23T02:39:49.151541+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T02:39:49.151541+00:00",
+          "outcome": "useful",
+          "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
+        },
+        {
+          "date": "2026-08-23T01:56:01.635883+00:00",
+          "outcome": "useful",
+          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
+        },
+        {
+          "date": "2026-08-23T01:43:22.955622+00:00",
+          "outcome": "useful",
+          "q": "What features would be good for the project task planning workspace before implementing the big update?"
+        }
+      ],
+      "score": 1.25439152,
+      "source_file": "web/static/js/discipline.js",
+      "status": "preferred",
+      "uses": 3
+    },
+    "web_templates_dashboard_filtering_controls": {
+      "code_fingerprint": "ad8815e4e64559b1b2fe6e41ccb89a8f8837f3a84afb35250ee6e83f4940d3ad",
+      "label": "Filtering Controls",
+      "last": "2026-08-23T17:05:03.192256+00:00",
+      "provenance": [
+        {
+          "date": "2026-08-23T17:05:03.192256+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the website"
+        },
+        {
+          "date": "2026-08-23T03:13:00.829608+00:00",
+          "outcome": "useful",
+          "q": "Enhance and organize the Settings tab"
+        },
+        {
+          "date": "2026-08-23T03:07:33.423285+00:00",
+          "outcome": "useful",
+          "q": "Consolidate App Blocker and Categories, and consolidate Blocklist, Whitelist, and AI Blocker into organized tabs"
+        }
+      ],
+      "score": 1.261321557,
+      "source_file": "web/templates/dashboard.html",
+      "status": "preferred",
+      "uses": 3
+    },
+    "web_templates_dashboard_management_dashboard": {
+      "code_fingerprint": "ad8815e4e64559b1b2fe6e41ccb89a8f8837f3a84afb35250ee6e83f4940d3ad",
+      "label": "DNS Filter Management Dashboard",
+      "last": "2026-09-25T13:38:15.344575+00:00",
+      "neg": 1,
+      "provenance": [
+        {
+          "date": "2026-09-25T13:38:15.344575+00:00",
+          "outcome": "useful",
+          "q": "Are the existing APIs enough to build a stable C# desktop application, and start building it"
+        },
+        {
+          "date": "2026-08-23T20:55:24.087182+00:00",
+          "outcome": "corrected",
+          "q": "Notes editor appears at the bottom and requires scrolling after pressing New"
+        },
+        {
+          "date": "2026-08-23T20:50:33.246457+00:00",
+          "outcome": "useful",
+          "q": "start enhancing the YAML todo importer"
+        }
+      ],
+      "score": 0.906253988,
+      "source_file": "web/templates/dashboard.html",
+      "status": "contested",
+      "uses": 2,
+      "verdict": "useful"
+    },
+    "web_templates_discipline_discipline_workspace": {
+      "code_fingerprint": "4787808d77e43567ad0a9cda3093f249b4f0aac7f5fd296eb17d33c3e4e37e30",
+      "label": "Discipline Workspace",
+      "last": "2026-08-23T21:01:44.806267+00:00",
+      "neg": 1,
+      "provenance": [
+        {
+          "date": "2026-08-23T21:01:44.806267+00:00",
+          "outcome": "useful",
+          "q": "Add project YAML import and export for AI-generated plans"
+        },
+        {
+          "date": "2026-08-23T03:52:39.510935+00:00",
+          "outcome": "corrected",
+          "q": "Fix the dark mode because it looks like reversed colors"
+        },
+        {
+          "date": "2026-08-23T02:39:49.151541+00:00",
+          "outcome": "useful",
+          "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
+        },
+        {
+          "date": "2026-08-23T02:30:36.833372+00:00",
+          "outcome": "useful",
+          "q": "Complete every requested project planning feature at production depth"
+        },
+        {
+          "date": "2026-08-23T01:56:01.635883+00:00",
+          "outcome": "useful",
+          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
+        }
+      ],
+      "score": 2.097608714,
+      "source_file": "web/templates/discipline.html",
+      "status": "contested",
+      "uses": 6,
+      "verdict": "useful"
+    }
+  },
+  "version": 1
+}

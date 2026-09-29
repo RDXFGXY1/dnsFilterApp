@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="popup.css">
+  <title>Hard System</title>
+</head>
+<body>
+  <main class="shell">
+    <header class="header">
+      <div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.8-2.8 8-7 10-4.2-2-7-5.2-7-10V6l7-3Z"/><path d="m9 12 2 2 4-5"/></svg></div>
+      <div class="brand-copy"><div class="eyebrow">DNS FILTER</div><h1>Hard System</h1><p>Local webpage risk protection</p></div>
+      <span id="connection" class="connection"><i></i><b>Local</b></span>
+    </header>
+    <section class="control-card">
+      <div><strong>Protection</strong><span id="protection-copy">Analyzing visible page content</span></div>
+      <label class="switch" aria-label="Enable Hard System protection"><input id="enabled" type="checkbox"><span class="switch-track"><span></span></span></label>
+    </section>
+    <section id="risk-card" class="risk-card neutral">
+      <div id="score-ring" class="score-ring" style="--score:0"><div><strong id="score">—</strong><span>/ 100</span></div></div>
+      <div class="risk-copy"><span class="label">Latest analysis</span><strong id="status">No page analyzed</strong><span id="domain">Browse normally to begin</span></div>
+    </section>
+    <section class="threshold-card">
+      <div class="threshold-head"><div><strong>Blocking threshold</strong><span>Higher means less aggressive</span></div><output id="threshold-value" for="threshold">70</output></div>
+      <input id="threshold" type="range" min="40" max="100" step="1">
+      <div class="scale"><span>Strict · 40</span><span>Balanced · 70</span><span>Relaxed · 100</span></div>
+    </section>
+    <button id="dashboard" class="dashboard-button"><span>Open security dashboard</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    <footer>Analysis stays on this computer</footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

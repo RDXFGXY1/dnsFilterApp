@@ -2,9 +2,14 @@ package blockpage
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -21,8 +26,24 @@ type BlockPageServer struct {
 	stats    *BlockStats
 	mu       sync.RWMutex
 
+	// allowedCheck asks the live filtering engine whether a domain is still
+	// blocked. It lets a stale browser connection escape the block page after
+	// any rule change, not only after adding the domain to the whitelist.
+	allowedCheck func(string) bool
+
 	handler http.Handler // shared by the HTTP and HTTPS servers
 	tlsMgr  *tlsManager  // dynamic per-SNI certificate authority (nil until EnableTLS)
+}
+
+type UnblockRequest struct {
+	ID           int    `json:"id"`
+	Domain       string `json:"domain"`
+	ClientIP     string `json:"client_ip"`
+	Reason       string `json:"reason"`
+	Status       string `json:"status"`
+	RequestedAt  string `json:"requested_at"`
+	DecisionAt   string `json:"decision_at"`
+	DecisionNote string `json:"decision_note"`
 }
 
 type BlockStats struct {
@@ -80,6 +101,21 @@ func NewBlockPageServer(db *sql.DB, port int) (*BlockPageServer, error) {
 	return bps, nil
 }
 
+// SetAllowedCheck connects the block-page fallback to the filtering engine's
+// current decision. The callback must return true when the domain is allowed.
+func (bps *BlockPageServer) SetAllowedCheck(check func(string) bool) {
+	bps.mu.Lock()
+	bps.allowedCheck = check
+	bps.mu.Unlock()
+}
+
+func (bps *BlockPageServer) isCurrentlyAllowed(domain string) bool {
+	bps.mu.RLock()
+	check := bps.allowedCheck
+	bps.mu.RUnlock()
+	return check != nil && check(domain)
+}
+
 // ── Database Schema ──────────────────────────────────────────────
 
 func (bps *BlockPageServer) initTables() error {
@@ -110,6 +146,9 @@ func (bps *BlockPageServer) initTables() error {
 			return err
 		}
 	}
+	// Safe incremental migration for databases created before request decisions
+	// included an administrator note.
+	_, _ = bps.db.Exec(`ALTER TABLE unblock_requests ADD COLUMN decision_note TEXT DEFAULT ''`)
 
 	return nil
 }
@@ -313,21 +352,29 @@ func (bps *BlockPageServer) handleBlockPage(w http.ResponseWriter, r *http.Reque
 
 	if domain == "" {
 		domain = r.Host
+		if host, _, err := net.SplitHostPort(r.Host); err == nil {
+			domain = host
+		}
 	}
+	domain = strings.TrimSuffix(strings.ToLower(strings.TrimSpace(domain)), ".")
 
-	// SAFETY CHECK: If domain is whitelisted, don't show block page
-	// This handles the case where unblocking takes effect but browser
-	// still connects to 127.0.0.1 due to connection pooling
-	if bps.isWhitelisted(domain) {
-		// Redirect to actual domain instead of showing block page
+	// SAFETY CHECK: Re-evaluate the domain against the live rules. This handles
+	// every unblock path while the browser still holds 127.0.0.1 in its DNS or
+	// connection cache. The whitelist check remains as a fail-safe.
+	if bps.isWhitelisted(domain) || bps.isCurrentlyAllowed(domain) {
 		scheme := "http"
-		if r.Header.Get("X-Forwarded-Proto") == "https" {
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
 			scheme = "https"
 		}
-		w.Header().Set("Location", scheme+"://"+domain)
-		w.WriteHeader(http.StatusMovedPermanently)
+		// The browser may still hold the old 127.0.0.1 DNS answer. Proxy this
+		// request to the real origin until that client-side entry expires.
+		// This avoids a redirect loop and makes the unblock effective now.
+		bps.proxyWhitelisted(w, r, domain, scheme)
 		return
 	}
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 
 	// Log block
 	bps.logBlock(domain, reason, category, r.RemoteAddr, r.UserAgent())
@@ -363,16 +410,65 @@ func (bps *BlockPageServer) handleBlockPage(w http.ResponseWriter, r *http.Reque
 	bps.template.Execute(w, data)
 }
 
+func (bps *BlockPageServer) proxyWhitelisted(w http.ResponseWriter, r *http.Request, domain, scheme string) {
+	target, err := url.Parse(scheme + "://" + domain)
+	if err != nil {
+		http.Error(w, "Invalid unblock target", http.StatusBadGateway)
+		return
+	}
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	baseDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		baseDirector(req)
+		req.Host = domain
+		req.Header.Set("X-DNS-Filter-Bypass", "unblocked")
+	}
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		// Do not let the temporary local route become another persistent cache.
+		resp.Header.Set("Cache-Control", "no-store")
+		resp.Header.Set("Connection", "close")
+		resp.Close = true
+		return nil
+	}
+	proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, proxyErr error) {
+		rw.Header().Set("Cache-Control", "no-store")
+		http.Error(rw, "The site was unblocked, but its origin is not reachable yet. Retry once.", http.StatusBadGateway)
+	}
+	proxy.ServeHTTP(w, r)
+}
+
 func (bps *BlockPageServer) handleUnblockRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Parse request (simplified - should decode JSON properly)
-	domain := r.FormValue("domain")
-	reason := r.FormValue("reason")
+	var payload struct {
+		Domain string `json:"domain"`
+		Reason string `json:"reason"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		payload.Domain = r.FormValue("domain")
+		payload.Reason = r.FormValue("reason")
+	}
+	domain := strings.ToLower(strings.TrimSpace(payload.Domain))
+	reason := strings.TrimSpace(payload.Reason)
+	if domain == "" || reason == "" || len(domain) > 253 || len(reason) > 1000 {
+		http.Error(w, `{"success":false,"message":"Domain and reason are required"}`, http.StatusBadRequest)
+		return
+	}
 	clientIP := r.RemoteAddr
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		clientIP = host
+	}
+
+	var existing int
+	_ = bps.db.QueryRow(`SELECT id FROM unblock_requests WHERE domain = ? AND client_ip = ? AND status = 'pending' LIMIT 1`, domain, clientIP).Scan(&existing)
+	if existing > 0 {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"success":true,"message":"A request for this domain is already pending","id":%d}`, existing)
+		return
+	}
 
 	// Save request
 	_, err := bps.db.Exec(`
@@ -585,6 +681,61 @@ func (bps *BlockPageServer) GetUnblockRequests() ([]map[string]interface{}, erro
 	}
 
 	return requests, nil
+}
+
+func (bps *BlockPageServer) ListUnblockRequests(status string) ([]UnblockRequest, error) {
+	query := `SELECT id, domain, client_ip, reason, status, requested_at,
+		COALESCE(approved_at, ''), COALESCE(decision_note, '')
+		FROM unblock_requests`
+	args := []interface{}{}
+	if status != "" && status != "all" {
+		query += ` WHERE status = ?`
+		args = append(args, status)
+	}
+	query += ` ORDER BY CASE status WHEN 'pending' THEN 0 ELSE 1 END, requested_at DESC`
+	rows, err := bps.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	requests := []UnblockRequest{}
+	for rows.Next() {
+		var item UnblockRequest
+		if err := rows.Scan(&item.ID, &item.Domain, &item.ClientIP, &item.Reason, &item.Status, &item.RequestedAt, &item.DecisionAt, &item.DecisionNote); err != nil {
+			return nil, err
+		}
+		if item.Status == "rejected" {
+			item.Status = "denied"
+		}
+		requests = append(requests, item)
+	}
+	return requests, rows.Err()
+}
+
+func (bps *BlockPageServer) GetUnblockRequest(id int) (UnblockRequest, error) {
+	var item UnblockRequest
+	err := bps.db.QueryRow(`SELECT id, domain, client_ip, reason, status, requested_at,
+		COALESCE(approved_at, ''), COALESCE(decision_note, '') FROM unblock_requests WHERE id = ?`, id).
+		Scan(&item.ID, &item.Domain, &item.ClientIP, &item.Reason, &item.Status, &item.RequestedAt, &item.DecisionAt, &item.DecisionNote)
+	return item, err
+}
+
+func (bps *BlockPageServer) DecideUnblockRequest(id int, status, note string) error {
+	if status != "approved" && status != "denied" {
+		return fmt.Errorf("invalid request status")
+	}
+	result, err := bps.db.Exec(`UPDATE unblock_requests SET status = ?, approved_at = CURRENT_TIMESTAMP, decision_note = ? WHERE id = ? AND status = 'pending'`, status, strings.TrimSpace(note), id)
+	if err != nil {
+		return err
+	}
+	changed, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if changed == 0 {
+		return fmt.Errorf("request is missing or already decided")
+	}
+	return nil
 }
 
 func (bps *BlockPageServer) ApproveUnblockRequest(id int) error {

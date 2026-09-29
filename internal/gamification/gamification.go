@@ -16,34 +16,34 @@ import (
 // ── Data Structures ──────────────────────────────────────────────
 
 type UserProfile struct {
-	UserID          string    `json:"user_id"`
-	Username        string    `json:"username"`
-	DeviceMAC       string    `json:"device_mac"`
-	Points          int       `json:"points"`
-	Level           int       `json:"level"`
-	Rank            string    `json:"rank"`
-	CurrentStreak   int       `json:"current_streak"`
-	LongestStreak   int       `json:"longest_streak"`
-	TotalBlocked    int       `json:"total_blocked"`
-	TotalAllowed    int       `json:"total_allowed"`
-	BlockSuccessRate float64 `json:"block_success_rate"`
-	CreatedAt       time.Time `json:"created_at"`
-	LastActive      time.Time `json:"last_active"`
-	Avatar          string    `json:"avatar"`
-	Title           string    `json:"title"`
+	UserID           string    `json:"user_id"`
+	Username         string    `json:"username"`
+	DeviceMAC        string    `json:"device_mac"`
+	Points           int       `json:"points"`
+	Level            int       `json:"level"`
+	Rank             string    `json:"rank"`
+	CurrentStreak    int       `json:"current_streak"`
+	LongestStreak    int       `json:"longest_streak"`
+	TotalBlocked     int       `json:"total_blocked"`
+	TotalAllowed     int       `json:"total_allowed"`
+	BlockSuccessRate float64   `json:"block_success_rate"`
+	CreatedAt        time.Time `json:"created_at"`
+	LastActive       time.Time `json:"last_active"`
+	Avatar           string    `json:"avatar"`
+	Title            string    `json:"title"`
 }
 
 type Achievement struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Icon        string    `json:"icon"`
-	Category    string    `json:"category"`
-	Points      int       `json:"points"`
-	Rarity      string    `json:"rarity"` // common, rare, epic, legendary
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Icon        string     `json:"icon"`
+	Category    string     `json:"category"`
+	Points      int        `json:"points"`
+	Rarity      string     `json:"rarity"` // common, rare, epic, legendary
 	UnlockedAt  *time.Time `json:"unlocked_at,omitempty"`
-	Progress    int       `json:"progress"`
-	Target      int       `json:"target"`
+	Progress    int        `json:"progress"`
+	Target      int        `json:"target"`
 }
 
 type Challenge struct {
@@ -73,28 +73,28 @@ type Reward struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Cost        int    `json:"cost"`
-	Type        string `json:"type"` // whitelist_temp, extra_time, custom_avatar
+	Type        string `json:"type"`     // whitelist_temp, extra_time, custom_avatar
 	Duration    int    `json:"duration"` // minutes
 }
 
 // ── Gamification Engine ──────────────────────────────────────────
 
 type Engine struct {
-	db              *sql.DB
-	mu              sync.RWMutex
-	achievements    map[string]*Achievement
-	challenges      map[string]*Challenge
-	pointsPerBlock  int
-	pointsPerDay    int
+	db             *sql.DB
+	mu             sync.RWMutex
+	achievements   map[string]*Achievement
+	challenges     map[string]*Challenge
+	pointsPerBlock int
+	pointsPerDay   int
 }
 
 func NewEngine(db *sql.DB) (*Engine, error) {
 	engine := &Engine{
-		db:              db,
-		achievements:    make(map[string]*Achievement),
-		challenges:      make(map[string]*Challenge),
-		pointsPerBlock:  10,  // 10 points per successful block resist
-		pointsPerDay:    50,  // 50 points for daily login
+		db:             db,
+		achievements:   make(map[string]*Achievement),
+		challenges:     make(map[string]*Challenge),
+		pointsPerBlock: 10, // 10 points per successful block resist
+		pointsPerDay:   50, // 50 points for daily login
 	}
 
 	// Initialize database tables
@@ -412,7 +412,7 @@ func (e *Engine) checkAchievements(userID string) {
 
 func (e *Engine) unlockAchievement(userID, achievementID string) {
 	achievement := e.achievements[achievementID]
-	
+
 	// Mark as unlocked
 	e.db.Exec(`
 		UPDATE gamification_achievements 
@@ -507,8 +507,8 @@ func (e *Engine) GetLeaderboard(limit int) ([]LeaderboardEntry, error) {
 
 	for rows.Next() {
 		var entry LeaderboardEntry
-		rows.Scan(&entry.UserID, &entry.Username, &entry.Points, 
-		          &entry.Level, &entry.Avatar, &entry.Streak)
+		rows.Scan(&entry.UserID, &entry.Username, &entry.Points,
+			&entry.Level, &entry.Avatar, &entry.Streak)
 		entry.Rank = rank
 		rank++
 		leaderboard = append(leaderboard, entry)
@@ -606,7 +606,7 @@ func (e *Engine) OnBlockAttempt(userID string, domain string, blocked bool) {
 	if blocked {
 		// Increment total blocked
 		e.db.Exec(`UPDATE gamification_users SET total_blocked = total_blocked + 1 WHERE user_id = ?`, userID)
-		
+
 		// Award points for resisting temptation
 		e.AddPoints(userID, e.pointsPerBlock, "blocked_attempt")
 	} else {

@@ -1,0 +1,79 @@
+/* Classic dark: opaque surfaces, blue actions, accessible semantic states. */
+/* Shared overview and Discipline surfaces omitted by the original dark palette. */
+html:root[data-theme="dark"] :is(.system-health,.attention-card,.protection-summary,.today-momentum .mo){background:#141414!important;color:#f2f2f2!important;border-color:#383838!important}
+html:root[data-theme="dark"] :is(.health-copy p,.health-score span,.mo-label){color:#bcbcbc!important}
+html:root[data-theme="dark"] :is(.health-score,.mo-num){color:#f2f2f2!important}
+html:root[data-theme="dark"] :is(.progress-bar,.mini-bar,.hbar-track,.alignment-progress,.health-bar){background:#292929!important;border-color:#414141!important;border-radius:0!important;overflow:hidden}
+html:root[data-theme="dark"] :is(.progress-fill,.mini-bar span,.hbar-fill,.hbar-track span,.health-bar span){border-radius:0!important}
+html:root[data-theme="dark"] .stat-icon.ic-blue{color:#9abaff;background:#202b40}
+html:root[data-theme="dark"] .stat-icon.ic-green{color:#9bddb3;background:#193024}
+html:root[data-theme="dark"] .stat-icon.ic-amber{color:#efc681;background:#302615}
+html:root[data-theme="dark"] .stat-icon.ic-red{color:#eda4a4;background:#361f22}
+/* Discipline uses --ink as a light-mode background; do not invert that surface. */
+html:root[data-theme="dark"] .command-hero{background:#101010;color:#f2f2f2;border:1px solid #383838;box-shadow:0 3px 12px #0005}
+html:root[data-theme="dark"] .command-hero h2{color:#f2f2f2}
+html:root[data-theme="dark"] :is(.command-hero p,.command-score span){color:#bcbcbc}
+html:root[data-theme="dark"] .command-score{background:#191919;border-color:#606060;color:#f2f2f2}
+html:root[data-theme="dark"] :is(.next-action,.action-focus){border-color:#484848}
+html:root[data-theme="dark"] .next-action.at-risk{border-left-color:#e48189}
+html:root[data-theme="dark"] :is(.priority-pill.p-low,.focus-state){color:#a1dfb5;background:#173023}
+html:root[data-theme="dark"] .priority-pill.p-medium{color:#efcb89;background:#332916}
+html:root[data-theme="dark"] .priority-pill.p-high{color:#f3a7ae;background:#361d22}
+html:root[data-theme="dark"] :is(.ws-tab,.action-focus,.focus-presets button){background:#202020;color:#ededed;border-color:#484848}
+/* Include inputs without a type attribute, which otherwise retain native styling. */
+html:root[data-theme="dark"] :is(input:not([type]),input[type="text"],input[type="password"],input[type="search"],input[type="number"],input[type="email"],input[type="url"],select,textarea){box-sizing:border-box;min-width:0;min-height:42px;padding:10px 12px;border:1px solid #484848!important;font-family:inherit;font-size:.82rem;line-height:1.4;box-shadow:none!important}
+html:root[data-theme="dark"] textarea{min-height:90px;resize:vertical}
+html:root[data-theme="dark"] :is(.btn,.list-expand-btn){box-sizing:border-box;min-height:42px;padding:10px 15px;font-family:inherit;font-size:.78rem;line-height:1.35;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
+html:root[data-theme="dark"] .security-domain-input{align-items:stretch;flex-wrap:wrap;gap:10px}
+html:root[data-theme="dark"] .security-domain-input input{flex:1 1 200px;width:auto}
+html:root[data-theme="dark"] .security-hero-actions{flex-wrap:wrap}
+html:root[data-theme="dark"] .security-feature-icon{background:#242424!important;color:#ddd!important;border:1px solid #484848!important;flex-shrink:0}
+html:root[data-theme="dark"] .security-feature-meta span{background:#252525;color:#d5d5d5}
+html:root[data-theme="dark"] .security-feature.healthy .security-state{background:#152a20;color:#99dfb5;border-color:#3b7754}
+html:root[data-theme="dark"] .security-feature.warning .security-state{background:#302516;color:#efc581;border-color:#886a35}
+html:root[data-theme="dark"] .security-feature.danger .security-state{background:#321c20;color:#f5a7b0;border-color:#94505b}
+html:root[data-theme="dark"] :is(input[type="checkbox"],input[type="radio"]){accent-color:#6484ea}
+html:root[data-theme="dark"] .btn:disabled{cursor:not-allowed}
+html:root[data-theme="dark"]{color-scheme:dark;--bg:#10141c;--surface:#191f2b;--surface-2:#222b3a;--text:#edf2fa;--ink:#edf2fa;--text-muted:#b2bed1;--text-faint:#94a2b8;--border:#303c50;--border-strong:#485873;--primary:#4264cf;--primary-dark:#3555b7;--primary-soft:#253657;--cmd-ink:#edf2fa;--cmd-paper:#191f2b;--cmd-muted:#b2bed1;--cmd-line:#3b4960;--shadow-sm:0 3px 12px #0003;--shadow:0 8px 24px #0004}
+html:root[data-theme="dark"] :is(body,.main,.main.wide){background:var(--bg)!important;color:var(--text)}
+html:root[data-theme="dark"] .sidebar{background:#141b27;border-color:var(--border)}
+html:root[data-theme="dark"] .page-head{background:transparent}
+html:root[data-theme="dark"] :is(.panel,.stat-card,.dashboard-command,.decision-command,.security-hero,.organizer-command,.todo-command,.app-tile,.category-item,.keyword-item,.notes-sidebar,.note-editor,.todo-guide-list article,.modal,.dialog,.drawer){background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;box-shadow:var(--shadow-sm)!important}
+html:root[data-theme="dark"] :is(.panel h2,.panel h3,.page-title,.stat-value,.dashboard-command h2,.decision-command h2,.organizer-command h2,.security-hero h2,.todo-title,.subtodo-title,.pcard-name,.proj-name){color:var(--text)!important}
+html:root[data-theme="dark"] :is(.panel-desc,.page-sub,.stat-label,.subhead,.command-kicker,.page-eyebrow,.no-data,.workspace-section-head p,.workspace-section-head span){color:var(--text-muted)!important}
+html:root[data-theme="dark"] :is(.workspace-tabs,.workspace-context,.command-tools,.settings-pane,.workspace-pane,.command-metric,.settings-list-overview article,.website-profile,.decision-empty,.health-check-list article,.profile-grid>div,.decision-command-metrics>div,.rule-evidence>div,.operation-note,.freeze-state,.pack-upload-zone,.todo-card,.note-list-item,.middleman-bar,.gami-stat,.security-check,.attention-item,.protection-grid div){background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--border)!important}
+html:root[data-theme="dark"] :is(input,select,textarea,.note-editor textarea){background:#111925!important;color:var(--text)!important;border-color:var(--border-strong)!important}
+html:root[data-theme="dark"] :is(input,textarea)::placeholder{color:#9baac0;opacity:1}
+html:root[data-theme="dark"] :is(.btn,.hierarchy-primary){background:var(--primary);border-color:#6d8ce8;color:#fff}
+html:root[data-theme="dark"] .btn:hover:not(:disabled){background:var(--primary-dark)}
+html:root[data-theme="dark"] :is(.btn-ghost,.list-expand-btn,.todo-actions button,.workspace-tab){background:#222d40!important;color:var(--text)!important;border-color:var(--border-strong)!important}
+html:root[data-theme="dark"] .btn-danger{background:#a93640!important;border-color:#dc7580!important;color:#fff!important}
+html:root[data-theme="dark"] .sidenav a.active{background:#2e4678;color:#fff;box-shadow:inset 3px 0 #92b5ff}
+html:root[data-theme="dark"] .sidenav a.active svg{color:#b6d0ff}
+html:root[data-theme="dark"] .nav-label{color:#99aac2}
+html:root[data-theme="dark"] :is(.workspace-tab.active,.theme-switcher button.active){background:#334f83!important;color:white!important;box-shadow:none!important}
+html:root[data-theme="dark"] :is(th,thead){background:#222d40!important;color:#c1cee2!important;border-color:var(--border)!important}
+html:root[data-theme="dark"] :is(td,.data-list li){border-color:var(--border)!important}
+html:root[data-theme="dark"] :is(.tag,.freeze-badge,.legend-swatch){background:#263a5c;color:#cadcff;border-color:#4b6793}
+html:root[data-theme="dark"] .server-status{background:#17392f;color:#a3e3be;border-color:#346b52}
+html:root[data-theme="dark"] :is(.emergency-lockdown,.app-tile.blocked){background:#34212a!important;color:#f4c6cf!important;border-color:#9e5363!important}
+html:root[data-theme="dark"] :is(.emergency-lockdown strong,.emergency-lockdown p){color:inherit}
+html:root[data-theme="dark"] .dns-bypass-finding[data-state="warning"] strong span{color:#f5c77e}
+html:root[data-theme="dark"] :focus-visible{outline:2px solid #9cc1ff!important;outline-offset:3px}
+html:root[data-theme="dark"] .btn:disabled{opacity:.5}
+
+/* Neutral black surfaces: no navy tint in the shell or nested controls. */
+html:root[data-theme="dark"]{--bg:#000;--surface:#101010;--surface-2:#191919;--text:#f2f2f2;--ink:#f2f2f2;--text-muted:#bcbcbc;--text-faint:#999;--border:#2b2b2b;--border-strong:#484848;--primary-soft:#242424;--cmd-ink:#f2f2f2;--cmd-paper:#101010;--cmd-muted:#bcbcbc;--cmd-line:#383838}
+html:root[data-theme="dark"] .sidebar{background:#080808;border-color:#282828}
+html:root[data-theme="dark"] :is(input,select,textarea,.note-editor textarea){background:#080808!important}
+html:root[data-theme="dark"] :is(input,textarea)::placeholder{color:#a3a3a3}
+html:root[data-theme="dark"] :is(.btn-ghost,.list-expand-btn,.todo-actions button,.workspace-tab){background:#1c1c1c!important}
+html:root[data-theme="dark"] .sidenav a{color:#bcbcbc}
+html:root[data-theme="dark"] .sidenav a:hover{background:#202020;color:#fff}
+html:root[data-theme="dark"] .sidenav a.active{background:#292929;color:#fff;box-shadow:inset 3px 0 #ddd}
+html:root[data-theme="dark"] .sidenav a.active svg{color:#fff}
+html:root[data-theme="dark"] .nav-label{color:#aaa}
+html:root[data-theme="dark"] :is(.workspace-tab.active,.theme-switcher button.active){background:#333!important;color:#fff!important}
+html:root[data-theme="dark"] :is(th,thead){background:#1c1c1c!important;color:#ccc!important}
+html:root[data-theme="dark"] :is(.tag,.freeze-badge){background:#252525;color:#ddd;border-color:#484848}
+html:root[data-theme="dark"] :is(table tr:hover,.data-list li:hover,.timeline-event:hover){background:#242424}

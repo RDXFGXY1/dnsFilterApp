@@ -1,0 +1,169 @@
+{{ define "discipline_projects" }}
+<!-- ═══ PROJECTS ═══ -->
+            <section class="view" data-view="projects">
+                <div class="view-guide"><div><span class="command-kicker">Plan</span><strong>Manage outcomes as a portfolio</strong><p>Control work in progress, identify stalled initiatives, and keep every project moving.</p></div><div class="guide-actions"><button class="btn" onclick="openProjectYAMLImport()">Import YAML</button><button class="btn btn-ghost" onclick="openProjectExportPicker()">Export projects</button><select id="project-filter" onchange="renderProjectPortfolio()"><option value="all">All projects</option><option value="active">Active</option><option value="stalled">Stalled</option><option value="complete">Complete</option></select></div></div>
+                <div class="view-kpis" id="project-kpis"></div>
+                <section class="panel">
+                    <div class="panel-head"><h2>New Project</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="proj-name" placeholder="Project name" style="flex:0 0 32%;" />
+                        <input type="text" id="proj-desc" placeholder="Description (optional)" />
+                        <button class="btn" onclick="createProject()">Create</button>
+                    </div>
+                </section>
+                <div class="proj-summary" id="proj-summary"></div>
+                <div class="proj-grid" id="projects-grid"><span class="no-data">Loading…</span></div>
+                <div class="project-transfer-modal" id="project-yaml-modal" hidden>
+                    <div class="project-transfer-dialog">
+                        <div class="panel-head"><div><span class="command-kicker">AI-ready project pipeline</span><h2>Import Project YAML</h2></div><button class="btn btn-ghost" onclick="closeProjectYAMLImport()">Close</button></div>
+                        <p class="panel-desc">Upload or paste a complete project plan. Validation and preview happen before any project is changed.</p>
+                        <div class="project-transfer-tools"><button class="btn btn-ghost" onclick="document.getElementById('project-yaml-file').click()">Choose .yaml file</button><input id="project-yaml-file" type="file" accept=".yaml,.yml,text/yaml" hidden onchange="loadProjectYAMLFile(this)"><button class="btn btn-ghost" onclick="loadProjectYAMLTemplate()">Load AI template</button><button class="btn btn-ghost" onclick="copyProjectYAMLPrompt()">Copy AI prompt</button><span>or paste YAML below</span></div>
+                        <textarea id="project-yaml-input" spellcheck="false" placeholder="version: 1&#10;projects:&#10;  - name: My Project&#10;    objective: Define success"></textarea>
+                        <div class="project-import-modes"><label><input type="radio" name="project-yaml-mode" value="add" checked><span><strong>Add projects</strong>Keep everything currently saved</span></label><label><input type="radio" name="project-yaml-mode" value="replace"><span><strong>Replace matching</strong>Only replace projects with the same name</span></label><label><input type="radio" name="project-yaml-mode" value="skip"><span><strong>Skip duplicates</strong>Ignore projects with matching names</span></label><label><input type="radio" name="project-yaml-mode" value="merge"><span><strong>Import tasks</strong>Add tasks into the matching project</span></label></div>
+                        <div class="project-transfer-actions"><button class="btn" onclick="previewProjectYAML()">Validate & preview</button><button class="btn btn-ghost" id="project-yaml-confirm" onclick="confirmProjectYAMLImport()" disabled>Confirm import</button></div>
+                        <div id="project-yaml-preview" class="project-yaml-preview"><div class="dense-empty"><strong>Nothing validated yet</strong><span>The preview will show projects, milestones, tasks, subtasks, dependencies, and checklist totals.</span></div></div>
+                    </div>
+                </div>
+                <div class="project-transfer-modal" id="project-export-modal" hidden>
+                    <div class="project-transfer-dialog project-export-dialog">
+                        <div class="panel-head"><div><span class="command-kicker">Selective export</span><h2>Choose projects to export</h2></div><button class="btn btn-ghost" onclick="closeProjectExportPicker()">Close</button></div>
+                        <p class="panel-desc">Only checked projects will be included. Task keys and dependency references are regenerated into portable names.</p>
+                        <div class="project-export-toolbar"><button class="btn btn-ghost" onclick="setAllProjectExports(true)">Select all</button><button class="btn btn-ghost" onclick="setAllProjectExports(false)">Select none</button><span id="project-export-count">0 selected</span></div>
+                        <div id="project-export-list" class="project-export-list"><span class="no-data">Loading projects…</span></div>
+                        <div class="project-transfer-actions"><button class="btn" onclick="downloadSelectedProjectsYAML()">Export selected YAML</button></div>
+                    </div>
+                </div>
+            </section>
+
+<!-- ═══ PROJECT WORKSPACE ═══ -->
+            <section class="view" data-view="workspace">
+                <div class="project-command">
+                    <div class="project-command-main">
+                        <div class="project-title-line"><span class="project-status" id="ws-status">Active</span><h2 id="ws-name">Project</h2><button class="project-edit" onclick="toggleProjectSetup()">Edit project</button></div>
+                        <p id="ws-objective" class="project-objective">Define what success looks like for this project.</p>
+                        <div class="project-health-row">
+                            <div class="project-health"><strong id="ws-health">100</strong><span>Health</span></div>
+                            <div class="project-command-progress"><div><span>Overall progress</span><b id="ws-progress-label">0%</b></div><div class="progress-bar"><div class="progress-fill" id="ws-progress"></div></div></div>
+                            <div class="project-signal"><span>Timeline</span><b id="ws-timeline-signal">Not scheduled</b></div>
+                            <div class="project-signal"><span>Goal</span><b id="ws-goal">Not linked</b></div>
+                            <div class="project-signal"><span>Open work</span><b id="ws-open-work">0 tasks</b></div>
+                        </div>
+                    </div>
+                    <div class="ws-tabs">
+                        <button class="ws-tab active" data-ws="table" onclick="setWsView('table')">Tasks</button>
+                        <button class="ws-tab" data-ws="board" onclick="setWsView('board')">Board</button>
+                        <button class="ws-tab" data-ws="list" onclick="setWsView('list')">List</button>
+                        <button class="ws-tab" data-ws="insights" onclick="setWsView('insights')">Analytics</button>
+                        <button class="ws-more" onclick="toggleWorkspaceModes()">More views ▾</button>
+                        <button class="ws-tab" onclick="openTaskYAMLImport()">Import tasks</button>
+                        <a class="ws-tab" id="ws-export-project" href="#" onclick="exportCurrentProjectYAML(event)">Export project</a>
+                        <button class="btn btn-danger" onclick="deleteProject()">Delete</button>
+                    </div>
+                </div>
+                <div class="workspace-mode-menu" id="workspace-mode-menu" style="display:none;">
+                    <button data-ws="outline" onclick="setWsView('outline')">Outline</button><button data-ws="timeline" onclick="setWsView('timeline')">Timeline</button><button data-ws="calendar" onclick="setWsView('calendar')">Calendar</button><button data-ws="backlog" onclick="setWsView('backlog')">Backlog</button><button data-ws="milestones" onclick="setWsView('milestones')">Milestones</button><button data-ws="workload" onclick="setWsView('workload')">Workload</button><button data-ws="risks" onclick="setWsView('risks')">Risks</button><button data-ws="focus" onclick="setWsView('focus')">Focus</button><button data-ws="archive" onclick="setWsView('archive')">Archive</button>
+                </div>
+                <section class="project-setup" id="project-setup" style="display:none;">
+                    <div class="panel-head"><div><span class="command-kicker">Project command</span><h2>Definition & timeline</h2></div><button class="btn-remove" onclick="toggleProjectSetup(false)">CLOSE</button></div>
+                    <div class="project-form-grid">
+                        <label><span>Project name</span><input id="ws-edit-name" type="text" /></label>
+                        <label><span>Status</span><select id="ws-edit-status"><option value="planning">Planning</option><option value="active">Active</option><option value="paused">Paused</option><option value="at_risk">At risk</option><option value="completed">Completed</option></select></label>
+                        <label class="wide"><span>Objective / success definition</span><textarea id="ws-edit-objective" rows="3" placeholder="What outcome proves this project succeeded?"></textarea></label>
+                        <label class="wide"><span>Context and notes</span><textarea id="ws-edit-description" rows="2" placeholder="Why this project matters, constraints, useful links…"></textarea></label>
+                        <label class="wide"><span>Private project notes</span><textarea id="ws-edit-notes" rows="3" placeholder="Decisions, constraints, meeting notes…"></textarea></label>
+                        <label class="wide"><span>Important links</span><textarea id="ws-edit-links" rows="2" placeholder="One URL or reference per line"></textarea></label>
+                        <label><span>Start date</span><input id="ws-edit-start" type="date" /></label>
+                        <label><span>Target date</span><input id="ws-edit-target" type="date" /></label>
+                    </div>
+                    <div class="project-setup-actions"><button class="btn" onclick="saveProjectSetup()">Save project definition</button><span id="ws-date-warning" class="form-warning"></span></div>
+                </section>
+                <section class="panel">
+                    <div class="input-row">
+                        <input type="text" id="ws-task-title" placeholder="Smart add: Build login !high #frontend tomorrow ~2h @milestone" />
+                        <select id="ws-task-priority" style="flex:0 0 22%;">
+                            <option value="high">High</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <button class="btn" onclick="addWsTask()">Add</button>
+                        <button class="hierarchy-primary" onclick="openTaskDrawer(0)">+ Create task</button>
+                    </div>
+                    <div class="ws-toolbar" id="ws-toolbar">
+                        <span class="tb-label">Group by</span>
+                        <select id="group-by" onchange="setGroupBy(this.value)">
+                            <option value="none" selected>None</option>
+                            <option value="status">Status</option>
+                            <option value="priority">Priority</option>
+                            <option value="size">Size</option>
+                        </select>
+                        <input id="ws-search" type="search" placeholder="Search tasks…" oninput="applyWorkspaceFilters()" />
+                        <select id="ws-filter-status" onchange="applyWorkspaceFilters()"><option value="">Any status</option><option value="todo">Todo</option><option value="in_progress">In progress</option><option value="done">Done</option></select>
+                        <select id="ws-filter-priority" onchange="applyWorkspaceFilters()"><option value="">Any priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+                        <select id="ws-filter-milestone" onchange="applyWorkspaceFilters()"><option value="">Any milestone</option></select>
+                        <select id="ws-filter-cycle" onchange="applyWorkspaceFilters()"><option value="">Any cycle</option></select>
+                        <select id="ws-filter-energy" onchange="applyWorkspaceFilters()"><option value="">Any energy</option><option value="high">High energy</option><option value="medium">Medium energy</option><option value="low">Low energy</option></select>
+                        <input id="ws-filter-label" placeholder="Label…" oninput="applyWorkspaceFilters()" />
+                        <select id="ws-filter-date" onchange="applyWorkspaceFilters()"><option value="">Any date</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="week">Next 7 days</option><option value="unscheduled">Unscheduled</option></select>
+                        <select id="ws-saved-views" onchange="loadNamedView(this.value)"><option value="">Saved views…</option></select>
+                        <button class="ws-tab" onclick="saveCurrentView()">Save view</button>
+                        <button class="ws-tab" onclick="deleteNamedView()">Delete view</button>
+                        <button class="ws-tab" onclick="clearWorkspaceFilters()">Clear</button>
+                        <button class="ws-tab" onclick="toggleBulkBar()">Bulk</button>
+                    </div>
+                    <div class="bulk-bar" id="bulk-bar" style="display:none;"><span id="bulk-count">0 selected</span><button onclick="bulkPatch({status:'done'})">Complete</button><button onclick="bulkPatch({backlog:true})">To backlog</button><button onclick="bulkPatch({archived:true})">Archive</button><button onclick="clearBulk()">Clear</button></div>
+                    <div id="ws-table" class="ws-table-wrap"></div>
+                    <div id="ws-list" style="display:none;"><ul class="data-list list-tall" id="ws-tasks"><li class="no-data">Loading…</li></ul></div>
+                    <div id="ws-board" class="kanban" style="display:none;"></div>
+                    <div id="ws-insights" style="display:none;">
+                        <div class="proj-stats" id="proj-stats"></div>
+
+                        <div class="analytics-grid">
+                            <div class="an-card"><h3 class="an-title">By priority</h3><div id="an-priority" class="hbars"></div></div>
+                            <div class="an-card"><h3 class="an-title">By status</h3><div id="an-status" class="hbars"></div></div>
+                            <div class="an-card"><h3 class="an-title">By label</h3><div id="an-label" class="hbars"></div></div>
+                            <div class="an-card"><h3 class="an-title">Completion</h3><div id="an-completion" class="completion"></div></div>
+                        </div>
+
+                        <div class="an-card">
+                            <h3 class="an-title">Tasks completed · last 21 days</h3>
+                            <div id="an-perday" class="barchart"></div>
+                        </div>
+
+                        <div class="an-card">
+                            <div class="panel-head"><h3 class="an-title">Contribution activity</h3><span class="chart-legend" id="proj-contrib">0 contributions</span></div>
+                            <div id="proj-heatmap" class="heatmap"></div>
+                            <div id="proj-day-detail" class="day-detail"></div>
+                        </div>
+
+                        <div class="an-card">
+                            <h3 class="an-title">Recent activity</h3>
+                            <ul class="data-list" id="an-recent"><li class="no-data">Loading…</li></ul>
+                        </div>
+                    </div>
+                    <div id="ws-outline" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-timeline" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-calendar" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-backlog" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-milestones" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-workload" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-risks" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-focus" class="workspace-special" style="display:none;"></div>
+                    <div id="ws-archive" class="workspace-special" style="display:none;"></div>
+                </section>
+                <aside class="task-drawer" id="task-drawer" aria-hidden="true">
+                    <div class="drawer-head"><div><span class="command-kicker">Task details</span><h2 id="drawer-title">New task</h2></div><button class="btn-remove" onclick="closeTaskDrawer()">CLOSE</button></div>
+                    <div class="drawer-scroll">
+                        <label class="drawer-field wide"><span>Title</span><input id="td-title" /></label>
+                        <label class="drawer-field wide"><span>Description & notes</span><textarea id="td-notes" rows="5"></textarea></label>
+                        <div class="drawer-grid"><label class="drawer-field"><span>Status</span><select id="td-status"><option value="todo">Todo</option><option value="in_progress">In progress</option><option value="done">Done</option></select></label><label class="drawer-field"><span>Priority</span><select id="td-priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label><label class="drawer-field"><span>Start date</span><input id="td-start" type="date" /></label><label class="drawer-field"><span>Due date</span><input id="td-due" type="date" /></label><label class="drawer-field"><span>Estimate (minutes)</span><input id="td-estimate" type="number" min="0" /></label><label class="drawer-field"><span>Actual (minutes)</span><input id="td-actual" type="number" min="0" /></label><label class="drawer-field"><span>Size</span><select id="td-size"><option value="">—</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option></select></label><label class="drawer-field"><span>Energy</span><select id="td-energy"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label><label class="drawer-field"><span>Milestone</span><select id="td-milestone"></select></label><label class="drawer-field"><span>Cycle / sprint</span><select id="td-cycle"></select></label><label class="drawer-field"><span>Recurrence</span><select id="td-recurrence"><option value="">None</option><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></label><label class="drawer-field wide"><span>Labels</span><input id="td-labels" placeholder="frontend, feature" /></label><label class="drawer-field wide"><span>Blocked reason</span><input id="td-blocked" placeholder="What prevents progress?" /></label><label class="drawer-field"><span>Reminder</span><input id="td-reminder" type="datetime-local" /></label><label class="drawer-field wide"><span>Links / references</span><textarea id="td-links" rows="2" placeholder="One URL or reference per line"></textarea></label></div>
+                        <label class="drawer-check"><input id="td-backlog" type="checkbox" /> Keep in backlog / ideas</label>
+                        <section class="drawer-section"><div class="panel-head"><h3>Dependencies</h3></div><div id="td-dependencies"></div><select id="td-add-dependency" onchange="addTaskDependency(this.value)"><option value="">+ Blocked by task…</option></select></section>
+                        <section class="drawer-section"><div class="panel-head"><h3>Related tasks</h3></div><div id="td-related"></div><select id="td-add-related" onchange="addRelatedTask(this.value)"><option value="">+ Relate another task…</option></select></section>
+                        <section class="drawer-section"><div class="panel-head"><h3>Checklist</h3><span id="td-check-progress"></span></div><div id="td-checklist"></div><div class="input-row"><input id="td-new-check" placeholder="Add checklist item…"/><button onclick="addChecklistItem()">Add</button></div></section>
+                        <section class="drawer-section"><div class="panel-head"><h3>Activity history</h3></div><div id="td-activity"></div></section>
+                    </div>
+                    <div class="drawer-actions"><button class="btn" onclick="saveTaskDrawer()">Save task</button><button class="ws-tab" id="td-duplicate" onclick="duplicateDrawerTask()">Duplicate</button><button class="ws-tab" id="td-archive" onclick="archiveDrawerTask()">Archive</button></div>
+                </aside>
+                <div class="command-palette" id="command-palette" style="display:none;"><div class="palette-box"><input id="palette-input" placeholder="Type a command…" oninput="renderCommandPalette()"/><div id="palette-results"></div><small>Shortcut: Ctrl/⌘ + K · Esc to close</small></div></div>
+            </section>
+{{ end }}

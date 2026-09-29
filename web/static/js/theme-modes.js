@@ -1,0 +1,7 @@
+(function(){const KEY='dns-filter-theme';function effective(v){return v==='system'?(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):v}function apply(v){v=['light','dark','system'].includes(v)?v:'system';document.documentElement.dataset.theme=effective(v);document.documentElement.dataset.themePreference=v;localStorage.setItem(KEY,v);document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===v))}window.setAppTheme=apply;apply(localStorage.getItem(KEY)||'system');function mount(){const actions=document.querySelector('.page-actions');if(!actions||actions.querySelector('.theme-switcher'))return;const el=document.createElement('div');el.className='theme-switcher';el.setAttribute('aria-label','Color theme');el.innerHTML=['light','dark','system'].map(x=>`<button data-theme-choice="${x}" onclick="setAppTheme('${x}')">${x==='light'?'☀ Light':x==='dark'?'◐ Dark':'◉ System'}</button>`).join('');actions.prepend(el);apply(localStorage.getItem(KEY)||'system')}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change',()=>{if((localStorage.getItem(KEY)||'system')==='system')apply('system')})})();
+(function(){
+ const stylesheet=document.createElement('link');
+ stylesheet.rel='stylesheet';
+ stylesheet.href='/static/css/classic-dark.css?v=5';
+ document.head.appendChild(stylesheet);
+})();

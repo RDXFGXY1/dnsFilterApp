@@ -1,0 +1,95 @@
+server:
+    dns_port: 53
+    dns_host: 0.0.0.0
+    api_port: 8080
+    api_host: 127.0.0.1
+    upstream_dns:
+        - https://1.1.1.1/dns-query
+        - tls://1.1.1.1:853
+    workers: 4
+    cache_size: 10000
+    cache_ttl: 3600
+    # Remembers that this user explicitly asked DNS Filter to keep Windows DNS routed locally.
+    manage_system_dns: false
+filtering:
+    enabled: true
+    block_action: block_page
+    redirect_ip: 127.0.0.1
+    block_categories:
+        - adult
+        - gambling
+        - malware
+        - phishing
+        - ads
+    safe_search: false
+    youtube_restricted: false
+    use_blocklist: true
+    use_categories: true
+    use_keywords: true
+    use_ai: true
+    use_content_inspection: true
+    schedule:
+        enabled: false
+        rules:
+            - name: School Hours
+              days: [monday, tuesday, wednesday, thursday, friday]
+              start_time: "08:00"
+              end_time: "15:00"
+              strict_mode: true
+database:
+    path: ./data/dns-filter.db
+    max_log_entries: 100000
+    log_retention_days: 30
+logging:
+    level: info
+    file: ./data/logs/dns-filter.log
+    max_size_mb: 100
+    max_backups: 5
+    max_age_days: 30
+    log_queries: true
+    log_blocked_only: false
+security:
+    admin_username: admin
+    # First-run compatibility hash. The server replaces this legacy example in
+    # memory with the documented temporary password until the setup flow is added.
+    admin_password_hash: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+    recovery_key_hash: ""
+    setup_complete: false
+    jwt_secret: ""
+    session_timeout: 60
+    https_enabled: false
+    https_cert: ""
+    https_key: ""
+blocklists:
+    auto_update_interval: 24
+    sources:
+        - name: StevenBlack Unified
+          url: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+          category: general
+          enabled: true
+        - name: AdGuard DNS Filter
+          url: https://adguardteam.github.io/AdguardFilters/Filters/filter_15_DnsFilter/filter.txt
+          category: ads
+          enabled: true
+    custom_path: ./configs/custom*.yaml
+security_packs:
+    directory: ./data/security-packs
+    trusted_keys: {}
+vault:
+    directory: ./data/vault
+    unlock_minutes: 15
+    max_failures: 5
+    lockout_minutes: 5
+whitelist:
+    domains: []
+advanced:
+    doh_enabled: false
+    doh_port: 0
+    dot_enabled: false
+    dot_port: 0
+    dnssec_enabled: false
+    ipv6_enabled: false
+    block_private_ip: false
+    rate_limit: 0
+    secure_dns_only: true
+    upstream_timeout_seconds: 5

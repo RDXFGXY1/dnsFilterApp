@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "DNS Filter Hard System",
+  "description": "Locally scores visible page content and blocks high-risk pages.",
+  "version": "0.2.0",
+  "permissions": ["storage"],
+  "host_permissions": ["http://127.0.0.1:8080/*", "http://dnsfilter.localhost:8080/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }],
+  "action": {
+    "default_title": "Hard System",
+    "default_popup": "popup.html"
+  }
+}

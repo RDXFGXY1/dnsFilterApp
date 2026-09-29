@@ -1,0 +1,50 @@
+/* Optional Aurora finish. Classic styles remain untouched underneath. */
+/* Override the earlier square-corner preference only in Aurora. */
+html[data-finish="glass"]{--radius:14px}
+html[data-finish="glass"] :is(button,.btn,.sidenav a,.side-logout,.workspace-tab,.brand-mark,.stat-icon,input:not([type="checkbox"]):not([type="radio"]),select,textarea){border-radius:10px!important}
+html[data-finish="glass"] :is(.panel,.stat-card,.dashboard-command,.decision-command,.security-hero,.organizer-command,.habit-card,.gcard,.an-card,.pcard,.proj-card,.modal,.dialog,.drawer){border-radius:16px!important}
+html[data-finish="glass"] :is(.workspace-tabs,.workspace-context,.command-tools,.settings-pane,.workspace-pane,.command-metric,.website-profile,.decision-empty,.middleman-bar,.vault-section,.app-tile,.category-item,.keyword-item,.todo-card,.note-list-item,.health-check-list article,.freeze-state,.pack-upload-zone,.security-check){border-radius:12px!important}
+html[data-finish="glass"] :is(.tag,.vault-badge,.security-state,.server-status,.freeze-badge){border-radius:8px!important}
+:root[data-finish="glass"]{--bg:#e9eef9;--surface:rgba(255,255,255,.78);--surface-2:rgba(237,242,255,.8);--text:#182440;--text-muted:#50617c;--border:rgba(91,117,171,.24);--border-strong:rgba(91,117,171,.4);--primary:#465cda;--cmd-ink:#233658;--cmd-muted:#50617c;--cmd-line:rgba(91,117,171,.26)}
+:root[data-finish="glass"][data-theme="dark"]{--bg:#10182f;--surface:rgba(25,36,66,.86);--surface-2:rgba(36,49,83,.82);--text:#eff4ff;--text-muted:#b8c7e0;--border:rgba(159,188,255,.2);--border-strong:rgba(159,188,255,.35);--primary:#6078ee;--cmd-ink:#e3edff;--cmd-muted:#b8c7e0;--cmd-line:rgba(159,188,255,.25)}
+html[data-finish="glass"] body{background:radial-gradient(ellipse at 90% 0%,rgba(139,102,255,.23),transparent 50%),radial-gradient(ellipse at 25% 80%,rgba(0,190,219,.18),transparent 55%),var(--bg);background-attachment:fixed;color:var(--text)}
+html[data-finish="glass"] .main{background:transparent}
+html[data-finish="glass"] .sidebar{background:linear-gradient(155deg,rgba(22,30,65,.96),rgba(25,44,72,.92));border-right:1px solid rgba(180,204,255,.2);box-shadow:12px 0 45px rgba(12,24,59,.1)}
+html[data-finish="glass"] .panel,html[data-finish="glass"] .stat-card,html[data-finish="glass"] .dashboard-command,html[data-finish="glass"] .decision-command,html[data-finish="glass"] .security-hero,html[data-finish="glass"] .organizer-command{background:var(--surface)!important;border:1px solid var(--border-strong)!important;box-shadow:0 8px 30px rgba(20,36,75,.08),inset 0 1px 0 rgba(255,255,255,.15)!important;backdrop-filter:blur(18px);color:var(--text)!important}
+html[data-finish="glass"] .panel h2,html[data-finish="glass"] .panel h3,html[data-finish="glass"] .page-title,html[data-finish="glass"] .stat-value,html[data-finish="glass"] .dashboard-command h2,html[data-finish="glass"] .decision-command h2{color:var(--text)!important}
+html[data-finish="glass"] .workspace-pane,html[data-finish="glass"] .settings-pane{background:transparent!important;border-color:var(--border)!important}
+html[data-finish="glass"] .workspace-tabs,html[data-finish="glass"] .command-tools,html[data-finish="glass"] .command-metric,html[data-finish="glass"] .website-profile,html[data-finish="glass"] .decision-empty,html[data-finish="glass"] .workspace-context,html[data-finish="glass"] .gami-stat,html[data-finish="glass"] .middleman-bar{background:var(--surface-2)!important;border-color:var(--border)!important;color:var(--text)}
+html[data-finish="glass"] .page-head{background:transparent!important;border-color:var(--border)}
+html[data-finish="glass"] .btn:not(.btn-danger):not(.btn-ghost){background:linear-gradient(115deg,#465ed8,#7256cc)!important;border-color:transparent!important;color:white!important;box-shadow:0 4px 12px rgba(67,79,185,.2)}
+html[data-finish="glass"] .btn-ghost,html[data-finish="glass"] .theme-switcher{background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--border-strong)!important}
+html[data-finish="glass"] input,html[data-finish="glass"] select,html[data-finish="glass"] textarea{background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--border-strong)!important}
+html[data-finish="glass"] input::placeholder,html[data-finish="glass"] textarea::placeholder{color:var(--text-muted)!important;opacity:1}
+html[data-finish="glass"] .sidenav a.active{background:linear-gradient(100deg,rgba(88,113,235,.65),rgba(128,92,203,.45))!important;box-shadow:inset 2px 0 #7de4f2!important;color:white!important}
+html[data-finish="glass"] .sidenav a.active svg{color:#9becff!important}
+html[data-finish="glass"] .command-kicker,html[data-finish="glass"] .page-eyebrow{color:var(--text-muted)!important}
+html[data-finish="glass"] :focus-visible{outline:2px solid #678cef!important;outline-offset:3px}
+/* Liquid depth: translucent shells over a visible, static aurora field. */
+html[data-finish="glass"]{--surface:rgba(255,255,255,.54);--surface-2:rgba(255,255,255,.38);--border-strong:rgba(255,255,255,.7);--text-muted:#465674;--glass-edge:rgba(255,255,255,.85);--glass-shadow:rgba(39,57,105,.13)}
+html[data-finish="glass"][data-theme="dark"]{--bg:#0c1428;--surface:rgba(23,35,65,.57);--surface-2:rgba(39,58,94,.48);--border-strong:rgba(170,200,255,.24);--text-muted:#bdcce5;--glass-edge:rgba(213,233,255,.25);--glass-shadow:rgba(0,5,24,.3)}
+html[data-finish="glass"] body{background:radial-gradient(ellipse at 85% 12%,rgba(162,115,246,.42),transparent 48%),radial-gradient(ellipse at 35% 62%,rgba(49,198,217,.33),transparent 44%),linear-gradient(135deg,var(--bg) 20%,rgba(128,155,227,.28) 65%,var(--bg));background-attachment:fixed}
+html[data-finish="glass"] .app,html[data-finish="glass"] .main,html[data-finish="glass"] .main.wide{background:transparent!important}
+html[data-finish="glass"] :is(.panel,.stat-card,.dashboard-command,.decision-command,.security-hero,.organizer-command){background:linear-gradient(140deg,rgba(255,255,255,.12),transparent 50%),var(--surface)!important;border:1px solid var(--border-strong)!important;border-top-color:var(--glass-edge)!important;border-radius:22px!important;backdrop-filter:blur(26px) saturate(145%);-webkit-backdrop-filter:blur(26px) saturate(145%);box-shadow:0 12px 36px var(--glass-shadow),inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 rgba(255,255,255,.06)!important}
+html[data-finish="glass"] .sidebar{background:linear-gradient(160deg,rgba(24,34,65,.87),rgba(23,51,77,.8))!important;backdrop-filter:blur(30px) saturate(140%);-webkit-backdrop-filter:blur(30px) saturate(140%);border-right:1px solid rgba(191,220,255,.25)}
+html[data-finish="glass"] .page-head{padding:6px 0 24px;margin-bottom:28px;border-bottom:0}
+html[data-finish="glass"] .page-title{font-size:clamp(1.7rem,2.3vw,2.35rem);letter-spacing:-.045em}
+html[data-finish="glass"] .panel-head{gap:12px;flex-wrap:wrap}
+html[data-finish="glass"] .btn{min-height:40px;border-radius:13px!important;transition:box-shadow .18s,background .18s,transform .18s}
+html[data-finish="glass"] .btn:not(.btn-danger):not(.btn-ghost){background:linear-gradient(165deg,#7f95fa 0%,#536bdf 48%,#6058cd 100%)!important;border:1px solid rgba(220,230,255,.35)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 5px 16px rgba(54,73,166,.23)!important}
+html[data-finish="glass"] .btn-ghost{box-shadow:inset 0 1px 0 var(--glass-edge),0 3px 9px var(--glass-shadow)!important}
+html[data-finish="glass"] .btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+html[data-finish="glass"] .btn:disabled{filter:none;transform:none;opacity:.48}
+html[data-finish="glass"] :is(.stat-icon,.brand-mark){background:var(--surface-2);box-shadow:inset 0 1px 0 var(--glass-edge);border:1px solid var(--border)}
+html[data-finish="glass"] :is(.health-check-list article,.profile-grid>div,.decision-command-metrics>div,.rule-evidence>div,.operation-note,.freeze-state,.pack-upload-zone,.todo-card,.note-list-item,.security-feature,.security-check){background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--border)!important}
+html[data-finish="glass"] :is(th,.table-container thead){background:var(--surface-2)!important;color:var(--text-muted)!important}
+html[data-finish="glass"] :is(.workspace-tab.active,.theme-switcher button.active){background:var(--surface)!important;color:var(--text)!important;box-shadow:0 2px 8px var(--glass-shadow)!important}
+html[data-finish="glass"] select option{background:var(--bg);color:var(--text)}
+html[data-finish="glass"] .stat-card:after{left:22px;right:22px;height:2px;background:linear-gradient(90deg,#7288ed,#56bccd);opacity:.6}
+@supports not (backdrop-filter:blur(1px)){html[data-finish="glass"]{--surface:var(--bg);--surface-2:var(--bg)}}
+@media(prefers-reduced-transparency:reduce){html[data-finish="glass"]{--surface:var(--bg);--surface-2:var(--bg)}html[data-finish="glass"] :is(.panel,.stat-card,.sidebar,.dashboard-command,.decision-command,.security-hero,.organizer-command){backdrop-filter:none;-webkit-backdrop-filter:none}}
+@media(prefers-reduced-motion:reduce){html[data-finish="glass"] *{animation:none!important;transition:none!important}}
+@media(max-width:760px){html[data-finish="glass"] :is(.panel,.stat-card){backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:17px!important}}

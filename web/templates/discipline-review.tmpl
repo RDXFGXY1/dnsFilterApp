@@ -1,0 +1,37 @@
+{{ define "discipline_review" }}
+<!-- ═══ GLOBAL ANALYTICS ═══ -->
+            <section class="view" data-view="analytics">
+                <div class="view-guide"><div><span class="command-kicker">Review</span><strong>Turn activity into decisions</strong><p>Measure throughput, balance, completion quality, and where your attention is accumulating.</p></div><div class="guide-actions"><select id="analytics-window" onchange="loadGlobalAnalytics()"><option value="30">30 days</option><option value="21">21 days</option><option value="7">7 days</option></select></div></div>
+                <div class="insight-banner" id="analytics-insight">Analyzing your system…</div>
+                <div class="stats-grid" id="ga-tiles"></div>
+                <div class="analytics-grid">
+                    <div class="an-card"><h3 class="an-title">By priority</h3><div id="ga-priority" class="hbars"></div></div>
+                    <div class="an-card"><h3 class="an-title">By status</h3><div id="ga-status" class="hbars"></div></div>
+                    <div class="an-card"><h3 class="an-title">By label</h3><div id="ga-label" class="hbars"></div></div>
+                    <div class="an-card"><h3 class="an-title">Completion</h3><div id="ga-completion" class="completion"></div></div>
+                </div>
+                <div class="an-card"><h3 class="an-title">Tasks completed · last 30 days</h3><div id="ga-perday" class="barchart"></div></div>
+                <div class="an-card"><h3 class="an-title">Projects</h3><ul class="data-list" id="ga-projects"></ul></div>
+            </section>
+
+<!-- ═══ ACTIVITY ═══ -->
+            <section class="view" data-view="activity">
+                <div class="view-guide"><div><span class="command-kicker">Review</span><strong>Understand how momentum is created</strong><p>Inspect consistency, contribution patterns, and the kinds of work shaping your progress.</p></div><div class="guide-actions"><select id="activity-filter" onchange="loadActivity()"><option value="all">All events</option><option value="task_completed">Completions</option><option value="task_created">Created tasks</option><option value="project_created">Projects</option></select></div></div>
+                <div class="insight-banner" id="activity-insight">Building your activity narrative…</div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Current streak</span></div><div class="stat-value" id="a-streak">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Longest streak</span></div><div class="stat-value" id="a-longest">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Active days</span></div><div class="stat-value" id="a-active">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><span class="stat-label">Total events</span></div><div class="stat-value" id="a-total">0</div></div>
+                </div>
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Contribution Activity</h2><span class="chart-legend" id="a-contrib">0 contributions</span></div>
+                    <div id="activity-heatmap" class="heatmap"></div>
+                    <div id="day-detail" class="day-detail"></div>
+                </section>
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Recent Activity</h2></div>
+                    <ul class="data-list list-tall" id="activity-recent"><li class="no-data">Loading…</li></ul>
+                </section>
+            </section>
+{{ end }}

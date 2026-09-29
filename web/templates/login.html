@@ -1,99 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .title }}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }} · DNS Filter</title>
+    <link rel="stylesheet" href="/static/css/style.css"><link rel="stylesheet" href="/static/css/login-modern.css?v=1">
 </head>
-<body>
-    <div class="login-page">
-        <div class="login-container">
-            <div class="login-box">
-                <h1>🛡️ DNS FILTER</h1>
-                <h2>CONTENT PROTECTION SYSTEM</h2>
-
-                {{ if .error }}
-                <div class="error-message visible">{{ .error }}</div>
-                {{ end }}
-
-                <div id="error-msg" class="error-message"></div>
-
-                <div class="form-group">
-                    <label for="username">USERNAME</label>
-                    <input type="text" id="username" placeholder="admin" autocomplete="username" />
-                </div>
-
-                <div class="form-group">
-                    <label for="password">PASSWORD</label>
-                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
-                </div>
-
-                <button class="login-btn" id="login-btn" onclick="doLogin()">
-                    [ LOGIN ]
-                </button>
-            </div>
+<body class="auth-body">
+<main class="auth-shell">
+    <section class="auth-story">
+        <div class="auth-brand"><span class="auth-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12l2.2 2.2 4.8-5"/></svg></span><span>DNS Filter</span></div>
+        <div class="auth-story-copy"><span class="auth-kicker">Local-first protection</span><h1>Your network decisions stay under your control.</h1><p>Sign in to manage encrypted DNS, signed intelligence, emergency controls, and your secure configuration vault.</p><div class="auth-trust-grid"><article><strong>Encrypted</strong><span>DoH and DoT upstreams</span></article><article><strong>Explainable</strong><span>Every allow or block decision</span></article><article><strong>Recoverable</strong><span>Offline one-time recovery key</span></article></div></div>
+        <footer><span class="auth-live-dot"></span>Protection service available locally</footer>
+    </section>
+    <section class="auth-panel">
+        <div class="auth-card" id="login-card">
+            <header><span class="auth-mobile-logo">DNS Filter</span><h2>Welcome back</h2><p>Enter your administrator credentials.</p></header>
+            {{ if .error }}<div class="auth-message error visible">{{ .error }}</div>{{ end }}
+            <div id="error-msg" class="auth-message error" role="alert"></div>
+            <label class="auth-field"><span>Username</span><input type="text" id="username" placeholder="admin" autocomplete="username"></label>
+            <label class="auth-field"><span>Password</span><div class="auth-password"><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" onclick="togglePassword('password',this)">Show</button></div></label>
+            <button class="auth-primary" id="login-btn" onclick="doLogin()">Sign in securely</button><button class="auth-link" onclick="showRecovery()">Forgot your password?</button>
+            <div class="auth-security-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Your recovery key never grants direct dashboard access. It can only replace the password.</span></div>
         </div>
-    </div>
-
-    <script>
-        // Allow Enter key to login
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') doLogin();
-        });
-
-        // Auto-focus username field
-        document.getElementById('username').focus();
-
-        async function doLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('error-msg');
-            const btn = document.getElementById('login-btn');
-
-            // Clear previous error
-            errorEl.classList.remove('visible');
-            errorEl.textContent = '';
-
-            if (!username || !password) {
-                showError('Please enter username and password');
-                return;
-            }
-
-            btn.textContent = '[ AUTHENTICATING... ]';
-            btn.disabled = true;
-
-            try {
-                const resp = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password }),
-                    credentials: 'same-origin'
-                });
-
-                const data = await resp.json();
-
-                if (resp.ok && data.success) {
-                    btn.textContent = '[ ACCESS GRANTED ]';
-                    // Redirect to dashboard
-                    window.location.href = data.redirect || '/';
-                } else {
-                    showError(data.error || 'Invalid credentials');
-                    btn.textContent = '[ LOGIN ]';
-                    btn.disabled = false;
-                }
-            } catch (err) {
-                showError('Connection error. Is DNS Filter running?');
-                btn.textContent = '[ LOGIN ]';
-                btn.disabled = false;
-            }
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('error-msg');
-            el.textContent = '⚠ ' + msg;
-            el.classList.add('visible');
-        }
-    </script>
-</body>
-</html>
+        <div class="auth-card" id="recovery-card" hidden>
+            <header><button class="auth-back" onclick="showLogin()">← Back to sign in</button><h2>Recover your account</h2><p>Use the offline recovery key saved during your first successful sign-in.</p></header>
+            <div id="recovery-error" class="auth-message error" role="alert"></div>
+            <label class="auth-field"><span>Username</span><input id="recovery-username" autocomplete="username" placeholder="admin"></label>
+            <label class="auth-field"><span>Recovery key</span><input id="recovery-key" autocomplete="off" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
+            <label class="auth-field"><span>New password</span><div class="auth-password"><input type="password" id="recovery-password" autocomplete="new-password" placeholder="At least 12 characters"><button type="button" onclick="togglePassword('recovery-password',this)">Show</button></div></label>
+            <label class="auth-field"><span>Confirm new password</span><input type="password" id="recovery-confirm" autocomplete="new-password" placeholder="Repeat your new password"></label>
+            <button class="auth-primary" id="recovery-btn" onclick="recoverAccount()">Reset password</button><p class="auth-help">After five incorrect attempts, recovery is locked for 15 minutes.</p>
+        </div>
+    </section>
+</main>
+<div class="recovery-modal" id="recovery-modal" hidden><section><span class="auth-kicker">One-time display</span><h2 id="recovery-modal-title">Save your recovery key</h2><p id="recovery-modal-copy">This key is the only way to reset a forgotten dashboard password. It will not be shown again.</p><code id="new-recovery-key"></code><div class="recovery-actions"><button class="auth-secondary" onclick="copyRecoveryKey()">Copy key</button><button class="auth-secondary" onclick="downloadRecoveryKey()">Download text file</button></div><label class="recovery-confirm"><input type="checkbox" id="recovery-saved" onchange="document.getElementById('recovery-continue').disabled=!this.checked"><span>I saved this key somewhere safe and separate from this computer.</span></label><button class="auth-primary" id="recovery-continue" onclick="finishRecoveryNotice()" disabled>Continue</button></section></div>
+<script nonce="{{ .csp_nonce }}">
+let recoveryRedirect='/';
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!document.getElementById('recovery-modal').hidden)return;document.getElementById('recovery-card').hidden?doLogin():recoverAccount()});document.getElementById('username').focus();
+function togglePassword(id,b){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide'}
+function showMessage(id,msg){const e=document.getElementById(id);e.textContent=msg;e.classList.add('visible')}function clearMessage(id){const e=document.getElementById(id);e.textContent='';e.classList.remove('visible')}
+function showRecovery(){document.getElementById('login-card').hidden=true;document.getElementById('recovery-card').hidden=false;document.getElementById('recovery-username').value=document.getElementById('username').value;document.getElementById('recovery-key').focus()}function showLogin(){document.getElementById('recovery-card').hidden=true;document.getElementById('login-card').hidden=false;document.getElementById('username').focus()}
+async function doLogin(){const username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,b=document.getElementById('login-btn');clearMessage('error-msg');if(!username||!password)return showMessage('error-msg','Enter both your username and password.');b.textContent='Checking…';b.disabled=true;try{const r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({username,password})}),d=await r.json();if(d.code==='setup_required'){location.href=d.redirect||'/setup';return}if(r.ok&&d.success){if(d.recovery_key)showRecoveryKey(d.recovery_key,d.recovery_warning,d.redirect||'/');else location.href=d.redirect||'/';return}showMessage('error-msg',d.error||'Invalid username or password.')}catch(e){showMessage('error-msg','Could not connect to DNS Filter.')}finally{b.textContent='Sign in securely';b.disabled=false}}
+async function recoverAccount(){const username=document.getElementById('recovery-username').value.trim(),recovery_key=document.getElementById('recovery-key').value.trim(),new_password=document.getElementById('recovery-password').value,confirm=document.getElementById('recovery-confirm').value,b=document.getElementById('recovery-btn');clearMessage('recovery-error');if(!username||!recovery_key||!new_password)return showMessage('recovery-error','Complete every recovery field.');if(new_password.length<12)return showMessage('recovery-error','The new password must contain at least 12 characters.');if(new_password!==confirm)return showMessage('recovery-error','The new passwords do not match.');b.textContent='Verifying…';b.disabled=true;try{const r=await fetch('/recover-account',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,recovery_key,new_password})}),d=await r.json();if(!r.ok)return showMessage('recovery-error',d.error||'Recovery failed.');document.getElementById('recovery-modal-title').textContent='Password reset complete';showRecoveryKey(d.new_recovery_key,d.warning,'')}catch(e){showMessage('recovery-error','Could not connect to DNS Filter.')}finally{b.textContent='Reset password';b.disabled=false}}
+function showRecoveryKey(key,warning,redirect){recoveryRedirect=redirect;document.getElementById('new-recovery-key').textContent=key;document.getElementById('recovery-modal-copy').textContent=warning||'Save this key now.';document.getElementById('recovery-saved').checked=false;document.getElementById('recovery-continue').disabled=true;document.getElementById('recovery-modal').hidden=false}
+async function copyRecoveryKey(){try{await navigator.clipboard.writeText(document.getElementById('new-recovery-key').textContent)}catch(e){alert('Copy failed. Select and copy the key manually.')}}
+function downloadRecoveryKey(){const key=document.getElementById('new-recovery-key').textContent,text='DNS Filter account recovery key\n\n'+key+'\n\nKeep this file private and offline. Anyone with this key can reset the dashboard password.\n',url=URL.createObjectURL(new Blob([text],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download='dns-filter-recovery-key.txt';a.click();URL.revokeObjectURL(url)}
+function finishRecoveryNotice(){document.getElementById('recovery-modal').hidden=true;if(recoveryRedirect)location.href=recoveryRedirect;else{showLogin();document.getElementById('password').value='';showMessage('error-msg','Password reset. Sign in with your new password.')}}
+</script>
+</body></html>

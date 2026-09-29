@@ -1,0 +1,15 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const context = {window:{},document:{readyState:'loading',addEventListener(){}},console};
+vm.createContext(context);
+vm.runInContext(fs.readFileSync('web/static/js/dashboard-decision-center.js','utf8'),context);
+const report=context.window.dnsBypassFindings;
+assert.equal(report({})[0].state,'unknown');
+assert.equal(report({dns:'127.0.0.1',checks:[{id:'route',ok:true}],enabled:true})[0].state,'checked');
+assert.equal(report({dns:'8.8.8.8',checks:[{id:'route',ok:false}],enabled:false})[0].state,'warning');
+assert.equal(report({dns:'127.0.0.1',route_error:'failed',checks:[{id:'route',ok:true}]})[0].state,'unknown');
+assert.equal(report({enabled:false})[1].state,'warning');
+assert.equal(report({queries:999})[2].state,'unknown');
+assert.equal(report({queries:999})[4].state,'unknown');
+console.log('DNS bypass assistant: 7 checks passed');

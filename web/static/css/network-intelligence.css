@@ -1,0 +1,23 @@
+.intel-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.intel-summary div{padding:13px;border:1px solid var(--border);background:var(--surface)}.intel-summary span{display:block;font-size:9px;text-transform:uppercase;color:var(--text-muted)}.intel-summary strong{display:block;font-size:23px;margin-top:4px}.intel-tools{display:flex;gap:8px;margin-bottom:12px}.intel-tools input{flex:1}.intel-table-wrap{overflow:auto;max-height:600px}.intel-risk{display:inline-grid;place-items:center;min-width:38px;padding:5px;border:1px solid #65b883;color:#65b883;font-weight:800}.intel-risk.medium{border-color:#d8a552;color:#d8a552}.intel-risk.high{border-color:#e66d61;color:#e66d61}@media(max-width:800px){.intel-summary{grid-template-columns:repeat(2,1fr)}}
+.learning-controls input { flex: 1 1 420px; }
+.learning-controls select { min-width: 150px; }
+.learning-hint { margin: 12px 0 0; color: var(--text-muted); }
+.learning-session-card { grid-template-columns: auto minmax(220px, 1fr) auto auto; align-items: center; }
+.learning-session-main { min-width: 0; display: grid; gap: 5px; }
+.learning-session-main small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.learning-metrics { display: flex; gap: 8px; flex-wrap: wrap; }
+.learning-metrics span { border: 1px solid var(--border); padding: 8px 10px; background: var(--panel-soft); white-space: nowrap; }
+.learning-metrics b { display: block; font-size: 16px; }
+.learning-actions { display: flex; gap: 7px; }
+.learning-baseline { grid-column: 1 / -1; padding: 14px; border: 1px dashed var(--border); background: var(--panel-soft); }
+.learning-baseline[hidden] { display: none; }
+.baseline-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 12px; }
+.baseline-head strong, .baseline-head small { display: block; }
+.baseline-head small { margin-top: 4px; color: var(--text-muted); max-width: 760px; }
+.baseline-table { overflow-x: auto; }
+.baseline-row { min-width: 620px; display: grid; grid-template-columns: minmax(180px, 1fr) 80px 100px 80px 70px; gap: 10px; padding: 8px; border-bottom: 1px solid var(--border); }
+.baseline-labels { color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+@media (max-width: 900px) {
+  .learning-session-card { grid-template-columns: auto 1fr; }
+  .learning-metrics, .learning-session-card > .btn { grid-column: 2; }
+}

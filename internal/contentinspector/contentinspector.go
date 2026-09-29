@@ -32,11 +32,11 @@ type CacheEntry struct {
 }
 
 type InspectionResult struct {
-	Domain      string   `json:"domain"`
-	IsAdult     bool     `json:"is_adult"`
-	Confidence  float64  `json:"confidence"`
+	Domain       string   `json:"domain"`
+	IsAdult      bool     `json:"is_adult"`
+	Confidence   float64  `json:"confidence"`
 	MatchedWords []string `json:"matched_words"`
-	Reason      string   `json:"reason"`
+	Reason       string   `json:"reason"`
 }
 
 func NewContentInspector(db *sql.DB) (*ContentInspector, error) {
@@ -78,7 +78,7 @@ func (ci *ContentInspector) initTables() error {
 			confidence REAL,
 			inspected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS content_inspection_log (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			domain TEXT,
@@ -106,34 +106,34 @@ func (ci *ContentInspector) loadSuspiciousWords() {
 		"live sex", "live cam", "live porn", "webcam sex", "cam girls",
 		"live girls", "sex cam", "adult cam", "xxx cam", "porn cam",
 		"chaturbate", "stripchat", "cam4", "myfreecams", "bongacams",
-		
+
 		// Sex dolls and products
 		"sex doll", "sex toy", "adult toy", "realistic doll", "love doll",
 		"silicone doll", "tpe doll", "sex robot", "adult doll",
 		"masturbator", "dildo", "vibrator", "fleshlight",
-		
+
 		// Escort and dating
 		"escort service", "call girl", "prostitute", "sex worker",
 		"hookup", "sugar daddy", "sugar baby", "affair dating",
-		
+
 		// Explicit content
 		"xxx videos", "porn videos", "adult videos", "fuck videos",
 		"sex videos", "naked girls", "nude girls", "naked women",
 		"hardcore porn", "anal sex", "oral sex", "group sex",
 		"gangbang", "milf porn", "teen porn", "lesbian porn",
-		
+
 		// Adult services
 		"adult entertainment", "gentlemen's club", "strip club",
 		"erotic massage", "happy ending", "sensual massage",
-		
+
 		// Dating/hookup specific
 		"no strings attached", "casual hookup", "one night stand",
 		"fuck buddy", "friends with benefits", "hookup tonight",
-		
+
 		// Common patterns
 		"18+", "adults only", "must be 18", "age verification",
 		"enter if 18", "nsfw", "not safe for work",
-		
+
 		// Euphemisms
 		"escort", "companion", "intimate", "sensual", "erotic",
 		"naughty", "kinky", "fetish", "bdsm",
@@ -224,7 +224,7 @@ func (ci *ContentInspector) fetchAndInspect(domain string) InspectionResult {
 		if strings.Contains(contentLower, strings.ToLower(word)) {
 			matchCount++
 			matchedWords[word] = true
-			
+
 			// Stop after finding 5 matches (sufficient evidence)
 			if matchCount >= 5 {
 				break
@@ -290,7 +290,7 @@ func (ci *ContentInspector) fetchContent(url string) (string, error) {
 
 func (ci *ContentInspector) saveInspection(result InspectionResult) {
 	matchedWordsStr := strings.Join(result.MatchedWords, ", ")
-	
+
 	// Save to cache table
 	ci.db.Exec(`
 		INSERT OR REPLACE INTO content_inspection_cache 
@@ -342,7 +342,7 @@ func (ci *ContentInspector) IsEnabled() bool {
 func (ci *ContentInspector) AddSuspiciousWord(word string) {
 	ci.mu.Lock()
 	defer ci.mu.Unlock()
-	
+
 	word = strings.ToLower(strings.TrimSpace(word))
 	if word != "" {
 		ci.suspiciousWords = append(ci.suspiciousWords, word)
@@ -352,7 +352,7 @@ func (ci *ContentInspector) AddSuspiciousWord(word string) {
 func (ci *ContentInspector) GetSuspiciousWords() []string {
 	ci.mu.RLock()
 	defer ci.mu.RUnlock()
-	
+
 	words := make([]string, len(ci.suspiciousWords))
 	copy(words, ci.suspiciousWords)
 	return words
@@ -362,7 +362,7 @@ func (ci *ContentInspector) GetSuspiciousWords() []string {
 
 func (ci *ContentInspector) GetStats() map[string]interface{} {
 	var totalInspections, adultFound int
-	
+
 	ci.db.QueryRow(`
 		SELECT COUNT(*), SUM(CASE WHEN is_adult THEN 1 ELSE 0 END)
 		FROM content_inspection_cache
@@ -385,14 +385,14 @@ func (ci *ContentInspector) GetStats() map[string]interface{} {
 
 func (ci *ContentInspector) InspectBatch(domains []string) map[string]InspectionResult {
 	results := make(map[string]InspectionResult)
-	
+
 	for _, domain := range domains {
 		results[domain] = ci.Inspect(domain)
-		
+
 		// Small delay to avoid hammering servers
 		time.Sleep(100 * time.Millisecond)
 	}
-	
+
 	return results
 }
 

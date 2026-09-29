@@ -25,6 +25,7 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/internal/categories"
 	"github.com/RDXFGXY1/dns-filter-app/internal/gamification"
 	"github.com/RDXFGXY1/dns-filter-app/internal/keywords"
+	"github.com/RDXFGXY1/dns-filter-app/internal/securitypacks"
 )
 
 // CustomBlocklistEntry represents a single entry in a custom YAML blocklist
@@ -58,6 +59,7 @@ type Engine struct {
 	gamificationMgr *gamification.Engine
 	aiBlocker       *aiblock.AIBlocker
 	blockPageServer *blockpage.BlockPageServer
+	securityPacks   *securitypacks.Manager
 
 	// Track current user for gamification (can be set per-device later)
 	currentUserID string
@@ -69,8 +71,8 @@ type Engine struct {
 	useAI         atomic.Bool
 
 	// App Blocker: domain -> appID for currently blocked app bundles.
-	appDomains   map[string]string
-	blockedApps  map[string]bool
+	appDomains  map[string]string
+	blockedApps map[string]bool
 	// Focus Mode: domain -> appID active until focusUntil (unix seconds).
 	focusDomains map[string]string
 	focusUntil   atomic.Int64
@@ -156,6 +158,12 @@ func New(cfg *config.Config, db *database.DB) (*Engine, error) {
 		engine.whitelist[normalizeDomain(domain)] = true
 	}
 
+	packManager, err := securitypacks.New(cfg.SecurityPacks.Directory, cfg.SecurityPacks.TrustedKeys)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize signed security packs: %w", err)
+	}
+	engine.securityPacks = packManager
+
 	// Load blocklists from database
 	if err := engine.loadBlocklists(); err != nil {
 		return nil, fmt.Errorf("failed to load blocklists: %w", err)
@@ -224,6 +232,10 @@ func (e *Engine) initializeNewFeatures() error {
 		e.log.Warnf("Failed to initialize block page server: %v", err)
 		return fmt.Errorf("failed to init block page server: %w", err)
 	}
+	e.blockPageServer.SetAllowedCheck(func(domain string) bool {
+		blocked, _ := e.evaluate(normalizeDomain(domain))
+		return !blocked
+	})
 	e.blockPageServer.Start()
 	e.log.Info("✓ Block page server started on :80")
 
@@ -326,6 +338,11 @@ func (e *Engine) evaluate(domain string) (bool, string) {
 
 	// Custom + downloaded blocklists (including subdomain match)
 	if e.useBlocklist.Load() {
+		if e.securityPacks != nil {
+			if match, blocked := e.securityPacks.Match(domain); blocked {
+				return true, fmt.Sprintf("security_pack:%s:%s", match.PackID, match.Category)
+			}
+		}
 		e.mu.RLock()
 		customBlocked := e.customBlocked[domain]
 		directBlocked := e.blockedDomains[domain]
@@ -493,6 +510,13 @@ func (e *Engine) GetAIRecentPredictions(limit int) ([]aiblock.PredictionResult, 
 		return nil, fmt.Errorf("AI blocker not initialized")
 	}
 	return e.aiBlocker.GetRecentPredictions(limit)
+}
+
+func (e *Engine) AnalyzeDomain(domain string) aiblock.PredictionResult {
+	if e.aiBlocker == nil {
+		return aiblock.PredictionResult{Domain: domain, Category: "unknown", Reason: "Local model unavailable"}
+	}
+	return e.aiBlocker.Predict(normalizeDomain(domain))
 }
 
 // GetKeywordMatchStats returns recent keyword match stats for the dashboard
@@ -801,11 +825,11 @@ func (e *Engine) BankStatus() map[string]interface{} {
 	e.appMu.RUnlock()
 
 	return map[string]interface{}{
-		"points":           points,
-		"tokens_available": available,
-		"tokens_spent":     spent,
+		"points":            points,
+		"tokens_available":  available,
+		"tokens_spent":      spent,
 		"minutes_per_token": minutesPerToken,
-		"active_unlocks":   unlocks,
+		"active_unlocks":    unlocks,
 	}
 }
 
@@ -843,15 +867,28 @@ func (e *Engine) isWhitelisted(domain string) bool {
 	}
 
 	for whitelistedDomain := range e.whitelist {
-		if strings.HasPrefix(whitelistedDomain, "*.") {
-			pattern := strings.TrimPrefix(whitelistedDomain, "*.")
-			if strings.HasSuffix(domain, pattern) {
-				return true
-			}
+		if domainMatchesWhitelist(domain, whitelistedDomain) {
+			return true
 		}
 	}
 
 	return false
+}
+
+// domainMatchesWhitelist keeps wildcard matching on DNS label boundaries.
+// A rule such as *.spotify.com covers spotify.com and every nested subdomain,
+// but never a lookalike such as evilspotify.com.
+func domainMatchesWhitelist(domain, rule string) bool {
+	domain = normalizeDomain(domain)
+	rule = normalizeDomain(rule)
+	if domain == rule {
+		return true
+	}
+	if !strings.HasPrefix(rule, "*.") {
+		return false
+	}
+	root := strings.TrimPrefix(rule, "*.")
+	return domain == root || strings.HasSuffix(domain, "."+root)
 }
 
 func (e *Engine) isInAllowedTime() bool {
@@ -1081,6 +1118,27 @@ func (e *Engine) GetWhitelist() []string {
 	return list
 }
 
+func (e *Engine) ListUnblockRequests(status string) ([]blockpage.UnblockRequest, error) {
+	if e.blockPageServer == nil {
+		return []blockpage.UnblockRequest{}, nil
+	}
+	return e.blockPageServer.ListUnblockRequests(status)
+}
+
+func (e *Engine) GetUnblockRequest(id int) (blockpage.UnblockRequest, error) {
+	if e.blockPageServer == nil {
+		return blockpage.UnblockRequest{}, fmt.Errorf("block page server unavailable")
+	}
+	return e.blockPageServer.GetUnblockRequest(id)
+}
+
+func (e *Engine) DecideUnblockRequest(id int, status, note string) error {
+	if e.blockPageServer == nil {
+		return fmt.Errorf("block page server unavailable")
+	}
+	return e.blockPageServer.DecideUnblockRequest(id, status, note)
+}
+
 // ─── Custom Blocklist Methods ─────────────────────────────────────────────────
 
 func (e *Engine) AddToCustomBlocklist(domain string) {
@@ -1110,6 +1168,49 @@ func (e *Engine) GetCustomBlocklist() []string {
 	return list
 }
 
+func (e *Engine) ListSecurityPacks() ([]securitypacks.Info, int) {
+	if e.securityPacks == nil {
+		return []securitypacks.Info{}, 0
+	}
+	return e.securityPacks.List(), e.securityPacks.TrustedKeyCount()
+}
+
+func (e *Engine) VerifySecurityPack(data []byte) (securitypacks.Info, error) {
+	if e.securityPacks == nil {
+		return securitypacks.Info{}, fmt.Errorf("security pack manager is unavailable")
+	}
+	_, info, err := e.securityPacks.Verify(data)
+	return info, err
+}
+
+func (e *Engine) InstallSecurityPack(data []byte) (securitypacks.Info, error) {
+	if e.securityPacks == nil {
+		return securitypacks.Info{}, fmt.Errorf("security pack manager is unavailable")
+	}
+	return e.securityPacks.Install(data)
+}
+
+func (e *Engine) RemoveSecurityPack(id string) error {
+	if e.securityPacks == nil {
+		return fmt.Errorf("security pack manager is unavailable")
+	}
+	return e.securityPacks.Remove(id)
+}
+
+func (e *Engine) TrustSecurityPackKey(id, publicKey string) error {
+	if e.securityPacks == nil {
+		return fmt.Errorf("security pack manager is unavailable")
+	}
+	if err := e.securityPacks.AddTrustedKey(id, publicKey); err != nil {
+		return err
+	}
+	if e.cfg.SecurityPacks.TrustedKeys == nil {
+		e.cfg.SecurityPacks.TrustedKeys = make(map[string]string)
+	}
+	e.cfg.SecurityPacks.TrustedKeys[id] = publicKey
+	return e.cfg.SaveDefault()
+}
+
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
 func (e *Engine) GetBlockedCount() int {
@@ -1117,6 +1218,9 @@ func (e *Engine) GetBlockedCount() int {
 	defer e.mu.RUnlock()
 
 	total := len(e.blockedDomains) + len(e.customBlocked)
+	if e.securityPacks != nil {
+		total += e.securityPacks.DomainCount()
+	}
 
 	// ✨ Add category domains to count
 	if e.categoryMgr != nil {

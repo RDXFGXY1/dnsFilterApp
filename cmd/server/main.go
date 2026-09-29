@@ -17,13 +17,13 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/internal/dns"
 	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
 	"github.com/RDXFGXY1/dns-filter-app/internal/netdns"
+	appversion "github.com/RDXFGXY1/dns-filter-app/internal/version"
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
 )
 
 var (
 	configPath = flag.String("config", "./configs/config.yaml", "Path to configuration file")
 	devMode    = flag.Bool("dev", false, "Run in development mode")
-	version    = "2.0.0"
 )
 
 func main() {
@@ -40,6 +40,9 @@ func main() {
 		case "reset-dns":
 			runDNSCommand("reset")
 			return
+		case "version", "--version", "-version":
+			fmt.Println(appversion.Current)
+			return
 		}
 	}
 
@@ -49,7 +52,7 @@ func main() {
 
 	// Initialize logger
 	log := logger.New(*devMode)
-	log.Infof("Starting DNS Filter Application v%s", version)
+	log.Infof("Starting DNS Filter Application v%s", appversion.Current)
 
 	// Load configuration
 	cfg, err := config.Load(*configPath)
@@ -165,6 +168,12 @@ func runDNSCommand(action string) {
 			fmt.Println("  Tip: run this from an Administrator (Windows) / root (Linux/macOS) shell.")
 			os.Exit(1)
 		}
+		if err := persistDNSRoutingIntent(true); err != nil {
+			_ = netdns.ResetDNS()
+			fmt.Printf("✗ DNS was changed but the preference could not be saved: %v\n", err)
+			fmt.Println("  The DNS route was restored to avoid leaving a partial setup.")
+			os.Exit(1)
+		}
 		fmt.Println("✓ System DNS now points to the DNS Filter.")
 		fmt.Println("  Make sure the filter is running. To undo: dns-filter reset-dns")
 	case "reset":
@@ -174,8 +183,22 @@ func runDNSCommand(action string) {
 			fmt.Println("  Tip: run this from an Administrator (Windows) / root (Linux/macOS) shell.")
 			os.Exit(1)
 		}
+		if err := persistDNSRoutingIntent(false); err != nil {
+			fmt.Printf("✗ DNS was reset but the preference could not be saved: %v\n", err)
+			fmt.Println("  Open the dashboard once and use DNS Controls to confirm the desired state.")
+			os.Exit(1)
+		}
 		fmt.Println("✓ System DNS restored to automatic.")
 	}
+}
+
+func persistDNSRoutingIntent(enabled bool) error {
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		return err
+	}
+	cfg.Server.ManageSystemDNS = enabled
+	return cfg.SaveDefault()
 }
 
 // chdirToExeDir switches the working directory to the executable's folder when
@@ -202,5 +225,5 @@ func printBanner() {
 ║     Protect your network from harmful content    ║
 ║                                                   ║
 ╚═══════════════════════════════════════════════════╝
-`, version)
+`, appversion.Current)
 }

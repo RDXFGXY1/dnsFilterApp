@@ -1,0 +1,21 @@
+# Glossary
+
+- **Allowlist / whitelist:** domains or destinations that policy allows explicitly.
+- **Baseline:** a reviewed set of normal destinations for an application.
+- **Blocklist:** domains that policy denies explicitly or through imported sources.
+- **DNS:** system that translates domain names into network addresses.
+- **DoH:** DNS-over-HTTPS, encrypted DNS carried over HTTPS.
+- **DoT:** DNS-over-TLS, encrypted DNS normally carried over port 853.
+- **DNS bypass:** an application sending DNS outside the configured local filter.
+- **Endpoint:** destination IP, port, and protocol.
+- **Explainable decision:** outcome accompanied by the winning policy and evidence.
+- **Focus Mode:** timed distraction-control session.
+- **Hard System:** optional page-content risk analyzer using browser metadata.
+- **Mark of the Web:** Windows metadata indicating an internet-origin file.
+- **Quarantine:** reversible isolation of a file or an application's network access.
+- **Risk score:** prioritization value from local signals, not a malware probability.
+- **Security pack:** signed bundle of protection intelligence or policy data.
+- **SHA-256:** cryptographic hash used to identify file content.
+- **Vault:** second-password protection for sensitive configuration changes.
+- **WFP:** Windows Filtering Platform, lower-level Windows traffic-filtering technology.
+- **Wildcard rule:** rule that covers a root domain and nested subdomains.

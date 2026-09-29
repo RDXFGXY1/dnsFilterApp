@@ -1,0 +1,60 @@
+{{ define "discipline_command" }}
+<!-- ═══ COMMAND CENTER ═══ -->
+            <section class="view" data-view="command">
+                <div class="command-hero">
+                    <div>
+                        <span class="command-kicker">Personal operating system</span>
+                        <h2 id="command-greeting">Make the right thing inevitable.</h2>
+                        <p id="command-brief">Loading your execution brief…</p>
+                    </div>
+                    <div class="command-score"><strong id="command-score">0</strong><span>Execution score</span></div>
+                </div>
+
+                <div class="command-capture">
+                    <input id="command-capture" type="text" placeholder="Quick capture — try: Finish proposal !high #work tomorrow" />
+                    <select id="command-project"><option value="0">Inbox / no project</option></select>
+                    <button class="btn" onclick="commandCapture()">Capture</button>
+                </div>
+                <p class="command-hint">Smart syntax: <b>!high</b>, <b>!low</b>, <b>#label</b>, <b>today</b>, <b>tomorrow</b></p>
+
+                <div class="command-metrics" id="command-metrics"></div>
+
+                <div class="command-layout">
+                    <section class="panel command-priority">
+                        <div class="panel-head"><div><span class="command-kicker">Adaptive plan</span><h2>Next best actions</h2></div><button class="ws-tab" onclick="loadCommand()">Recalculate</button></div>
+                        <p class="panel-desc">Ranked by urgency, priority, momentum, and goal alignment.</p>
+                        <div id="command-next" class="command-stack"><span class="no-data">Loading…</span></div>
+                    </section>
+
+                    <section class="panel focus-panel">
+                        <div class="panel-head"><div><span class="command-kicker">Deep work</span><h2>Focus engine</h2></div><span id="focus-state" class="focus-state">Ready</span></div>
+                        <div id="focus-clock" class="focus-clock">25:00</div>
+                        <select id="focus-task"><option value="">Choose a task to focus on</option></select>
+                        <div class="focus-actions">
+                            <button class="btn" id="focus-start" onclick="toggleFocus()">Start focus</button>
+                            <button class="ws-tab" onclick="resetFocus()">Reset</button>
+                        </div>
+                        <div class="focus-presets">
+                            <button onclick="setFocusMinutes(15)">15m</button><button onclick="setFocusMinutes(25)">25m</button><button onclick="setFocusMinutes(50)">50m</button>
+                        </div>
+                        <p class="panel-desc" id="focus-log">0 focused minutes recorded today.</p>
+                    </section>
+                </div>
+
+                <div class="command-layout command-lower">
+                    <section class="panel">
+                        <div class="panel-head"><div><span class="command-kicker">Attention map</span><h2>Workload & risk</h2></div></div>
+                        <div id="command-risks" class="risk-list"></div>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><div><span class="command-kicker">Strategy</span><h2>Goal alignment</h2></div><button class="ws-tab" onclick="switchView('goals')">Open goals</button></div>
+                        <div id="command-goals" class="alignment-list"></div>
+                    </section>
+                </div>
+
+                <section class="panel review-panel">
+                    <div class="panel-head"><div><span class="command-kicker">Weekly review</span><h2>System diagnosis</h2></div><span class="chart-legend" id="review-window">Last 7 days</span></div>
+                    <div id="command-review" class="review-grid"></div>
+                </section>
+            </section>
+{{ end }}

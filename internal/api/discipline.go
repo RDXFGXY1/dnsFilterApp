@@ -18,6 +18,7 @@ func (s *Server) registerDisciplineRoutes(api *gin.RouterGroup) {
 	{
 		d.GET("/projects", s.discProjects)
 		d.POST("/projects", s.discCreateProject)
+		d.PATCH("/projects/:id", s.discUpdateProject)
 		d.DELETE("/projects/:id", s.discDeleteProject)
 
 		d.GET("/goals", s.discGoals)
@@ -46,6 +47,8 @@ func (s *Server) registerDisciplineRoutes(api *gin.RouterGroup) {
 		d.GET("/day", s.discDay)
 		d.GET("/series", s.discSeries)
 		d.GET("/recent", s.discRecent)
+		s.registerPlanningRoutes(d)
+		s.registerProjectTransferRoutes(d)
 	}
 }
 
@@ -92,6 +95,20 @@ func (s *Server) discCreateProject(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "id": id})
+}
+
+func (s *Server) discUpdateProject(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	var patch discipline.ProjectPatch
+	if err := c.ShouldBindJSON(&patch); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	if err := s.discipline.UpdateProject(id, patch); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (s *Server) discDeleteProject(c *gin.Context) {
@@ -291,20 +308,12 @@ func (s *Server) discTasks(c *gin.Context) {
 }
 
 func (s *Server) discCreateTask(c *gin.Context) {
-	var data struct {
-		ProjectID int64  `json:"project_id"`
-		ParentID  int64  `json:"parent_id"`
-		Title     string `json:"title"`
-		Notes     string `json:"notes"`
-		Priority  string `json:"priority"`
-		Labels    string `json:"labels"`
-		DueDate   string `json:"due_date"`
-	}
+	var data discipline.TaskInput
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	id, err := s.discipline.CreateTask(data.ProjectID, data.ParentID, data.Title, data.Notes, data.Priority, data.Labels, data.DueDate)
+	id, err := s.discipline.CreateTask(data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

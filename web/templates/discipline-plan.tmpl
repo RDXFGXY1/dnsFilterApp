@@ -1,0 +1,35 @@
+{{ define "discipline_plan" }}
+<!-- ═══ GOALS ═══ -->
+            <section class="view" data-view="goals">
+                <div class="view-guide"><div><span class="command-kicker">Plan</span><strong>Outcomes before output</strong><p>Keep a small portfolio of meaningful outcomes and connect each one to executable projects.</p></div><div class="guide-actions"><button class="ws-tab" onclick="switchView('projects')">Manage projects</button></div></div>
+                <div class="view-kpis" id="goal-kpis"></div>
+                <section class="panel">
+                    <div class="panel-head"><h2>New Goal</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="goal-name" placeholder="Goal name (e.g. Launch v1.0)" style="flex:0 0 34%;" />
+                        <input type="text" id="goal-cat" placeholder="Category (optional)" style="flex:0 0 20%;" />
+                        <input type="date" id="goal-date" title="Target date" style="flex:0 0 16%;" />
+                        <input type="text" id="goal-target" placeholder="Count target (optional)" title="For count goals like 'read 12 books'" />
+                        <button class="btn" onclick="createGoal()">Create</button>
+                    </div>
+                    <p class="panel-desc" style="margin-top:.6rem;">Progress is computed automatically — link projects to a goal, or set a count target.</p>
+                </section>
+                <div class="goals-grid" id="goals-grid"><span class="no-data">Loading…</span></div>
+            </section>
+
+<!-- ═══ CALENDAR ═══ -->
+            <section class="view" data-view="calendar">
+                <div class="view-guide"><div><span class="command-kicker">Plan</span><strong>Make time visible</strong><p>Balance deadlines across the month and surface work that has not been scheduled yet.</p></div><div class="guide-actions"><button class="ws-tab" onclick="calToday()">Jump to today</button></div></div>
+                <div class="view-kpis" id="calendar-kpis"></div>
+                <div class="cal-head">
+                    <button class="ws-tab" onclick="calMonth(-1)">‹</button>
+                    <h2 id="cal-title">Month</h2>
+                    <button class="ws-tab" onclick="calMonth(1)">›</button>
+                    <button class="ws-tab" onclick="calToday()">Today</button>
+                </div>
+                <div class="cal-dow" id="cal-dow"></div>
+                <div class="cal-grid" id="cal-grid"></div>
+                <div class="panel-grid calendar-lower"><section class="panel"><div class="panel-head"><h2>Unscheduled work</h2><span class="chart-legend" id="cal-unscheduled-count">0</span></div><ul class="data-list" id="cal-unscheduled"></ul></section><section class="panel"><div class="panel-head"><h2>Deadline pressure</h2></div><div id="cal-pressure" class="risk-list"></div></section></div>
+                <div class="an-card" id="cal-day"><span class="no-data">Click a day to see its tasks.</span></div>
+            </section>
+{{ end }}

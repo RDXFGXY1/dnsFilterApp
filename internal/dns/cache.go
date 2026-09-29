@@ -13,10 +13,10 @@ type cacheEntry struct {
 }
 
 type DNSCache struct {
-	mu       sync.RWMutex
-	entries  map[string]*cacheEntry
-	maxSize  int
-	ttl      time.Duration
+	mu      sync.RWMutex
+	entries map[string]*cacheEntry
+	maxSize int
+	ttl     time.Duration
 }
 
 func NewDNSCache(maxSize int, ttl time.Duration) *DNSCache {

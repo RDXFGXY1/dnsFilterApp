@@ -1,28 +1,52 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Release verification
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
+  go:
+    name: Go (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Verify formatting
+        shell: bash
+        run: test -z "$(gofmt -l $(git ls-files '*.go'))"
+      - name: Test
+        run: go test -v ./...
+      - name: Build all Go commands
+        run: go build -v ./...
 
-  build:
+  desktop:
+    name: Windows desktop
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore WPF application
+        run: dotnet restore application/DnsFilter.Desktop/DnsFilter.Desktop.csproj
+      - name: Build WPF application
+        run: dotnet build application/DnsFilter.Desktop/DnsFilter.Desktop.csproj --configuration Release --no-restore
+
+  web-assets:
+    name: Web asset syntax
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
+      - uses: actions/checkout@v7
+      - name: Check JavaScript syntax
+        run: find web/static/js -type f -name '*.js' -print0 | xargs -0 -n1 node --check

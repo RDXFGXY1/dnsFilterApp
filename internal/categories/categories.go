@@ -58,14 +58,14 @@ func (cm *CategoryManager) initTables() error {
 			enabled BOOLEAN DEFAULT TRUE,
 			color TEXT
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS category_domains (
 			category_id TEXT,
 			domain TEXT,
 			PRIMARY KEY (category_id, domain),
 			FOREIGN KEY (category_id) REFERENCES categories(id)
 		)`,
-		
+
 		`CREATE INDEX IF NOT EXISTS idx_category_domains_domain 
 		 ON category_domains(domain)`,
 	}
@@ -186,13 +186,13 @@ func (cm *CategoryManager) initDefaultCategories() error {
 		// Check if exists
 		var exists bool
 		cm.db.QueryRow("SELECT COUNT(*) > 0 FROM categories WHERE id = ?", cat.ID).Scan(&exists)
-		
+
 		if !exists {
 			_, err := cm.db.Exec(`
 				INSERT INTO categories (id, name, description, icon, enabled, color)
 				VALUES (?, ?, ?, ?, ?, ?)
 			`, cat.ID, cat.Name, cat.Description, cat.Icon, cat.Enabled, cat.Color)
-			
+
 			if err != nil {
 				return err
 			}
@@ -283,8 +283,8 @@ func (cm *CategoryManager) loadCategories() error {
 
 	for rows.Next() {
 		var cat Category
-		err := rows.Scan(&cat.ID, &cat.Name, &cat.Description, 
-		                 &cat.Icon, &cat.Enabled, &cat.Color)
+		err := rows.Scan(&cat.ID, &cat.Name, &cat.Description,
+			&cat.Icon, &cat.Enabled, &cat.Color)
 		if err != nil {
 			continue
 		}
@@ -362,7 +362,7 @@ func (cm *CategoryManager) ToggleCategory(id string, enabled bool) error {
 
 func (cm *CategoryManager) AddDomainToCategory(categoryID, domain string) error {
 	domain = strings.ToLower(strings.TrimSpace(domain))
-	
+
 	_, err := cm.db.Exec(`
 		INSERT OR IGNORE INTO category_domains (category_id, domain)
 		VALUES (?, ?)
@@ -375,7 +375,7 @@ func (cm *CategoryManager) AddDomainToCategory(categoryID, domain string) error 
 	// Update count
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	
+
 	if cat, exists := cm.categories[categoryID]; exists {
 		cat.DomainCount++
 	}
@@ -396,7 +396,7 @@ func (cm *CategoryManager) RemoveDomainFromCategory(categoryID, domain string) e
 	// Update count
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	
+
 	if cat, exists := cm.categories[categoryID]; exists {
 		cat.DomainCount--
 	}
@@ -408,7 +408,7 @@ func (cm *CategoryManager) RemoveDomainFromCategory(categoryID, domain string) e
 
 func (cm *CategoryManager) IsBlocked(domain string) (bool, string) {
 	domain = strings.ToLower(strings.TrimSpace(domain))
-	
+
 	// Remove trailing dot
 	domain = strings.TrimSuffix(domain, ".")
 
@@ -418,7 +418,7 @@ func (cm *CategoryManager) IsBlocked(domain string) (bool, string) {
 	// Check if domain is in any enabled category
 	var categoryID string
 	var enabled bool
-	
+
 	err := cm.db.QueryRow(`
 		SELECT cd.category_id, c.enabled
 		FROM category_domains cd
@@ -435,7 +435,7 @@ func (cm *CategoryManager) IsBlocked(domain string) (bool, string) {
 	parts := strings.Split(domain, ".")
 	for i := 0; i < len(parts)-1; i++ {
 		parentDomain := strings.Join(parts[i+1:], ".")
-		
+
 		err := cm.db.QueryRow(`
 			SELECT cd.category_id, c.enabled
 			FROM category_domains cd
@@ -454,7 +454,7 @@ func (cm *CategoryManager) IsBlocked(domain string) (bool, string) {
 
 func (cm *CategoryManager) GetDomainCategory(domain string) string {
 	domain = strings.ToLower(strings.TrimSpace(domain))
-	
+
 	var categoryID string
 	cm.db.QueryRow(`
 		SELECT category_id FROM category_domains WHERE domain = ?
@@ -470,7 +470,7 @@ func (cm *CategoryManager) GetCategoryStats() map[string]int {
 	defer cm.mu.RUnlock()
 
 	stats := make(map[string]int)
-	
+
 	for id, cat := range cm.categories {
 		stats[id] = cat.DomainCount
 	}
@@ -509,7 +509,7 @@ func (cm *CategoryManager) EnableMultiple(categoryIDs []string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		if cat, exists := cm.categories[id]; exists {
 			cat.Enabled = true
 		}
@@ -533,7 +533,7 @@ func (cm *CategoryManager) DisableMultiple(categoryIDs []string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		if cat, exists := cm.categories[id]; exists {
 			cat.Enabled = false
 		}

@@ -59,17 +59,17 @@ func (km *KeywordManager) initTables() error {
 			category TEXT,
 			severity TEXT
 		)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS keywords (
 			list_id TEXT,
 			keyword TEXT,
 			PRIMARY KEY (list_id, keyword),
 			FOREIGN KEY (list_id) REFERENCES keyword_lists(id)
 		)`,
-		
+
 		`CREATE INDEX IF NOT EXISTS idx_keywords_keyword 
 		 ON keywords(keyword)`,
-		
+
 		`CREATE TABLE IF NOT EXISTS keyword_matches (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			domain TEXT,
@@ -228,17 +228,17 @@ func (km *KeywordManager) initDefaultLists() error {
 	for _, list := range defaultLists {
 		// Check if exists
 		var exists bool
-		km.db.QueryRow("SELECT COUNT(*) > 0 FROM keyword_lists WHERE id = ?", 
-		               list.ID).Scan(&exists)
-		
+		km.db.QueryRow("SELECT COUNT(*) > 0 FROM keyword_lists WHERE id = ?",
+			list.ID).Scan(&exists)
+
 		if !exists {
 			// Insert list
 			_, err := km.db.Exec(`
 				INSERT INTO keyword_lists (id, name, description, enabled, category, severity)
 				VALUES (?, ?, ?, ?, ?, ?)
-			`, list.ID, list.Name, list.Description, list.Enabled, 
-			   list.Category, list.Severity)
-			
+			`, list.ID, list.Name, list.Description, list.Enabled,
+				list.Category, list.Severity)
+
 			if err != nil {
 				return err
 			}
@@ -275,7 +275,7 @@ func (km *KeywordManager) loadKeywordLists() error {
 	for rows.Next() {
 		var list KeywordList
 		err := rows.Scan(&list.ID, &list.Name, &list.Description,
-		                 &list.Enabled, &list.Category, &list.Severity)
+			&list.Enabled, &list.Category, &list.Severity)
 		if err != nil {
 			continue
 		}
@@ -293,7 +293,7 @@ func (km *KeywordManager) loadKeywordLists() error {
 			var kw string
 			kwRows.Scan(&kw)
 			keywords = append(keywords, kw)
-			
+
 			// Add to reverse lookup map
 			km.keywords[kw] = append(km.keywords[kw], list.ID)
 		}
@@ -310,7 +310,7 @@ func (km *KeywordManager) loadKeywordLists() error {
 
 func (km *KeywordManager) CheckDomain(domain string) (bool, []string, string) {
 	domain = strings.ToLower(strings.TrimSpace(domain))
-	
+
 	km.mu.RLock()
 	defer km.mu.RUnlock()
 
@@ -403,7 +403,7 @@ func (km *KeywordManager) ToggleList(id string, enabled bool) error {
 
 func (km *KeywordManager) AddKeyword(listID, keyword string) error {
 	keyword = strings.ToLower(strings.TrimSpace(keyword))
-	
+
 	_, err := km.db.Exec(`
 		INSERT OR IGNORE INTO keywords (list_id, keyword)
 		VALUES (?, ?)
@@ -427,7 +427,7 @@ func (km *KeywordManager) AddKeyword(listID, keyword string) error {
 
 func (km *KeywordManager) RemoveKeyword(listID, keyword string) error {
 	keyword = strings.ToLower(strings.TrimSpace(keyword))
-	
+
 	_, err := km.db.Exec(`
 		DELETE FROM keywords WHERE list_id = ? AND keyword = ?
 	`, listID, keyword)
@@ -505,7 +505,7 @@ func (km *KeywordManager) GetTotalMatches() int {
 
 func (km *KeywordManager) CheckWithWildcard(domain string) (bool, []string) {
 	domain = strings.ToLower(domain)
-	
+
 	km.mu.RLock()
 	defer km.mu.RUnlock()
 

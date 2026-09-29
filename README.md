@@ -36,7 +36,7 @@ dns-filter-app/
 ├── configs/             # Configuration files
 ├── scripts/             # Build and deployment scripts
 ├── data/                # Database and blocklists
-└── docs/                # Documentation
+└── docs/                # Guides, feature documentation, and update notes
 ```
 
 ## Quick Start
@@ -67,7 +67,13 @@ Edit `configs/config.yaml`:
 server:
   dns_port: 53
   api_port: 8080
-  upstream_dns: "8.8.8.8:53"
+  upstream_dns:
+    - "https://1.1.1.1/dns-query" # DNS-over-HTTPS
+    - "tls://1.1.1.1:853"         # DNS-over-TLS
+
+advanced:
+  secure_dns_only: true
+  upstream_timeout_seconds: 5
 
 filtering:
   enabled: true
@@ -79,6 +85,20 @@ filtering:
 database:
   path: "./data/dns-filter.db"
 ```
+
+### Signed security packs
+
+Security packs are verified with Ed25519 before installation and rechecked at
+startup. Generate a local publisher key and sign a newline-separated domain
+file with:
+
+```bash
+go run ./cmd/security-pack keygen -id local -out-dir ./data/security-pack-keys
+go run ./cmd/security-pack sign -key-id local -private ./data/security-pack-keys/local.private -id local-threats -name "Local Threats" -category malware -domains domains.txt -out local-threats.json
+```
+
+Add the contents of `local.public` as a trusted publisher key in the Blocklists
+screen, then verify and install `local-threats.json`. Never share the private key.
 
 ### Web Dashboard
 
@@ -194,26 +214,39 @@ curl -X POST http://localhost:8080/api/blocklists \
 ## API Documentation
 
 ### Authentication
-All API requests require authentication using Bearer token.
+The first launch opens `/setup` and requires creation of a local administrator
+and Secure Vault. The dashboard authenticates with a cryptographically random,
+HttpOnly, SameSite=Strict local session cookie. There is no shared default
+password and this release does not claim to use JWT or Bearer-token API access.
+
+Protected API calls must come from an authenticated local dashboard or desktop
+session. First-run setup is accepted only through the computer's loopback
+interface and closes after completion.
 
 ### Endpoints
 
 - `GET /api/stats` - Get filtering statistics
-- `GET /api/blocked` - List recently blocked domains
+- `GET /api/recent` - List recently blocked domains
 - `POST /api/whitelist` - Add domain to whitelist
 - `DELETE /api/whitelist/:domain` - Remove from whitelist
-- `GET /api/blocklists` - List all blocklists
-- `POST /api/blocklists` - Add new blocklist
+- `POST /api/blocklist/update` - Refresh configured blocklists
+- `GET /api/system/info` - Read local service and DNS information
 
-Full API documentation: [docs/API.md](docs/API.md)
+Feature and usage documentation: [docs/README.md](docs/README.md)
 
 ## Security Considerations
 
-- Run with minimal privileges
-- Change default admin password
-- Enable HTTPS for web dashboard in production
+- Use the first-run wizard to create unique administrator and Vault passwords
+- Save the two one-time recovery credentials separately and offline
+- Keep the dashboard bound to loopback unless HTTPS and access controls are configured
 - Regularly update blocklists
 - Monitor logs for unusual activity
+
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [Feature documentation](docs/features/README.md)
+- [Updates and release notes](docs/updates/README.md)
 
 ## Contributing
 
@@ -225,7 +258,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## Support
 
-- Documentation: [docs/](docs/)
+- Documentation: [docs/README.md](docs/README.md)
 - Issues: GitHub Issues
 - Discussions: GitHub Discussions
 
@@ -243,8 +276,8 @@ This helps maintainers triage and fix problems faster. Thank you for contributin
 
 ## Roadmap
 
-- [ ] DNS-over-HTTPS (DoH) support
-- [ ] DNS-over-TLS (DoT) support
+- [x] DNS-over-HTTPS (DoH) support
+- [x] DNS-over-TLS (DoT) support
 - [ ] Machine learning-based filtering
 - [ ] Mobile app for remote management
 - [ ] Multi-user support with profiles

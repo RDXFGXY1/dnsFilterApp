@@ -19,6 +19,11 @@ type BlockedQuery struct {
 	Timestamp time.Time
 }
 
+type ObservedDomain struct {
+	Domain string `json:"domain"`
+	Count  int    `json:"count"`
+}
+
 func (db *DB) GetDB() *sql.DB {
 	return db.conn // Assuming your DB struct has a field called 'conn' of type *sql.DB
 }
@@ -119,6 +124,34 @@ func (db *DB) GetRecentBlocked(limit int) ([]BlockedQuery, error) {
 	}
 
 	return results, rows.Err()
+}
+
+// GetObservedSubdomains returns domains already seen in the local blocked-query
+// history. It intentionally performs no third-party lookup or traffic upload.
+func (db *DB) GetObservedSubdomains(root string, limit int) ([]ObservedDomain, error) {
+	if limit < 1 || limit > 500 {
+		limit = 200
+	}
+	rows, err := db.conn.Query(`
+		SELECT domain, COUNT(*) AS hits
+		FROM blocked_queries
+		WHERE domain = ? OR domain LIKE ?
+		GROUP BY domain
+		ORDER BY hits DESC, domain ASC
+		LIMIT ?`, root, "%."+root, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ObservedDomain{}
+	for rows.Next() {
+		var item ObservedDomain
+		if err := rows.Scan(&item.Domain, &item.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, rows.Err()
 }
 
 func (db *DB) GetBlockedStats(hours int) (map[string]interface{}, error) {

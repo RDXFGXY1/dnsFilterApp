@@ -8,6 +8,9 @@ import (
 	"net"
 	"regexp"
 	"strings"
+	"time"
+
+	dnsproto "github.com/miekg/dns"
 )
 
 // LocalDNS is the address the filter listens on. Pointing the OS resolver here
@@ -17,6 +20,17 @@ const LocalDNS = "127.0.0.1"
 // SetDNS points the active network interface's DNS at the local filter.
 // It typically requires administrator/root privileges.
 func SetDNS() error {
+	// Never redirect the machine to a resolver that cannot answer queries.
+	query := new(dnsproto.Msg)
+	query.SetQuestion(".", dnsproto.TypeNS)
+	client := &dnsproto.Client{Timeout: 3 * time.Second}
+	answer, _, probeErr := client.Exchange(query, net.JoinHostPort(LocalDNS, "53"))
+	if probeErr != nil {
+		return fmt.Errorf("local DNS is not ready on %s:53; start the server first: %w", LocalDNS, probeErr)
+	}
+	if answer == nil || answer.Rcode != dnsproto.RcodeSuccess {
+		return fmt.Errorf("local DNS health check failed; check upstream DNS before enabling protection")
+	}
 	iface, err := activeInterface()
 	if err != nil {
 		return fmt.Errorf("could not determine active network interface: %w", err)
@@ -44,7 +58,21 @@ func Status() (iface, dns string, active bool, err error) {
 	if err != nil {
 		return iface, "", false, err
 	}
-	return iface, dns, strings.Contains(dns, LocalDNS), nil
+	return iface, dns, onlyLocalResolvers(dns), nil
+}
+
+func onlyLocalResolvers(values string) bool {
+	addresses := strings.FieldsFunc(values, func(r rune) bool { return r == ',' || r == ' ' || r == '\n' })
+	if len(addresses) == 0 {
+		return false
+	}
+	for _, value := range addresses {
+		ip := net.ParseIP(value)
+		if ip == nil || !ip.IsLoopback() {
+			return false
+		}
+	}
+	return true
 }
 
 var ipRe = regexp.MustCompile(`\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`)

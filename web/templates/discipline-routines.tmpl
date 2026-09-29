@@ -1,0 +1,37 @@
+{{ define "discipline_routines" }}
+<!-- ═══ HABITS ═══ -->
+            <section class="view" data-view="habits">
+                <div class="view-guide"><div><span class="command-kicker">Routines</span><strong>Build systems that survive motivation</strong><p>Track consistency, recover quickly after misses, and protect the routines that create momentum.</p></div><div class="guide-actions"><button class="ws-tab" onclick="switchView('activity')">See history</button></div></div>
+                <div class="view-kpis" id="habit-kpis"></div>
+                <section class="panel">
+                    <div class="panel-head"><h2>New Habit</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="habit-name" placeholder="Habit (e.g. Study, Read, Exercise)" />
+                        <select id="habit-freq" style="flex:0 0 22%;">
+                            <option value="daily">Daily</option>
+                            <option value="weekdays">Weekdays</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                        <button class="btn" onclick="createHabit()">Add</button>
+                    </div>
+                </section>
+                <div class="habits-list" id="habits-list"><span class="no-data">Loading…</span></div>
+            </section>
+
+<!-- ═══ REMINDERS ═══ -->
+            <section class="view" data-view="reminders">
+                <div class="view-guide"><div><span class="command-kicker">Routines</span><strong>Externalize what your brain should not hold</strong><p>Separate upcoming, overdue, and completed reminders so attention stays trustworthy.</p></div><div class="guide-actions"><select id="rem-filter" onchange="renderReminderList()"><option value="open">Open</option><option value="overdue">Overdue</option><option value="all">All</option></select></div></div>
+                <div class="view-kpis" id="reminder-kpis"></div>
+                <section class="panel">
+                    <div class="panel-head"><h2>New Reminder</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="rem-text" placeholder="Remind me to…" />
+                        <input type="date" id="rem-date" style="flex:0 0 16%;" />
+                        <input type="time" id="rem-time" style="flex:0 0 14%;" />
+                        <button class="btn" onclick="createReminder()">Add</button>
+                    </div>
+                    <p class="panel-desc" style="margin-top:.6rem;">Reminders pop up (and send a browser notification) when their time arrives — while Discipline is open.</p>
+                </section>
+                <ul class="data-list list-tall" id="rem-list"><li class="no-data">Loading…</li></ul>
+            </section>
+{{ end }}

@@ -1,0 +1,80 @@
+{{ define "discipline_execute" }}
+<!-- ═══ TODAY (daily mission tracker) ═══ -->
+            <section class="view active" data-view="today">
+                <div class="view-guide"><div><span class="command-kicker">Execute</span><strong>Commit to a realistic day</strong><p>Overdue work, today’s deadlines, and your most important outcomes in one queue.</p></div><div class="guide-actions"><button class="ws-tab" onclick="switchView('command')">Plan my day</button><button class="ws-tab" onclick="switchView('calendar')">Schedule</button></div></div>
+                <div class="view-kpis" id="today-kpis"></div>
+                <div class="today-hero">
+                    <div>
+                        <h2 id="today-date">Today</h2>
+                        <p class="page-sub" id="today-sub"></p>
+                    </div>
+                    <div class="today-ring" id="today-ring"></div>
+                </div>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-head"><h2>Today's Missions</h2><span class="chart-legend" id="today-count">0/0</span></div>
+                        <div class="input-row">
+                            <input type="text" id="today-add" placeholder="Add a mission for today…" />
+                            <button class="btn" onclick="addTodayTask()">Add</button>
+                        </div>
+                        <ul class="data-list list-tall" id="today-list"><li class="no-data">Loading…</li></ul>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><h2>Momentum</h2></div>
+                        <div class="today-momentum" id="today-momentum"></div>
+                        <h3 class="subhead">Upcoming · next 7 days</h3>
+                        <ul class="data-list" id="today-upcoming"><li class="no-data">Loading…</li></ul>
+                    </section>
+                </div>
+
+                <section class="panel">
+                    <div class="panel-head"><h2>Goals in motion</h2></div>
+                    <ul class="data-list" id="today-goals"><li class="no-data">Loading…</li></ul>
+                </section>
+            </section>
+
+            <!-- ═══ HOME ═══ -->
+            <section class="view" data-view="home">
+                <div class="view-guide"><div><span class="command-kicker">System overview</span><strong>Your productivity cockpit</strong><p>See workload health, momentum, project movement, and the state of your open loops.</p></div><div class="guide-actions"><button class="ws-tab" onclick="switchView('projects')">Portfolio</button><button class="ws-tab" onclick="switchView('analytics')">Deep analytics</button></div></div>
+                <div class="system-health" id="home-health"></div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-label">Tasks done</span></div><div class="stat-value" id="h-done">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div><span class="stat-label">Current streak</span></div><div class="stat-value" id="h-streak">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="stat-label">Active days</span></div><div class="stat-value" id="h-active">0</div></div>
+                    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><span class="stat-label">Projects</span></div><div class="stat-value" id="h-projects">0</div></div>
+                </div>
+
+                <section class="panel panel-wide">
+                    <div class="panel-head"><h2>Activity</h2><span class="chart-legend" id="h-contrib">0 contributions</span></div>
+                    <div id="home-heatmap" class="heatmap"></div>
+                </section>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-head"><h2>Task breakdown</h2></div>
+                        <div id="home-status" class="hbars"></div>
+                        <div id="home-completion" class="completion" style="margin-top:1.1rem;"></div>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><h2>By priority</h2></div>
+                        <div id="home-priority" class="hbars"></div>
+                    </section>
+                </div>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-head"><h2>Today's Tasks</h2></div>
+                        <div class="input-row">
+                            <input type="text" id="quick-task" placeholder="Add a quick task…" />
+                            <button class="btn" onclick="quickAddTask()">Add</button>
+                        </div>
+                        <ul class="data-list list-tall" id="today-tasks"><li class="no-data">Loading…</li></ul>
+                    </section>
+                    <section class="panel">
+                        <div class="panel-head"><h2>Active Projects</h2></div>
+                        <ul class="data-list list-tall" id="home-projects"><li class="no-data">Loading…</li></ul>
+                    </section>
+                </div>
+            </section>
+{{ end }}

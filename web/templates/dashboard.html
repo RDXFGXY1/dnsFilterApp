@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .title }}</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/dashboard-enhancements.css?v=3">
+    <link rel="stylesheet" href="/static/css/theme-modes.css?v=2">
+    <link rel="stylesheet" href="/static/css/decision-center.css?v=1">
+    <link rel="stylesheet" href="/static/css/security-packs.css?v=1">
+    <link rel="stylesheet" href="/static/css/vault.css?v=1">
+    <link rel="stylesheet" href="/static/css/security-center.css?v=1">
+    <link rel="stylesheet" href="/static/css/dashboard-organizer.css?v=1">
+    <link rel="stylesheet" href="/static/css/professional-ui.css?v=3">
 </head>
 <body>
     <div class="app">
@@ -14,7 +22,7 @@
                 <span class="brand-mark">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </span>
-                <span class="brand-name">DNS Filter</span>
+                <span class="brand-copy"><span class="brand-name">DNS Filter</span><small>Protection Console</small></span>
             </div>
 
             <nav class="sidenav">
@@ -22,12 +30,18 @@
                 <a href="#" class="active" data-view="overview">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
                     Overview</a>
+                <a href="#" data-view="security">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                    Security Center <span id="security-nav-alert" hidden>!</span></a>
                 <a href="#" data-view="live">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
                     Live</a>
                 <a href="#" data-view="activity">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     Activity</a>
+                <a href="#" data-view="decisions">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 12h8M12 8v8"/></svg>
+                    Decision Center</a>
                 <a href="#" data-view="focus">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     Focus</a>
@@ -35,6 +49,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     Wellbeing</a>
 
+                <a href="#freeze" data-view="freeze"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 3 3-3M9 20l3-3 3 3M3 10l4-1-1-4M18 19l-1-4 4-1M3 14l4 1-1 4M18 5l-1 4 4 1"/></svg>Connection Freeze</a>
                 <span class="nav-label">Filtering</span>
                 <a href="#" data-view="apps">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -54,6 +69,14 @@
                 <a href="#" data-view="ai">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
                     AI Blocker</a>
+
+                <span class="nav-label">Organize</span>
+                <a href="#" data-view="todos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8l2 2 4-4M7 15h2M13 15h4"/></svg>
+                    Todo List</a>
+                <a href="#" data-view="notes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg>
+                    Notes</a>
 
                 <span class="nav-label">System</span>
                 <a href="/discipline">
@@ -79,6 +102,7 @@
         <div class="main">
             <header class="page-head">
                 <div>
+                    <span class="page-eyebrow">Network protection</span>
                     <h1 class="page-title" id="page-title">Overview</h1>
                     <p class="page-sub" id="page-sub">Real-time DNS filtering status</p>
                 </div>
@@ -90,6 +114,28 @@
             </header>
 
         <!-- ═══ OVERVIEW ═══ -->
+        <section class="view freeze-page" data-view="freeze">
+            <div class="panel freeze-control">
+                <div class="freeze-heading"><div><span class="command-kicker">Network focus</span><h2>Keep your current connections.</h2><p class="panel-desc">Pause new outbound connections while your existing sessions continue.</p></div><span class="freeze-badge" id="freeze-badge">Checking</span></div>
+                <div class="freeze-state"><span class="freeze-state-dot" aria-hidden="true"></span><strong id="freeze-status" role="status" aria-live="polite">Checking…</strong></div>
+                <p id="freeze-error" role="alert" hidden></p>
+                <div class="freeze-controls">
+                    <label for="freeze-duration">Freeze duration<select id="freeze-duration"><option value="0">Until I stop it manually</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">1 hour</option><option value="120">2 hours</option></select></label>
+                    <div class="freeze-actions">
+                    <button id="freeze-start" class="btn" onclick="startConnectionFreeze()" disabled>Freeze new connections</button>
+                    <button id="freeze-stop" class="btn btn-danger" onclick="stopConnectionFreeze()" disabled>Stop freeze</button>
+                    </div>
+                </div>
+                <div class="freeze-scope"><div><strong>Stays connected</strong><span>Existing sessions, local dashboard, DNS Filter and DHCP.</span></div><div><strong>New connections blocked</strong><span>IPv4 and IPv6, including new connections to your LAN.</span></div><div><strong>You control the end</strong><span>Stop manually or use a timer. Server exit also removes the freeze.</span></div></div>
+                <p class="freeze-note">Requires Windows administrator permission. An already connected game or an offline game can still run.</p>
+            </div>
+            <div class="panel freeze-log">
+                <div class="freeze-heading"><div><h2>Connection log</h2><p class="panel-desc">Blocked attempts and session changes, stored on this device.</p></div><span id="freeze-event-count" class="freeze-badge">0 events</span></div>
+                <label class="freeze-search" for="freeze-search">Find an application or destination<input id="freeze-search" type="search" placeholder="Search by application, IP address or reason…" oninput="renderFreezeEvents()"></label>
+                <div class="freeze-table"><table><thead><tr><th>Time</th><th>Action</th><th>Application</th><th>Destination</th><th>Protocol</th><th>Reason</th></tr></thead><tbody id="freeze-events"></tbody></table></div>
+                <p class="freeze-note">Latest 200 entries shown · 1,000 retained. Windows may combine or omit repeated attempts.</p>
+            </div>
+        </section>
         <section class="view active" data-view="overview">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -168,6 +214,134 @@
                     <ul class="data-list" id="top-blocked-list">
                         <li class="no-data">Loading…</li>
                     </ul>
+                </section>
+            </div>
+        </section>
+
+        <!-- ═══ SECURITY CENTER ═══ -->
+        <section class="view" data-view="security">
+            <section class="security-hero">
+                <div>
+                    <span class="command-kicker">Privacy · Integrity · Control</span>
+                    <h2>Your security features in one place</h2>
+                    <p>Review encrypted DNS, emergency controls, trusted security packs, explainable decisions, and configuration protection.</p>
+                    <div class="security-hero-actions"><button class="btn" onclick="refreshSecurityCenter()">Run security check</button><button class="btn btn-ghost" onclick="securityInspectDomain()">Explain a domain</button></div>
+                </div>
+                <div class="security-score" id="security-score-wrap"><strong id="security-score">—</strong><span>Security readiness</span><small id="security-summary">Checking protection…</small></div>
+            </section>
+
+            <div id="security-alerts" class="security-alerts"><div class="security-loading">Checking all security layers…</div></div>
+
+            <div class="security-feature-grid">
+                <article class="security-feature" id="security-feature-dns">
+                    <header><span class="security-feature-icon">DNS</span><div><h3>Encrypted DNS</h3><span id="security-dns-state" class="security-state">Checking</span></div></header>
+                    <p id="security-dns-detail">Reviewing secure upstream resolvers…</p>
+                    <div class="security-feature-meta" id="security-dns-meta"></div>
+                    <button class="btn btn-ghost" onclick="securityOpenSettings()">Review configuration</button>
+                </article>
+                <article class="security-feature" id="security-feature-decisions">
+                    <header><span class="security-feature-icon">WHY</span><div><h3>Decision Explanations</h3><span id="security-decision-state" class="security-state">Checking</span></div></header>
+                    <p id="security-decision-detail">Testing the decision and health engines…</p>
+                    <div class="security-domain-input"><input id="security-domain" placeholder="example.com" onkeydown="if(event.key==='Enter')securityInspectDomain()"><button class="btn" onclick="securityInspectDomain()">Explain</button></div>
+                    <button class="btn btn-ghost" onclick="switchView('decisions')">Open Decision Center</button>
+                </article>
+                <article class="security-feature" id="security-feature-lockdown">
+                    <header><span class="security-feature-icon">LOCK</span><div><h3>Emergency Lockdown</h3><span id="security-lockdown-state" class="security-state">Checking</span></div></header>
+                    <p id="security-lockdown-detail">Checking emergency DNS restrictions…</p>
+                    <div class="security-feature-meta" id="security-lockdown-meta"></div>
+                    <button class="btn btn-ghost" onclick="securityOpenLockdown()">Manage Lockdown</button>
+                </article>
+                <article class="security-feature" id="security-feature-packs">
+                    <header><span class="security-feature-icon">SIG</span><div><h3>Signed Security Packs</h3><span id="security-packs-state" class="security-state">Checking</span></div></header>
+                    <p id="security-packs-detail">Verifying installed intelligence packs…</p>
+                    <div class="security-feature-meta" id="security-packs-meta"></div>
+                    <button class="btn btn-ghost" onclick="switchView('blocklist')">Manage signed packs</button>
+                </article>
+                <article class="security-feature" id="security-feature-vault">
+                    <header><span class="security-feature-icon">KEY</span><div><h3>Configuration Vault</h3><span id="security-vault-state" class="security-state">Checking</span></div></header>
+                    <p id="security-vault-detail">Checking protection for configuration changes…</p>
+                    <div class="security-feature-meta" id="security-vault-meta"></div>
+                    <button class="btn btn-ghost" onclick="securityOpenVault()">Open vault controls</button>
+                </article>
+            </div>
+
+            <section class="panel security-checklist-panel">
+                <div class="panel-head"><div><span class="command-kicker">Recommended next actions</span><h2>Security checklist</h2></div><span id="security-last-checked">Not checked yet</span></div>
+                <div id="security-checklist" class="security-checklist"><span class="no-data">Run the security check to build recommendations.</span></div>
+            </section>
+        </section>
+
+        <!-- ═══ DECISION CENTER ═══ -->
+        <section class="view" data-view="decisions">
+            <section class="decision-command">
+                <div>
+                    <span class="command-kicker">Investigate · Preview · Repair</span>
+                    <h2>Explain every decision before changing a rule</h2>
+                    <p>Inspect a website, identify competing policies, simulate a new rule, review its history, and repair protection from one workspace.</p>
+                </div>
+                <div class="decision-command-score"><strong id="dc-health-score">—</strong><span>Service checks (not a security guarantee)</span></div>
+                <div class="decision-command-metrics">
+                    <div><span>Conflicts</span><strong id="dc-conflict-count">—</strong></div>
+                    <div><span>Engine</span><strong id="dc-engine-state">Checking</strong></div>
+                    <div><span>DNS route</span><strong id="dc-route-state">Checking</strong></div>
+                </div>
+            </section>
+
+            <div class="decision-layout">
+                <section class="panel decision-inspector">
+                    <div class="panel-head"><div><span class="command-kicker">Live decision inspector</span><h2>Why is this website allowed or blocked?</h2></div><span class="tag">Read only</span></div>
+                    <div class="input-row">
+                        <input id="dc-domain" autocomplete="off" placeholder="Domain or URL, e.g. news.example.com">
+                        <button class="btn" onclick="inspectDecisionDomain()">Inspect now</button>
+                    </div>
+                    <div id="dc-inspection" class="decision-empty"><strong>No website selected</strong><span>Enter a domain to see the winning rule, AI signal, conflicts, history, and safe next actions.</span></div>
+                </section>
+
+                <section class="panel decision-health">
+                    <div class="panel-head"><div><span class="command-kicker">Protection operations</span><h2>System health</h2></div><button class="btn btn-ghost" onclick="loadProtectionHealth()">Retest</button></div>
+                    <div id="dc-health-checks" class="health-check-list"><span class="no-data">Running checks…</span></div>
+                    <div class="decision-health-actions">
+                        <button class="btn" onclick="repairProtection()">Repair protection</button>
+                        <button class="btn btn-ghost" onclick="clearCache();loadProtectionHealth()">Clear cache</button>
+                    </div>
+                    <div id="dc-repair-result" class="operation-note">Repair is safe: it enables filtering, refreshes DNS state, and restores local routing when permission allows.</div>
+                    <div class="emergency-lockdown">
+                        <div class="lockdown-head"><div><span>Emergency control</span><strong id="lockdown-state">Checking…</strong></div><time id="lockdown-countdown"></time></div>
+                        <p>Temporarily block every domain except the emergency allowlist. It expires automatically.</p>
+                        <label><span>Duration</span><select id="lockdown-minutes"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="120">2 hours</option><option value="360">6 hours</option><option value="1440">24 hours</option></select></label>
+                        <label><span>Allowed domains · one per line</span><textarea id="lockdown-allowlist" placeholder="updates.example.com&#10;support.example.com"></textarea></label>
+                        <div class="lockdown-actions"><button id="lockdown-start" class="btn btn-danger" onclick="startEmergencyLockdown()">Start lockdown</button><button id="lockdown-stop" class="btn btn-ghost" onclick="stopEmergencyLockdown()" hidden>End lockdown</button></div>
+                    </div>
+                </section>
+
+                <section class="panel rule-simulator">
+                    <div class="panel-head"><div><span class="command-kicker">Rule simulator</span><h2>Preview impact before saving</h2></div><span class="tag">No changes applied</span></div>
+                    <div class="rule-sim-grid">
+                        <label><span>Proposed rule</span><input id="dc-rule-pattern" placeholder="*.example.com"></label>
+                        <label><span>Action</span><select id="dc-rule-action"><option value="block">Always block</option><option value="allow">Always allow</option></select></label>
+                        <label class="wide"><span>Sample websites · one per line</span><textarea id="dc-rule-samples" placeholder="example.com&#10;mail.example.com&#10;unrelated.org"></textarea></label>
+                    </div>
+                    <button class="btn" onclick="simulateDecisionRule()">Run simulation</button>
+                    <div id="dc-simulation" class="decision-empty compact"><strong>Nothing simulated</strong><span>The simulator compares current and proposed outcomes without saving the rule.</span></div>
+                </section>
+
+                <section class="panel conflict-center">
+                    <div class="panel-head"><div><span class="command-kicker">Policy safety</span><h2>Conflicts & precedence</h2></div><button class="btn btn-ghost" onclick="loadDecisionConflicts()">Scan again</button></div>
+                    <div id="dc-precedence" class="precedence-chain"></div>
+                    <div id="dc-conflicts" class="conflict-list"><span class="no-data">Scanning policies…</span></div>
+                </section>
+
+                <section class="panel decision-history">
+                    <div class="panel-head"><div><span class="command-kicker">Activity timeline</span><h2>Recent website decisions</h2></div><button class="btn btn-ghost" onclick="loadDecisionTimeline()">Refresh</button></div>
+                    <div class="decision-history-tools"><input id="dc-history-search" placeholder="Filter domains or devices…" oninput="filterDecisionTimeline()"><select id="dc-history-window" onchange="filterDecisionTimeline()"><option value="all">All recent</option><option value="hour">Last hour</option><option value="day">Last 24 hours</option></select></div>
+                    <div id="dc-timeline" class="decision-timeline"><span class="no-data">Loading recent decisions…</span></div>
+                </section>
+
+                <section class="panel snapshot-center">
+                    <div class="panel-head"><div><span class="command-kicker">Change safety</span><h2>Configuration snapshots</h2></div><span class="tag">Local backup</span></div>
+                    <p class="panel-desc">Capture the current direct blocks, trusted exceptions, modules, and system settings before a large edit.</p>
+                    <div class="snapshot-actions"><button class="btn" onclick="createProtectionSnapshot()">Create snapshot</button><button class="btn btn-ghost" onclick="downloadLatestSnapshot()">Download latest</button></div>
+                    <div id="dc-snapshots" class="snapshot-list"></div>
                 </section>
             </div>
         </section>
@@ -299,10 +473,10 @@
                 <div class="table-container">
                     <table>
                         <thead>
-                            <tr><th>Domain</th><th>Client IP</th><th>Time</th></tr>
+                            <tr><th>Domain</th><th>Client IP</th><th>Time</th><th>Details</th></tr>
                         </thead>
                         <tbody id="recent-table">
-                            <tr><td colspan="3" class="no-data">Loading…</td></tr>
+                            <tr><td colspan="4" class="no-data">Loading…</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -331,16 +505,37 @@
 
         <!-- ═══ BLOCKLIST ═══ -->
         <section class="view" data-view="blocklist">
-            <section class="panel">
-                <div class="panel-head"><h2>Custom Blocklist</h2></div>
-                <div class="input-row">
-                    <input type="text" id="custom-block-input" placeholder="Block a domain, e.g. tiktok.com" />
-                    <button class="btn btn-danger" onclick="addCustomBlock()">Block</button>
-                </div>
-                <ul class="data-list list-tall" id="custom-blocks-list">
-                    <li class="no-data">Loading…</li>
-                </ul>
-            </section>
+            <div class="security-pack-layout">
+                <section class="panel">
+                    <div class="panel-head"><h2>Custom Blocklist</h2></div>
+                    <div class="input-row">
+                        <input type="text" id="custom-block-input" placeholder="Block a domain, e.g. tiktok.com" />
+                        <button class="btn btn-danger" onclick="addCustomBlock()">Block</button>
+                    </div>
+                    <ul class="data-list list-tall" id="custom-blocks-list">
+                        <li class="no-data">Loading…</li>
+                    </ul>
+                </section>
+                <section class="panel security-pack-panel">
+                    <div class="panel-head"><div><span class="command-kicker">Cryptographically verified</span><h2>Security Packs</h2></div><span id="pack-trust-count" class="tag">0 trusted keys</span></div>
+                    <p class="panel-desc">Only packs signed by a trusted Ed25519 publisher can be installed. Installed protection continues working offline.</p>
+                    <div class="pack-upload-zone">
+                        <input id="security-pack-file" type="file" accept="application/json,.json" onchange="securityPackSelected(this)" hidden>
+                        <button class="btn" onclick="document.getElementById('security-pack-file').click()">Choose signed pack</button>
+                        <span id="security-pack-filename">No file selected</span>
+                        <div><button id="security-pack-verify" class="btn btn-ghost" onclick="verifySelectedSecurityPack()" disabled>Verify only</button><button id="security-pack-install" class="btn" onclick="installSelectedSecurityPack()" disabled>Verify & install</button></div>
+                    </div>
+                    <div id="security-pack-result" class="operation-note">Select a JSON pack to inspect its signature before installation.</div>
+                    <div id="security-pack-list" class="security-pack-list"><span class="no-data">Loading installed packs…</span></div>
+                </section>
+                <section class="panel security-key-panel">
+                    <div class="panel-head"><div><span class="command-kicker">Publisher trust</span><h2>Add trusted signing key</h2></div></div>
+                    <p class="panel-desc">Add a publisher only after comparing its key through a separate trusted channel.</p>
+                    <label><span>Key ID</span><input id="security-key-id" placeholder="publisher-name"></label>
+                    <label><span>Ed25519 public key · Base64</span><textarea id="security-public-key" placeholder="Paste the 44-character Base64 public key"></textarea></label>
+                    <button class="btn" onclick="trustSecurityPackKey()">Trust publisher key</button>
+                </section>
+            </div>
         </section>
 
         <!-- ═══ WHITELIST ═══ -->
@@ -348,9 +543,10 @@
             <section class="panel">
                 <div class="panel-head"><h2>Whitelist <span class="tag">Never block</span></h2></div>
                 <div class="input-row">
-                    <input type="text" id="whitelist-input" placeholder="Allow a domain, e.g. github.com" />
+                    <input type="text" id="whitelist-input" placeholder="Allow a domain or wildcard, e.g. *.spotify.com" />
                     <button class="btn" onclick="addWhitelist()">Allow</button>
                 </div>
+                <div id="wildcard-allowlist-feature"></div>
                 <ul class="data-list list-tall" id="whitelist-list">
                     <li class="no-data">Loading…</li>
                 </ul>
@@ -375,6 +571,45 @@
                     <li class="no-data">Comming soon</li>
                 </ul>
             </section>
+        </section>
+
+        <!-- ═══ TODO LIST ═══ -->
+        <section class="view" data-view="todos">
+            <section class="organizer-command">
+                <div><span class="command-kicker">Plan · Break down · Complete</span><h2>Personal Todo Workspace</h2><p>Keep fast standalone work visible and break larger items into clear sub-todos.</p><div class="organizer-import-actions"><button class="btn" onclick="openTodoYAMLImport()">Import YAML</button><a class="btn btn-ghost" href="/api/organizer/todos/export-yaml" download>Export YAML</a></div></div>
+                <div class="organizer-stats"><div><strong id="todo-open-count">0</strong><span>Open</span></div><div><strong id="todo-done-count">0</strong><span>Done</span></div><div><strong id="todo-progress">0%</strong><span>Progress</span></div></div>
+            </section>
+            <div class="todo-layout">
+                <section class="panel todo-main-panel">
+                    <div class="panel-head"><div><span class="command-kicker">Quick capture</span><h2>Todos & sub-todos</h2></div><div class="todo-view-actions"><button class="btn btn-ghost" onclick="setTodoFilter('all')">All</button><button class="btn btn-ghost" onclick="setTodoFilter('open')">Open</button><button class="btn btn-ghost" onclick="setTodoFilter('done')">Done</button></div></div>
+                    <div class="input-row"><input id="todo-new-title" placeholder="What needs to be done?"><button class="btn" onclick="createDashboardTodo()">Add todo</button></div>
+                    <div class="todo-toolbar"><input id="todo-search" placeholder="Search todos and sub-todos…" oninput="renderDashboardTodos()"><select id="todo-sort" onchange="renderDashboardTodos()"><option value="created">Created order</option><option value="open">Open first</option><option value="name">Name</option></select></div>
+                    <div id="todo-list" class="todo-list"><span class="no-data">Loading todos…</span></div>
+                </section>
+                <aside class="panel todo-guide"><div class="panel-head"><h2>Breakdown guide</h2></div><div class="todo-guide-list"><article><b>1</b><div><strong>Capture the outcome</strong><span>Write the main todo as something visibly finishable.</span></div></article><article><b>2</b><div><strong>Add sub-todos</strong><span>Use + Sub-todo for the concrete actions beneath it.</span></div></article><article><b>3</b><div><strong>Complete confidently</strong><span>Completing a parent also completes its children.</span></div></article></div></aside>
+            </div>
+            <div class="yaml-modal" id="todo-yaml-modal" hidden>
+                <div class="yaml-dialog">
+                    <div class="panel-head"><div><span class="command-kicker">Safe structured import</span><h2>Import Todo YAML</h2></div><button class="btn btn-ghost" onclick="closeTodoYAMLImport()">Close</button></div>
+                    <div class="yaml-import-tools"><button class="btn btn-ghost" onclick="document.getElementById('todo-yaml-file').click()">Choose .yaml file</button><input id="todo-yaml-file" type="file" accept=".yaml,.yml,text/yaml" hidden onchange="loadTodoYAMLFile(this)"><button class="btn btn-ghost" onclick="loadTodoYAMLExample()">Use example</button><span>or paste YAML below</span></div>
+                    <textarea id="todo-yaml-input" spellcheck="false" placeholder="version: 1&#10;list: My Todo List&#10;todos:&#10;  - title: First todo&#10;    priority: high"></textarea>
+                    <div class="yaml-mode-row"><label><input type="radio" name="todo-yaml-mode" value="add" checked><span><strong>Add</strong>Keep current todos</span></label><label><input type="radio" name="todo-yaml-mode" value="replace"><span><strong>Replace</strong>Remove current todos</span></label><label><input type="radio" name="todo-yaml-mode" value="skip"><span><strong>Skip duplicates</strong>Keep unique items</span></label></div>
+                    <div class="yaml-actions"><button class="btn" onclick="previewTodoYAML()">Validate & preview</button><button class="btn btn-ghost" id="todo-yaml-confirm" onclick="confirmTodoYAMLImport()" disabled>Confirm import</button></div>
+                    <div id="todo-yaml-preview" class="yaml-preview"><div class="decision-empty compact"><strong>Nothing validated yet</strong><span>Your existing list will not change during validation.</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ NOTES ═══ -->
+        <section class="view" data-view="notes">
+            <section class="organizer-command">
+                <div><span class="command-kicker">Capture · Develop · Remember</span><h2>Notes Workspace</h2><p>Keep ideas, references, and working thoughts searchable without leaving the dashboard.</p></div>
+                <div class="organizer-stats"><div><strong id="note-count">0</strong><span>Notes</span></div><div><strong id="note-pinned-count">0</strong><span>Pinned</span></div><div><strong id="note-word-count">0</strong><span>Words</span></div></div>
+            </section>
+            <div class="notes-workspace">
+                <aside class="panel notes-sidebar"><div class="panel-head"><h2>Notebook</h2><button class="btn" onclick="createDashboardNote()">+ New</button></div><input id="note-search" placeholder="Search notes…" oninput="renderDashboardNotes()"><div id="notes-list" class="notes-list"><span class="no-data">Loading notes…</span></div></aside>
+                <section class="panel note-editor"><div id="note-editor-empty" class="note-editor-empty"><strong>Select a note</strong><span>Create a new note or choose one from the notebook.</span></div><div id="note-editor-form" hidden><div class="note-editor-head"><input id="note-title" placeholder="Note title" oninput="scheduleNoteSave()"><div><button class="btn btn-ghost note-editor-close" onclick="closeDashboardNote()">Close</button><button id="note-pin" class="btn btn-ghost" onclick="toggleCurrentNotePin()">Pin</button><button class="btn btn-danger" onclick="deleteCurrentNote()">Delete</button></div></div><textarea id="note-content" placeholder="Start writing…" oninput="scheduleNoteSave()"></textarea><footer><span id="note-save-state">Saved</span><span id="note-editor-words">0 words</span></footer></div></section>
+            </div>
         </section>
 
         <!-- ═══ SETTINGS ═══ -->
@@ -474,6 +709,27 @@
                 </section>
 
                 <!-- Start on login -->
+                <section class="panel panel-wide vault-panel">
+                    <div class="panel-head"><h2>Secure Vault</h2><span id="vault-badge" class="vault-badge {{ if .vault_unlocked }}open{{ else if .vault_configured }}locked{{ end }}">{{ if .vault_unlocked }}Unlocked{{ else if .vault_configured }}Locked{{ else }}Not enabled{{ end }}</span></div>
+                    <p class="panel-desc">Protect every configuration change with a second password, encrypted backups, a one-time recovery code, and a tamper-evident audit trail. DNS protection keeps running while the vault is locked.</p>
+                    <div id="vault-setup" class="vault-section" {{ if .vault_configured }}hidden{{ end }}>
+                        <strong>Enable the vault</strong>
+                        <div class="input-row"><input type="password" id="vault-new-password" placeholder="Vault password (minimum 12 characters)"><input type="password" id="vault-new-confirm" placeholder="Confirm vault password"><button class="btn" onclick="setupVault()">Enable</button></div>
+                    </div>
+                    <div id="vault-unlock" class="vault-section" {{ if or (not .vault_configured) .vault_unlocked }}hidden{{ end }}>
+                        <strong>Unlock configuration changes</strong>
+                        <div class="input-row"><input type="password" id="vault-password" placeholder="Vault password"><button class="btn" onclick="unlockVault()">Unlock</button></div>
+                        <details><summary>Use recovery code</summary><div class="input-row"><input id="vault-recovery" placeholder="Recovery code"><input type="password" id="vault-recovery-password" placeholder="New password (12+ characters)"><button class="btn btn-ghost" onclick="recoverVault()">Recover</button></div></details>
+                    </div>
+                    <div id="vault-open" class="vault-section" {{ if not .vault_unlocked }}hidden{{ end }}>
+                        <div class="middleman-bar"><div><strong>Configuration changes are unlocked</strong><small id="vault-until"></small></div><button class="btn btn-danger" onclick="lockVault()">Lock now</button></div>
+                        <div class="action-buttons"><button class="btn" onclick="downloadVaultBackup()">Download encrypted backup</button><label class="btn btn-ghost vault-file">Restore backup<input type="file" id="vault-backup-file" accept="application/json" onchange="restoreVaultBackup(this)"></label><button class="btn btn-ghost" onclick="loadVaultAudit()">Verify audit log</button></div>
+                        <ul id="vault-audit" class="data-list vault-audit"><li class="no-data">Open the audit log to verify its chain.</li></ul>
+                    </div>
+                    <div id="vault-recovery-result" class="vault-recovery-result" hidden></div>
+                </section>
+
+                <!-- Start on login -->
                 <section class="panel">
                     <div class="panel-head"><h2>Start on Login</h2></div>
                     <p class="panel-desc">Launch DNS Filter automatically (elevated) when you sign in to Windows.</p>
@@ -516,7 +772,8 @@
 
     <div class="notification" id="notification"></div>
 
-    <script>
+    <script src="/static/js/security-bootstrap.js?v=1"></script>
+    <script nonce="{{ .csp_nonce }}">
         // ── Notifications ──────────────────────────────────────────
         function showNotification(msg, isError = false) {
             const el = document.getElementById('notification');
@@ -575,15 +832,16 @@
                 const tbody = document.getElementById('recent-table');
 
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="no-data">No blocked queries yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="no-data">No blocked queries yet</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = data.map(item => `
                     <tr>
-                        <td>${escapeHtml(item.domain || '')}</td>
+                        <td><button class="domain-explain" data-domain="${escapeHtml(item.domain || '')}" onclick="openDomainExplanation(this.dataset.domain)">${escapeHtml(item.domain || '')}</button></td>
                         <td>${escapeHtml(item.client_ip || 'unknown')}</td>
                         <td>${formatTime(item.timestamp)}</td>
+                        <td><button class="btn btn-ghost" data-domain="${escapeHtml(item.domain || '')}" onclick="openDomainExplanation(this.dataset.domain)">Explain</button></td>
                     </tr>
                 `).join('');
             } catch (e) {
@@ -628,12 +886,16 @@
                     return;
                 }
 
-                list.innerHTML = data.map(domain => `
-                    <li>
-                        <span>${escapeHtml(domain)}</span>
-                        <button class="btn-remove" onclick="removeWhitelist('${escapeHtml(domain)}')">REMOVE</button>
-                    </li>
-                `).join('');
+                list.innerHTML = data.map(domain => {
+                    const encoded = encodeURIComponent(domain);
+                    const wildcard = domain.startsWith('*.');
+                    return `
+                    <li class="${wildcard ? 'wildcard-list-item' : ''}">
+                        ${wildcard ? `<button class="wildcard-rule-button" aria-expanded="false" onclick="toggleWildcardRule(this,'${encoded}')"><span>${escapeHtml(domain)}</span><small>Show observed subdomains</small><b aria-hidden="true">⌄</b></button>` : `<span>${escapeHtml(domain)}</span>`}
+                        <button class="btn-remove" onclick="removeWhitelist(decodeURIComponent('${encoded}'))">REMOVE</button>
+                        ${wildcard ? '<div class="wildcard-rule-details" hidden></div>' : ''}
+                    </li>`;
+                }).join('');
             } catch (e) {
                 console.error('Failed to load whitelist:', e);
             }
@@ -858,7 +1120,7 @@
         // ── Settings: filtering master switch ──────────────────────
         async function loadFilteringStatus() {
             try {
-                const s = await api('GET', '/filtering');
+                const [s, vault] = await Promise.all([api('GET', '/filtering'), api('GET', '/vault/status')]);
                 if (!s) return;
                 const dot = document.getElementById('filt-dot');
                 const text = document.getElementById('filt-text');
@@ -883,23 +1145,44 @@
                 }
                 btn.dataset.enabled = s.enabled ? '1' : '0';
                 btn.dataset.paused = (s.paused_until && s.paused_until > now) ? '1' : '0';
+                const locked = vault?.configured && !vault?.unlocked;
+                btn.dataset.vaultLocked = locked ? '1' : '0';
+                btn.title = locked ? 'Configuration Vault is locked. Click to unlock and continue.' : '';
+                if (locked) btn.textContent = '🔒 ' + btn.textContent.replace(/^🔒\s*/, '');
             } catch (e) { console.error('filtering:', e); }
         }
         async function toggleFiltering() {
             const btn = document.getElementById('filt-toggle');
             const on = btn.dataset.enabled === '1' && btn.dataset.paused !== '1';
-            const data = await api('POST', '/filtering', { enabled: !on });
+            btn.disabled = true;
+            let data;
+            try {
+                data = await api('POST', '/filtering', { enabled: !on });
+            } catch (error) {
+                showNotification('The local service could not be reached', true);
+                return;
+            } finally {
+                btn.disabled = false;
+            }
             if (data && data.success) {
                 showNotification('Filtering ' + (!on ? 'enabled' : 'disabled'));
                 loadFilteringStatus();
-            } else { showNotification('Failed to change filtering', true); }
+            } else if (data?.code === 'vault_locked' && window.requestVaultUnlock) {
+                requestVaultUnlock('Unlock the Configuration Vault to change filtering.', toggleFiltering);
+            } else {
+                showNotification(data?.error || 'Failed to change filtering', true);
+            }
         }
         async function pauseFiltering(minutes) {
             const data = await api('POST', '/filtering/pause', { minutes });
             if (data && data.success) {
                 showNotification(`Filtering paused for ${minutes} min`);
                 loadFilteringStatus();
-            } else { showNotification('Failed to pause', true); }
+            } else if (data?.code === 'vault_locked' && window.requestVaultUnlock) {
+                requestVaultUnlock('Unlock the Configuration Vault to pause filtering.', () => pauseFiltering(minutes));
+            } else {
+                showNotification(data?.error || 'Failed to pause filtering', true);
+            }
         }
 
         // ── Settings: domain tester ────────────────────────────────
@@ -1116,12 +1399,15 @@
 
         // ── Tabs ───────────────────────────────────────────────────
         const VIEW_META = {
+            freeze: ['Connection Freeze', 'Keep current connections and block new ones'],
             overview:   ['Overview',      'Real-time DNS filtering status'],
+            security:   ['Security Center', 'Status and controls for the new privacy and security features'],
             live:       ['Live Monitor',  'Real-time DNS queries as they happen'],
             focus:      ['Focus Mode',    'Block distractions and get things done'],
             wellbeing:  ['Wellbeing',     'Doom-scroll guard and screen-time bank'],
             apps:       ['App Blocker',   'Block apps with one tap'],
             activity:   ['Activity',      'Recent blocked DNS queries'],
+            decisions:  ['Decision Center', 'Inspect decisions, preview rules, detect conflicts, and repair protection'],
             categories: ['Categories',    'Toggle predefined blocking categories'],
             keywords:   ['Keywords',      'Keyword-based blocking lists'],
             blocklist:  ['Custom Blocklist', 'Manually block specific domains'],
@@ -1129,6 +1415,8 @@
             ai:         ['AI Blocker',    'Machine-learning threat detection'],
             settings:   ['Settings',      'Controls, testing, and maintenance'],
             requests:   ['Requests',      'Manage unblock requests'],
+            todos:      ['Todo List',     'Todos, nested sub-todos, and completion progress'],
+            notes:      ['Notes',         'Searchable notes with autosave and pinning'],
         };
         function switchView(name) {
             document.querySelectorAll('.view').forEach(v =>
@@ -1139,10 +1427,16 @@
             document.getElementById('page-title').textContent = meta[0];
             document.getElementById('page-sub').textContent = meta[1];
             if (name === 'overview') drawChart(chartData);
+            if (name === 'freeze' && window.loadConnectionFreeze) loadConnectionFreeze();
+            if (name === 'security' && window.loadSecurityCenter) loadSecurityCenter();
             if (name === 'live') startLive(); else stopLive();
             if (name === 'apps') loadApps();
             if (name === 'focus') loadFocus();
             if (name === 'wellbeing') { loadGuard(); loadBank(); }
+            if (name === 'blocklist' && window.loadSecurityPacks) loadSecurityPacks();
+            if (name === 'decisions' && window.loadDecisionCenter) loadDecisionCenter();
+            if (name === 'todos' && window.loadDashboardTodos) loadDashboardTodos();
+            if (name === 'notes' && window.loadDashboardNotes) loadDashboardNotes();
             if (name === 'settings') { loadFilteringStatus(); loadSystemInfo(); loadModules(); loadSources(); loadBlockPage(); loadAutostart(); }
             window.scrollTo(0, 0);
             location.hash = name;
@@ -1345,11 +1639,12 @@
                         : (ev.cached ? 'cached' : 'allowed');
             tr.innerHTML =
                 `<td>${dot}</td>` +
-                `<td>${escapeHtml(ev.domain || '')}</td>` +
+                `<td><button class="domain-explain">${escapeHtml(ev.domain || '')}</button></td>` +
                 `<td><small>${escapeHtml(ev.type || '')}</small></td>` +
                 `<td><small>${escapeHtml(ev.client_ip || '')}</small></td>` +
                 `<td>${result}</td>` +
                 `<td style="text-align:right;"><small>${new Date((ev.time||0)*1000).toLocaleTimeString()}</small></td>`;
+            tr.querySelector('.domain-explain')?.addEventListener('click', () => openDomainExplanation(ev.domain || ''));
             tbody.insertBefore(tr, tbody.firstChild);
             while (tbody.children.length > LIVE_MAX_ROWS) tbody.removeChild(tbody.lastChild);
         }
@@ -1441,6 +1736,7 @@
         loadTopBlocked();
         loadWhitelist();
         loadCustomBlocklist();
+        if (window.loadSecurityPacks) loadSecurityPacks();
         loadGamification();
         loadCategories();
         loadKeywordLists();
@@ -1460,5 +1756,44 @@
             loadAIStats();
         }, 30000);
     </script>
+    <script src="/static/js/dashboard-enhancements.js?v=4"></script>
+    <link rel="stylesheet" href="/static/css/app-network-control.css?v=1">
+    <script src="/static/js/dashboard-app-network.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/network-intelligence.css?v=1">
+    <script src="/static/js/dashboard-network-intelligence.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/network-privacy.css?v=1">
+    <link rel="stylesheet" href="/static/css/privacy-connection-details.css?v=1">
+    <link rel="stylesheet" href="/static/css/destination-alerts.css?v=1">
+    <script src="/static/js/dashboard-network-privacy.js?v=1"></script>
+    <script src="/static/js/dashboard-app-schedules.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/network-profiles.css?v=1">
+    <script src="/static/js/dashboard-network-profiles.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/dns-route-watch.css?v=1">
+    <script src="/static/js/dashboard-dns-route-watch.js?v=1"></script>
+    <script src="/static/js/dashboard-destination-alerts.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/hard-security.css?v=1">
+    <script src="/static/js/dashboard-hard-security.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/download-guardian.css?v=1">
+    <script src="/static/js/dashboard-download-guardian.js?v=1"></script>
+    <script src="/static/js/dashboard-learning-mode.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/wildcard-allowlist.css?v=1">
+    <script src="/static/js/dashboard-wildcard-allowlist.js?v=1"></script>
+    <script src="/static/js/dashboard-requests.js?v=1"></script>
+    <script src="/static/js/dashboard-ai-inspector.js?v=2"></script>
+    <link rel="stylesheet" href="/static/css/hard-system.css?v=1">
+    <script src="/static/js/dashboard-hard-system.js?v=1"></script>
+    <script src="/static/js/dashboard-decision-center.js?v=4"></script>
+    <link rel="stylesheet" href="/static/css/connection-freeze.css?v=2">
+    <script src="/static/js/connection-freeze.js?v=2"></script>
+    <script src="/static/js/dashboard-security-packs.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/vault-quick-unlock.css?v=2">
+    <script src="/static/js/dashboard-vault.js?v=8"></script>
+    <script src="/static/js/dashboard-security-center.js?v=1"></script>
+    <script src="/static/js/dashboard-organizer.js?v=1"></script>
+    <script src="/static/js/theme-modes.js?v=2"></script>
+    <link rel="stylesheet" href="/static/css/navigation-architecture.css?v=1">
+    <script src="/static/js/dashboard-navigation.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/console-transition.css?v=1">
+    <script src="/static/js/console-transition.js?v=1"></script>
 </body>
 </html>

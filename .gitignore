@@ -25,8 +25,26 @@ go.work
 # Data and logs
 data/*.db
 data/*.db-journal
+data/*.db-shm
+data/*.db-wal
 data/logs/*.log
 data/logs/*.log.*
+data/console-settings.json
+data/.dns-filter-approved
+data/vault/
+data/vault-archive-*/
+data/quarantine/
+data/security-packs/
+backups/
+
+# Local configuration (contains password/recovery hashes and machine settings)
+configs/config.yaml
+!configs/config.example.yaml
+
+# Local build/test caches
+.tmp-go-cache-*/
+application/**/bin/
+application/**/obj/
 
 # IDE
 .vscode/

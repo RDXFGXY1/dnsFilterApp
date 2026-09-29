@@ -1,0 +1,22 @@
+.wildcard-tool { margin: 18px 0; padding: 18px; border: 1px solid var(--border); background: var(--panel-soft); }
+.wildcard-tool-copy { margin-bottom: 14px; }
+.wildcard-tool h3 { margin: 4px 0 6px; }
+.wildcard-tool p { margin: 0; color: var(--text-muted); }
+.wildcard-tool code { padding: 2px 5px; border: 1px solid var(--border); color: var(--text); }
+.wildcard-results { margin-top: 12px; padding: 12px; border: 1px dashed var(--border); }
+.wildcard-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wildcard-summary strong { font-size: 16px; }
+.wildcard-summary span { color: var(--text-muted); }
+.wildcard-domain-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.wildcard-domain-list span { padding: 7px 9px; border: 1px solid var(--border); background: var(--panel); }
+.wildcard-domain-list b { margin-left: 5px; color: var(--accent); }
+.data-list li.wildcard-list-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.wildcard-rule-button { min-width: 0; display: grid; grid-template-columns: minmax(0, auto) 1fr auto; align-items: center; gap: 12px; padding: 7px 9px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.wildcard-rule-button:hover { background: var(--panel-soft); }
+.wildcard-rule-button span { font-weight: 700; }
+.wildcard-rule-button small { color: var(--text-muted); }
+.wildcard-rule-button b { font-size: 18px; transition: transform .16s ease; }
+.wildcard-rule-button[aria-expanded="true"] b { transform: rotate(180deg); }
+.wildcard-rule-details { grid-column: 1 / -1; padding: 12px; border: 1px dashed var(--border); background: var(--panel-soft); }
+.wildcard-rule-summary { display: flex; justify-content: space-between; gap: 12px; color: var(--text-muted); font-size: 12px; }
+.wildcard-rule-details[hidden] { display: none; }

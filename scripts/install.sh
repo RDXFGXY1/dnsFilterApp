@@ -189,8 +189,13 @@ install_files() {
     cp build/dns-filter $INSTALL_DIR/
     chmod +x $INSTALL_DIR/dns-filter
     
-    # Copy configs
-    cp -r configs/* $INSTALL_DIR/configs/
+    # Install only public templates. Never copy a developer's local config,
+    # because it may contain password/recovery hashes or machine-specific keys.
+    cp configs/custom-blocklist.yaml $INSTALL_DIR/configs/custom-blocklist.yaml
+    cp configs/config.example.yaml $INSTALL_DIR/configs/config.example.yaml
+    if [ ! -f "$INSTALL_DIR/configs/config.yaml" ]; then
+        cp configs/config.example.yaml $INSTALL_DIR/configs/config.yaml
+    fi
     
     # Update config.yaml to use /opt paths
     sed -i 's|^\s*custom_path:.*|  custom_path: "/opt/dns-filter/configs/custom*.yaml"|' \
