@@ -4,6 +4,7 @@ This directory records meaningful application updates. Permanent usage instructi
 
 ## Available updates
 
+- [2026-10 — Arch Linux Foundation and Native Controls](2026-10-08-arch-linux-foundation.md)
 - [2026-09 — Privacy and Security Suite](2026-09-privacy-security-suite.md)
 
 ## Adding a future update

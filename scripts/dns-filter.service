@@ -1,19 +1,26 @@
 [Unit]
-Description=DNS Content Filter Service
-After=network.target
-Wants=network.target
+Description=DNS Filter local protection service
+Documentation=file:/opt/dns-filter/README.md
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
 User=root
 WorkingDirectory=/opt/dns-filter
 ExecStart=/opt/dns-filter/dns-filter --config /opt/dns-filter/configs/config.yaml
-Restart=always
-RestartSec=10
+ExecStopPost=-/usr/bin/nft delete table inet dnsfilter_freeze
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=90
+TimeoutStopSec=20
+KillSignal=SIGTERM
+SuccessExitStatus=0 SIGTERM
 
 # Security settings
 NoNewPrivileges=true
 PrivateTmp=true
+UMask=0077
 
 # Logging
 StandardOutput=journal

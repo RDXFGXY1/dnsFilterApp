@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base32"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
@@ -26,6 +27,7 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/internal/hardsystem"
 	"github.com/RDXFGXY1/dns-filter-app/internal/netdns"
 	"github.com/RDXFGXY1/dns-filter-app/internal/networkintel"
+	"github.com/RDXFGXY1/dns-filter-app/internal/plugins"
 	"github.com/RDXFGXY1/dns-filter-app/internal/vault"
 	appversion "github.com/RDXFGXY1/dns-filter-app/internal/version"
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
@@ -50,6 +52,8 @@ type Server struct {
 	dnsWatch         *dnswatch.Manager
 	dnsBypass        *dnsbypass.Manager
 	downloadGuard    *downloadguard.Manager
+	plugins          *plugins.Manager
+	disciplineDNS    chan dns.QueryEvent
 	authMu           sync.Mutex
 	setupMu          sync.Mutex
 	configMu         sync.Mutex
@@ -89,6 +93,14 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 		s.log.Warnf("Discipline module unavailable: %v", err)
 	} else {
 		s.discipline = mgr
+		if dnsServer != nil {
+			s.disciplineDNS = dnsServer.Subscribe()
+			go func(ch <-chan dns.QueryEvent) {
+				for event := range ch {
+					mgr.RecordFocusActivity("domain", event.Domain, 0)
+				}
+			}(s.disciplineDNS)
+		}
 	}
 	if mgr, err := vault.New(cfg.Vault.Directory, time.Duration(cfg.Vault.UnlockMinutes)*time.Minute, cfg.Vault.MaxFailures, time.Duration(cfg.Vault.LockoutMinutes)*time.Minute); err != nil {
 		s.log.Warnf("Secure configuration vault unavailable: %v", err)
@@ -144,6 +156,11 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 		s.log.Warnf("Download Guardian unavailable: %v", err)
 	} else {
 		s.downloadGuard = mgr
+	}
+	if mgr, err := plugins.New(db.GetDB()); err != nil {
+		s.log.Warnf("Plugin Center unavailable: %v", err)
+	} else {
+		s.plugins = mgr
 	}
 	s.setupRoutes()
 	return s
@@ -203,6 +220,7 @@ func (s *Server) setupRoutes() {
 		s.registerConnectionFreezeRoutes(api)
 		s.registerOrganizerRoutes(api)
 		s.registerDisciplineRoutes(api)
+		s.registerPluginRoutes(api)
 	}
 }
 
@@ -226,10 +244,21 @@ func (s *Server) Start() error {
 		IdleTimeout:       60 * time.Second,
 		MaxHeaderBytes:    32 << 10,
 	}
-	return s.server.ListenAndServe()
+	err := s.server.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return err
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
+	if s.plugins != nil {
+		s.plugins.Shutdown()
+	}
+	if s.dnsServer != nil && s.disciplineDNS != nil {
+		s.dnsServer.Unsubscribe(s.disciplineDNS)
+		s.disciplineDNS = nil
+	}
 	if s.freeze != nil {
 		_ = s.freeze.Close()
 	}
@@ -720,7 +749,10 @@ func (s *Server) addToWhitelist(c *gin.Context) {
 	}
 
 	fmt.Print("Adding to whitelist: ", domain)
-	s.filter.AddToWhitelist(domain)
+	if err := s.filter.AddToWhitelist(domain); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	// Mutate policy first, then invalidate cached answers. Clearing before the
 	// mutation leaves a race where the old blocked answer can be cached again.
 	if s.dnsServer != nil {
@@ -773,7 +805,10 @@ func normalizeRootDomain(value string) (string, error) {
 }
 
 func (s *Server) removeFromWhitelist(c *gin.Context) {
-	s.filter.RemoveFromWhitelist(c.Param("domain"))
+	if err := s.filter.RemoveFromWhitelist(c.Param("domain")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	if s.dnsServer != nil {
 		s.dnsServer.ClearCache()
 	}
@@ -830,7 +865,10 @@ func (s *Server) addToCustomBlocklist(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	s.filter.AddToCustomBlocklist(data.Domain)
+	if err := s.filter.AddToCustomBlocklist(data.Domain); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	if s.dnsServer != nil {
 		s.dnsServer.ClearCache()
 	}
@@ -838,7 +876,10 @@ func (s *Server) addToCustomBlocklist(c *gin.Context) {
 }
 
 func (s *Server) removeFromCustomBlocklist(c *gin.Context) {
-	s.filter.RemoveFromCustomBlocklist(c.Param("domain"))
+	if err := s.filter.RemoveFromCustomBlocklist(c.Param("domain")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	if s.dnsServer != nil {
 		s.dnsServer.ClearCache()
 	}

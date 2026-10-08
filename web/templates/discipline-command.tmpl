@@ -29,14 +29,33 @@
                     <section class="panel focus-panel">
                         <div class="panel-head"><div><span class="command-kicker">Deep work</span><h2>Focus engine</h2></div><span id="focus-state" class="focus-state">Ready</span></div>
                         <div id="focus-clock" class="focus-clock">25:00</div>
-                        <select id="focus-task"><option value="">Choose a task to focus on</option></select>
+                        <div id="focus-setup">
+                            <p class="focus-scope-intro">Choose work from your real goal and project structure.</p>
+                            <div class="focus-scope-grid">
+                                <label><span>Goal</span><select id="focus-goal" onchange="focusGoalChanged()"><option value="">Choose a goal</option></select></label>
+                                <label><span>Project · optional</span><select id="focus-project" onchange="focusProjectChanged()"><option value="">Focus directly on the goal</option></select></label>
+                                <label class="focus-task-field"><span>Task or sub-task · optional</span><select id="focus-task" disabled><option value="">Focus directly on the goal</option></select></label>
+                            </div>
+                            <p class="focus-selection-note" id="focus-selection-note">Completed, archived, and backlog work is hidden.</p>
+                            <div class="focus-presets">
+                                <button onclick="setFocusMinutes(15)">15m</button><button onclick="setFocusMinutes(25)">25m</button><button onclick="setFocusMinutes(50)">50m</button>
+                            </div>
+                            <label class="focus-activity-consent"><input type="checkbox" id="focus-activity-log"> <span><strong>Local activity log</strong><small>During this session, record active app names and DNS-visible domains. No keys, message content, or full browser URLs.</small></span></label>
+                        </div>
                         <div class="focus-actions">
                             <button class="btn" id="focus-start" onclick="toggleFocus()">Start focus</button>
-                            <button class="ws-tab" onclick="resetFocus()">Reset</button>
+                            <button class="ws-tab" id="focus-restart" onclick="restartFocus()" hidden>Restart</button>
+                            <button class="ws-tab focus-end-button" id="focus-end" onclick="endFocusSession()" hidden>End session</button>
+                            <button class="ws-tab" id="focus-reset" onclick="resetFocus()">Reset</button>
                         </div>
-                        <div class="focus-presets">
-                            <button onclick="setFocusMinutes(15)">15m</button><button onclick="setFocusMinutes(25)">25m</button><button onclick="setFocusMinutes(50)">50m</button>
+                        <div class="focus-live-activity" id="focus-live-activity" hidden>
+                            <div><span>Local activity</span><strong id="focus-live-status">Waiting for observations…</strong></div>
+                            <div class="focus-live-stats"><span><b id="focus-live-apps">0</b> apps</span><span><b id="focus-live-domains">0</b> domains</span><span><b id="focus-live-observations">0</b> observations</span></div>
                         </div>
+                          <div class="focus-distraction-tools" id="focus-distraction-tools" hidden>
+                              <span>Log a distraction</span>
+                              <button onclick="logFocusDistraction('Phone')">Phone</button><button onclick="logFocusDistraction('Website')">Website</button><button onclick="logFocusDistraction('Message')">Message</button><button onclick="logFocusDistraction('Noise')">Noise</button><button onclick="logCustomFocusDistraction()">Other</button>
+                          </div>
                         <p class="panel-desc" id="focus-log">0 focused minutes recorded today.</p>
                     </section>
                 </div>
@@ -51,6 +70,19 @@
                         <div id="command-goals" class="alignment-list"></div>
                     </section>
                 </div>
+
+                <section class="panel focus-history-panel">
+                    <div class="panel-head">
+                        <div><span class="command-kicker">Local evidence</span><h2>Focus history</h2><p class="panel-desc">Review what was active during logged focus sessions. Everything stays on this computer.</p></div>
+                        <button class="ws-tab" onclick="loadFocusHistory(true)">Refresh logs</button>
+                    </div>
+                    <div class="focus-history-layout">
+                        <div class="focus-session-list" id="focus-session-list"><span class="no-data">Loading focus sessions…</span></div>
+                        <div class="focus-session-detail" id="focus-session-detail">
+                            <div class="focus-history-empty"><strong>Choose a focus session</strong><p>Application time, DNS-visible domains, observations, and distractions will appear here.</p></div>
+                        </div>
+                    </div>
+                </section>
 
                 <section class="panel review-panel">
                     <div class="panel-head"><div><span class="command-kicker">Weekly review</span><h2>System diagnosis</h2></div><span class="chart-legend" id="review-window">Last 7 days</span></div>

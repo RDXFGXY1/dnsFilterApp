@@ -7,10 +7,23 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 type windowsPlatform struct{}
+
+func validatePathPlatform(path string) error {
+	if !strings.EqualFold(filepath.Ext(path), ".exe") {
+		return fmt.Errorf("select a valid Windows .exe file")
+	}
+	base := strings.ToLower(filepath.Base(path))
+	critical := map[string]bool{"svchost.exe": true, "lsass.exe": true, "services.exe": true, "wininit.exe": true, "csrss.exe": true}
+	if critical[base] {
+		return fmt.Errorf("this critical Windows process cannot be blocked")
+	}
+	return nil
+}
 
 func newPlatform() platform             { return windowsPlatform{} }
 func (windowsPlatform) Supported() bool { return true }

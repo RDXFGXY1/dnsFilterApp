@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -50,6 +51,9 @@ func New(db *sql.DB) (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := m.restoreProtectionRules(); err != nil {
+		return nil, err
+	}
 	_ = m.EvaluateSchedules(time.Now())
 	go func() {
 		ticker := time.NewTicker(30 * time.Second)
@@ -59,6 +63,46 @@ func New(db *sql.DB) (*Manager, error) {
 		}
 	}()
 	return m, nil
+}
+
+func (m *Manager) restoreProtectionRules() error {
+	rows, err := m.db.Query(`SELECT path,rule_name FROM app_network_rules WHERE blocked=1`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var path, rule string
+		if err := rows.Scan(&path, &rule); err != nil {
+			return err
+		}
+		if restoreErr := m.platform.Block(path, rule); restoreErr != nil {
+			_, _ = m.db.Exec(`UPDATE app_network_rules SET blocked=0,updated_at=? WHERE path=?`, time.Now().UTC(), path)
+			_, _ = m.db.Exec(`INSERT INTO app_network_events(name,path,action,success,detail,created_at) VALUES(?,?,?,?,?,?)`, filepath.Base(path), path, "restore", false, restoreErr.Error(), time.Now().UTC())
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	if err := rows.Close(); err != nil {
+		return err
+	}
+	quarantine, err := m.db.Query(`SELECT path,name,rule_name FROM app_quarantine`)
+	if err != nil {
+		return err
+	}
+	defer quarantine.Close()
+	for quarantine.Next() {
+		var path, name, rule string
+		if err := quarantine.Scan(&path, &name, &rule); err != nil {
+			return err
+		}
+		if restoreErr := m.platform.Block(path, rule); restoreErr != nil {
+			_, _ = m.db.Exec(`DELETE FROM app_quarantine WHERE path=?`, path)
+			_, _ = m.db.Exec(`INSERT INTO app_network_events(name,path,action,success,detail,created_at) VALUES(?,?,?,?,?,?)`, name, path, "restore-quarantine", false, restoreErr.Error(), time.Now().UTC())
+		}
+	}
+	return quarantine.Err()
 }
 
 func newWithPlatform(db *sql.DB, p platform) (*Manager, error) {
@@ -111,7 +155,7 @@ func (m *Manager) Quarantine(path, reason string, risk int) error {
 	}
 	rule := quarantineRuleName(clean)
 	err = m.platform.Block(clean, rule)
-	detail := "application isolated by Windows Firewall"
+	detail := "application isolated by the operating-system network controller"
 	if err != nil {
 		detail = err.Error()
 	}
@@ -279,17 +323,15 @@ func validatePath(path string) (string, error) {
 		return "", errors.New("application path is required")
 	}
 	abs, err := filepath.Abs(path)
-	if err != nil || !filepath.IsAbs(abs) || !strings.EqualFold(filepath.Ext(abs), ".exe") {
-		return "", errors.New("select a valid Windows .exe file")
+	if err != nil || !filepath.IsAbs(abs) {
+		return "", errors.New("select a valid application executable")
 	}
 	info, err := os.Stat(abs)
 	if err != nil || info.IsDir() {
 		return "", errors.New("application executable was not found")
 	}
-	base := strings.ToLower(filepath.Base(abs))
-	critical := map[string]bool{"svchost.exe": true, "lsass.exe": true, "services.exe": true, "wininit.exe": true, "csrss.exe": true}
-	if critical[base] {
-		return "", errors.New("this critical Windows process cannot be blocked")
+	if err := validatePathPlatform(abs); err != nil {
+		return "", err
 	}
 	if self, selfErr := os.Executable(); selfErr == nil && strings.EqualFold(filepath.Clean(self), filepath.Clean(abs)) {
 		return "", errors.New("DNS Filter cannot block its own network connection")
@@ -303,11 +345,20 @@ func ruleName(path string) string {
 }
 
 func (m *Manager) SetBlocked(path string, blocked bool) error {
-	clean, err := validatePath(path)
-	if err != nil {
-		return err
+	var clean, name, rule string
+	var err error
+	if blocked {
+		clean, err = validatePath(path)
+		if err != nil {
+			return err
+		}
+		name, rule = filepath.Base(clean), ruleName(clean)
+	} else {
+		lookup := strings.TrimSpace(strings.Trim(path, `"`))
+		if err = m.db.QueryRow(`SELECT path,name,rule_name FROM app_network_rules WHERE lower(path)=lower(?)`, lookup).Scan(&clean, &name, &rule); err != nil {
+			return errors.New("application network rule was not found")
+		}
 	}
-	name, rule := filepath.Base(clean), ruleName(clean)
 	action := "allow"
 	if blocked {
 		action = "block"
@@ -315,7 +366,7 @@ func (m *Manager) SetBlocked(path string, blocked bool) error {
 	} else {
 		err = m.platform.Allow(rule)
 	}
-	detail := "Windows Firewall rule updated"
+	detail := "operating-system network rule updated"
 	if err != nil {
 		detail = err.Error()
 	}
@@ -394,4 +445,47 @@ func (m *Manager) Events(limit int) ([]Event, error) {
 		out = append(out, event)
 	}
 	return out, rows.Err()
+}
+
+// ResetAll removes every DNS Filter-owned application rule and restores any
+// process moved into a Linux network-control cgroup. It is used by uninstallers
+// and recovery tooling, not by normal dashboard flows.
+func (m *Manager) ResetAll() error {
+	type ownedRule struct{ path, rule string }
+	owned := map[string]ownedRule{}
+	queries := []string{
+		`SELECT path,rule_name FROM app_network_rules WHERE blocked=1`,
+		`SELECT path,rule_name FROM app_quarantine`,
+		`SELECT path,'DNSFilter-Schedule-' || id FROM app_network_schedules WHERE active=1`,
+	}
+	for _, query := range queries {
+		rows, err := m.db.Query(query)
+		if err != nil {
+			return err
+		}
+		for rows.Next() {
+			var item ownedRule
+			if err := rows.Scan(&item.path, &item.rule); err != nil {
+				_ = rows.Close()
+				return err
+			}
+			owned[item.rule] = item
+		}
+		if err := rows.Close(); err != nil {
+			return err
+		}
+	}
+	var failures []string
+	for _, item := range owned {
+		if err := m.platform.Allow(item.rule); err != nil {
+			failures = append(failures, filepath.Base(item.path)+": "+err.Error())
+		}
+	}
+	if len(failures) > 0 {
+		return fmt.Errorf("could not release all application network rules: %s", strings.Join(failures, "; "))
+	}
+	_, _ = m.db.Exec(`UPDATE app_network_rules SET blocked=0,updated_at=?`, time.Now().UTC())
+	_, _ = m.db.Exec(`UPDATE app_network_schedules SET active=0,updated_at=?`, time.Now().UTC())
+	_, _ = m.db.Exec(`DELETE FROM app_quarantine`)
+	return nil
 }

@@ -14,7 +14,7 @@ The dashboard is local, but a malicious website can still try to contact a servi
 
 ## How it works in the interfaces
 
-After login, the service creates a random session identifier and a separate random action token. The web dashboard reads the non-secret-to-the-page action cookie and automatically attaches it to same-origin write requests. The native Windows application receives the same token in the successful login response and attaches it to its API actions.
+After login, the service creates a random session identifier and a separate random action token. The web dashboard reads the non-secret-to-the-page action cookie and automatically attaches it to same-origin write requests. The native Avalonia application on Windows or Linux receives the same token in the successful login response and attaches it to its API actions.
 
 The server compares the session, cookie token, and request header using a constant-time comparison. Missing or mismatched values return `403 csrf_failed`. An untrusted dashboard address returns `421 untrusted_host`.
 

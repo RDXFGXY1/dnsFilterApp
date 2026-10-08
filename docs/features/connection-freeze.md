@@ -1,50 +1,57 @@
-# Connection Freeze (Windows)
+# Connection Freeze
 
-Open **Connection Freeze** in the dashboard sidebar, or click **Connection Freeze
-& logs** in the Go desktop window. Sign in, select a duration, and press **Freeze
-new connections**. Start requires the configuration vault to be unlocked if it is
-enabled. **Stop freeze** remains available to signed-in users even when the vault
-is locked.
+Connection Freeze preserves existing network flows and temporarily refuses new
+outbound connections. Open **Connection Freeze**, choose manual mode or a duration,
+then press **Freeze new connections**. Start may require an unlocked Vault; stop is
+kept available for recovery.
 
-The server must run as Administrator. The feature blocks new outbound connections
-on IPv4 and IPv6, including LAN destinations, through Windows Filtering Platform.
-Existing Windows-authorized flows remain eligible to continue; other firewall rules
-still apply. When an app reconnects, switches servers or starts another connection,
-that new connection is blocked. An already connected game can keep working, and
-offline games are unaffected.
+## Shared behavior
 
-Exceptions: loopback connections, the DNS Filter server executable (for DNS and
-its own maintenance traffic), and DHCP renewal traffic. Local proxies and existing
-VPN tunnels can carry traffic within an existing allowed connection; this feature
-is a focus aid, not an isolation boundary against an administrator or proxy bypass.
-It does not block new inbound connections or replace the existing firewall.
+- Supports manual stop or 1–120 minute sessions.
+- Preserves loopback, DNS Filter operation, and DHCP renewal.
+- Does not stop offline applications.
+- Records enable/disable events and locally retained connection evidence.
+- Returns to normal when stopped, expired, or the service performs cleanup.
 
-## Duration and recovery
+Do not activate it over a remote administration connection such as SSH.
 
-Choose **Until I stop it manually** or 1–120 minutes (the interface offers 15, 30,
-60 and 120). Manual mode uses `minutes: 0` and has no expiry timer; the API requires
-an explicit duration field. Rules belong to a
-dynamic WFP session: stopping the freeze, timer expiry, server exit, crash or reboot
-removes them. The feature starts **off** after restart. Closing only the desktop
-window does not stop the server or its active freeze.
+## Windows backend
 
-## Connection logs
+Windows uses a dynamic Windows Filtering Platform session at the outbound IPv4 and
+IPv6 authorization layers. Existing reauthorized flows remain eligible to continue;
+new non-loopback connections are denied. The event feed can include application,
+destination, protocol, and timestamp information from WFP.
 
-The log shows session start/stop, Windows application path, destination IP and port,
-protocol, timestamp and reason for blocked new connections. These are WFP events,
-not guessed DNS-to-process associations. Windows may omit/coalesce repeated
-attempts; logs are best effort and do not contain traffic content. Log failures
-appear in the status area. Up to 1,000 entries are retained in the local database;
-the most recent 200 are displayed and searchable. Logs survive a restart.
+Dynamic WFP rules disappear when the session closes. No persistent Defender
+Firewall profile is replaced.
 
-## Implementation and verification
+## Arch Linux backend
 
-Rules at ALE_AUTH_CONNECT_V4/V6 match initial, non-loopback authorization and leave
-reauthorizations of existing flows alone. No persistent Defender Firewall profile
-settings are changed. Partial setup errors close the dynamic session.
+Arch uses the private `inet dnsfilter_freeze` nftables table. Its output chain:
 
-Live Windows validation checks a blocked new external TCP connection, survival of
-an established TLS connection, loopback access, the matching application/destination
-event, and restored connectivity after stopping. The opt-in integration test needs
-Administrator permission and DNS_FILTER_WFP_TEST=1; always run with a 20-second
-test timeout. Normal unit tests never change the firewall.
+- accepts loopback destinations;
+- accepts established and related flows;
+- keeps DNS, DHCP, ICMP, and ICMPv6 available;
+- counts and drops other new outbound packets.
+
+Linux event entries currently report aggregate blocked-packet deltas rather than a
+reliable executable/destination attribution. Stopping the freeze deletes only its
+private table. The systemd unit also performs table cleanup after service stop.
+
+## Recovery
+
+Restarting the DNS Filter service releases Connection Freeze. On Arch, an emergency
+manual cleanup is:
+
+```bash
+sudo nft delete table inet dnsfilter_freeze
+```
+
+The command affects only the DNS Filter-owned freeze table.
+
+## Limitations
+
+- Existing VPN/proxy connections can continue carrying traffic.
+- This is a focus and emergency-control feature, not a boundary against an
+  administrator or a process able to delegate traffic.
+- It does not replace the operating system firewall or block new inbound traffic.

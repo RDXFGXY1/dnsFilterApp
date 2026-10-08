@@ -73,6 +73,11 @@ func (db *DB) initialize() error {
 		added_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
 
+	CREATE TABLE IF NOT EXISTS custom_blocklist (
+		domain TEXT PRIMARY KEY,
+		added_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+
 	CREATE TABLE IF NOT EXISTS settings (
 		key TEXT PRIMARY KEY,
 		value TEXT,
@@ -328,6 +333,34 @@ func (db *DB) GetWhitelist() ([]string, error) {
 		domains = append(domains, domain)
 	}
 
+	return domains, rows.Err()
+}
+
+func (db *DB) AddToCustomBlocklist(domain string) error {
+	_, err := db.conn.Exec("INSERT OR REPLACE INTO custom_blocklist (domain) VALUES (?)", domain)
+	return err
+}
+
+func (db *DB) RemoveFromCustomBlocklist(domain string) error {
+	_, err := db.conn.Exec("DELETE FROM custom_blocklist WHERE domain = ?", domain)
+	return err
+}
+
+func (db *DB) GetCustomBlocklist() ([]string, error) {
+	rows, err := db.conn.Query("SELECT domain FROM custom_blocklist ORDER BY domain")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var domains []string
+	for rows.Next() {
+		var domain string
+		if err := rows.Scan(&domain); err != nil {
+			return nil, err
+		}
+		domains = append(domains, domain)
+	}
 	return domains, rows.Err()
 }
 

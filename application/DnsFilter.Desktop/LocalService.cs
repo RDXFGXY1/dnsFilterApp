@@ -10,9 +10,15 @@ public static class LocalService
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         for (var depth = 0; directory is not null && depth < 6; depth++, directory = directory.Parent)
         {
-            var direct = Path.Combine(directory.FullName, "dns-filter-gui-server.exe");
-            var nested = Path.Combine(directory.FullName, "build", "dns-filter-gui-server.exe");
-            var executable = File.Exists(direct) ? direct : File.Exists(nested) ? nested : null;
+            var installed = Path.Combine(directory.FullName, "dns-filter.exe");
+            var directDevelopment = Path.Combine(directory.FullName, "dns-filter-gui-server.exe");
+            var nestedInstalled = Path.Combine(directory.FullName, "build", "dns-filter.exe");
+            var nestedDevelopment = Path.Combine(directory.FullName, "build", "dns-filter-gui-server.exe");
+            var executable = File.Exists(installed) ? installed
+                : File.Exists(directDevelopment) ? directDevelopment
+                : File.Exists(nestedInstalled) ? nestedInstalled
+                : File.Exists(nestedDevelopment) ? nestedDevelopment
+                : null;
             if (executable is null) continue;
 
             var workingDirectory = Path.GetFileName(directory.FullName).Equals("build", StringComparison.OrdinalIgnoreCase)

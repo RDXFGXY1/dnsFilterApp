@@ -57,6 +57,8 @@ func vaultProtectsPath(path string) bool {
 		"/api/network-intelligence/notifications",
 		"/api/network-intelligence/automatic-response",
 		"/api/security-packs", "/api/system/dns", "/api/protection",
+		"/api/plugin-registry",
+		"/api/discipline/ai-providers",
 	}
 	for _, prefix := range protected {
 		if path == prefix || strings.HasPrefix(path, prefix+"/") {

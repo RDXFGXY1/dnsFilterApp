@@ -1,0 +1,20 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DnsFilter.Avalonia.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Styles>
+        <FluentTheme DensityStyle="Compact" />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+        <Style Selector="Window"><Setter Property="Background" Value="#08090B"/><Setter Property="Foreground" Value="#F4F7FB"/><Setter Property="FontFamily" Value="Inter"/></Style>
+        <Style Selector="Button"><Setter Property="MinHeight" Value="40"/><Setter Property="Padding" Value="16,9"/><Setter Property="CornerRadius" Value="9"/><Setter Property="Background" Value="#171A20"/><Setter Property="BorderBrush" Value="#303640"/><Setter Property="BorderThickness" Value="1"/></Style>
+        <Style Selector="Button.accent"><Setter Property="Background" Value="#4772E8"/><Setter Property="BorderBrush" Value="#6288F0"/></Style>
+        <Style Selector="Button.danger"><Setter Property="Background" Value="#9D333B"/><Setter Property="BorderBrush" Value="#C7535C"/></Style>
+        <Style Selector="Button.nav"><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="Transparent"/></Style>
+        <Style Selector="Button.nav:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="#171A20"/></Style>
+        <Style Selector="TextBox"><Setter Property="MinHeight" Value="42"/><Setter Property="Background" Value="#0D0F13"/><Setter Property="BorderBrush" Value="#343B47"/><Setter Property="CornerRadius" Value="8"/></Style>
+        <Style Selector="Border.card"><Setter Property="Background" Value="#101216"/><Setter Property="BorderBrush" Value="#292E37"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Padding" Value="20"/></Style>
+        <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="#98A3B6"/></Style>
+        <Style Selector="TextBlock.kicker"><Setter Property="Foreground" Value="#77A0FF"/><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="Bold"/></Style>
+    </Application.Styles>
+</Application>

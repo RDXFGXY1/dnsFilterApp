@@ -54,7 +54,7 @@ Copy-Item "internal\version\VERSION" (Join-Path $dist "VERSION")
 if (Get-Command dotnet -ErrorAction SilentlyContinue) {
     Write-Host "==> Publishing Windows desktop..." -ForegroundColor Cyan
     $desktop = Join-Path $dist "desktop"
-    dotnet publish "application\DnsFilter.Desktop\DnsFilter.Desktop.csproj" -c Release -r win-x64 --self-contained false -o $desktop -p:DebugType=None -p:DebugSymbols=false -p:PathMap="$root=/_/dnsFilterApp"
+    dotnet publish "application\DnsFilter.Avalonia\DnsFilter.Avalonia.csproj" -c Release -r win-x64 --self-contained false -o $desktop -p:DebugType=None -p:DebugSymbols=false -p:PathMap="$root=/_/dnsFilterApp"
     if ($LASTEXITCODE -ne 0) { throw "desktop build failed" }
     Get-ChildItem -LiteralPath $desktop -Filter *.pdb -Recurse -File | Remove-Item -Force
 }
@@ -72,9 +72,20 @@ if %errorlevel% neq 0 (
     exit /b
 )
 cd /d "%~dp0"
-echo Starting DNS Filter... Dashboard: http://dnsfilter.localhost:8080
-dns-filter.exe
+echo Starting DNS Filter in the background...
+powershell -NoProfile -Command "Start-Process -FilePath (Join-Path (Get-Location) 'dns-filter.exe') -WorkingDirectory (Get-Location) -WindowStyle Hidden"
+for /L %%I in (1,1,30) do (
+    powershell -NoProfile -Command "try { $h=Invoke-RestMethod -Uri 'http://127.0.0.1:8080/healthz' -TimeoutSec 2; $v=(Get-Content '.\VERSION' -Raw).Trim(); if ($h.ready -eq $true -and $h.version -eq $v) { exit 0 } } catch {}; exit 1" >nul 2>&1
+    if not errorlevel 1 goto ready
+    timeout /t 1 /nobreak >nul
+)
+echo ERROR: DNS Filter did not become ready. Protection was not enabled.
 pause
+exit /b 1
+:ready
+echo DNS Filter is ready. Dashboard: http://dnsfilter.localhost:8080
+echo You can close this window; the background server will keep running.
+timeout /t 4 /nobreak >nul
 '@
 Set-Content -Path (Join-Path $dist "1. Start DNS Filter.bat") -Value $start -Encoding ASCII
 
@@ -90,9 +101,13 @@ if %errorlevel% neq 0 (
 cd /d "%~dp0"
 echo Pointing system DNS at the filter...
 dns-filter.exe setup-dns
-echo Disabling IPv6 DNS on the active adapter (prevents bypass)...
-for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-NetRoute -DestinationPrefix '0.0.0.0/0' ^| Sort-Object RouteMetric ^| Select-Object -First 1).InterfaceAlias"`) do set IFACE=%%A
-powershell -NoProfile -Command "Disable-NetAdapterBinding -Name '%IFACE%' -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue"
+if errorlevel 1 (
+    echo.
+    echo ERROR: Protection was NOT enabled because the DNS server is not ready.
+    echo Run "1. Start DNS Filter.bat" first and wait for the ready message.
+    pause
+    exit /b 1
+)
 if exist "data\ca\ca.crt" (
     echo Installing block-page CA certificate...
     certutil -addstore -f ROOT "data\ca\ca.crt" >nul
@@ -116,10 +131,14 @@ if %errorlevel% neq 0 (
 cd /d "%~dp0"
 echo Restoring automatic DNS...
 dns-filter.exe reset-dns
-for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-NetRoute -DestinationPrefix '0.0.0.0/0' ^| Sort-Object RouteMetric ^| Select-Object -First 1).InterfaceAlias"`) do set IFACE=%%A
-powershell -NoProfile -Command "Enable-NetAdapterBinding -Name '%IFACE%' -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue"
+set RESET_RESULT=%errorlevel%
 ipconfig /flushdns >nul
 echo.
+if not "%RESET_RESULT%"=="0" (
+    echo WARNING: Automatic IPv4/IPv6 DNS could not be confirmed.
+    pause
+    exit /b 1
+)
 echo Protection DISABLED. Your internet uses normal DNS again.
 pause
 '@
@@ -142,8 +161,8 @@ TO STOP
 
 NOTES
   - Runs as Administrator (needs ports 53 / 80 / 443).
-  - "2. Enable Protection.bat" also disables IPv6 DNS and installs the block-page CA so the
-    block page works on HTTPS sites on THIS machine.
+  - "2. Enable Protection.bat" routes both IPv4 and IPv6 DNS locally and installs the
+    block-page CA so the block page works on HTTPS sites on THIS machine.
   - Everything is self-contained in this folder. Delete the folder to uninstall.
   - See RUNNING.md for Linux/macOS and full details.
 

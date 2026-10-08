@@ -125,6 +125,10 @@ try {
     }
 
     Write-UpdateLog 'Package staged and validated.'
+    if (Get-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue) {
+        Stop-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue
+        Write-UpdateLog 'Background startup task paused for the update.'
+    }
     Stop-InstalledProcess $targetExe
     New-Item -ItemType Directory -Force -Path $rollback | Out-Null
     if (Test-Path -LiteralPath $targetExe) { Move-Item -LiteralPath $targetExe -Destination (Join-Path $rollback 'dns-filter.exe') }
@@ -150,7 +154,11 @@ try {
         Write-UpdateLog 'Existing configuration and machine data preserved.'
     }
 
-    Start-Process -FilePath $targetExe -WorkingDirectory $install -WindowStyle Hidden
+    & $targetExe install-autostart
+    if ($LASTEXITCODE -ne 0) { throw 'Could not install the resilient Windows startup task.' }
+    Write-UpdateLog 'Boot startup and restart-on-failure policy installed.'
+
+    Start-ScheduledTask -TaskName 'DNSFilter'
     $newStarted = $true
     if (-not (Wait-ServiceReady $HealthUrl $HealthTimeoutSeconds $expectedVersion)) { throw "The updated service failed its identity and health check for version $expectedVersion." }
 
@@ -160,7 +168,10 @@ try {
 } catch {
     $failure = $_.Exception.Message
     Write-UpdateLog "Update failed: $failure"
-    if ($newStarted) { Stop-InstalledProcess $targetExe }
+    if ($newStarted) {
+        Stop-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue
+        Stop-InstalledProcess $targetExe
+    }
     if ($wasUpgrade -and (Test-Path -LiteralPath (Join-Path $rollback 'dns-filter.exe'))) {
         if (Test-Path -LiteralPath $targetExe) { Remove-Item -LiteralPath $targetExe -Force }
         if (Test-Path -LiteralPath $targetWeb) { Remove-Item -LiteralPath $targetWeb -Recurse -Force }
@@ -170,13 +181,16 @@ try {
         if (Test-Path -LiteralPath (Join-Path $rollback 'web')) { Move-Item -LiteralPath (Join-Path $rollback 'web') -Destination $targetWeb }
         if (Test-Path -LiteralPath (Join-Path $rollback 'desktop')) { Move-Item -LiteralPath (Join-Path $rollback 'desktop') -Destination (Join-Path $install 'desktop') }
         foreach ($name in $maintenanceFiles) { $old = Join-Path $rollback $name; if (Test-Path -LiteralPath $old) { Move-Item -LiteralPath $old -Destination (Join-Path $install $name) } }
-        Start-Process -FilePath $targetExe -WorkingDirectory $install -WindowStyle Hidden
+        Start-ScheduledTask -TaskName 'DNSFilter'
         Write-UpdateLog 'Previous executable and web assets were restored automatically.'
     } elseif (-not $wasUpgrade) {
         if (Test-Path -LiteralPath $targetExe) { Remove-Item -LiteralPath $targetExe -Force }
         if (Test-Path -LiteralPath $targetWeb) { Remove-Item -LiteralPath $targetWeb -Recurse -Force }
         if (Test-Path -LiteralPath (Join-Path $install 'desktop')) { Remove-Item -LiteralPath (Join-Path $install 'desktop') -Recurse -Force }
         foreach ($name in $maintenanceFiles) { $target = Join-Path $install $name; if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Force } }
+        if (Get-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue) {
+            Unregister-ScheduledTask -TaskName 'DNSFilter' -Confirm:$false
+        }
         Write-UpdateLog 'Failed fresh-install binaries were removed; configuration and data were preserved.'
     }
     throw

@@ -1,0 +1,1050 @@
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'
+Traceback (most recent call last):
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint_web.py", line 1, in <module>
+    from timiniprint.app.web import main
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\app\web.py", line 17, in <module>
+    from ..devices import PrinterCatalog, SerialTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\__init__.py", line 1, in <module>
+    from .bluetooth_resolver import BluetoothEndpointResolver, ResolvedBluetoothTarget
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\bluetooth_resolver.py", line 7, in <module>
+    from .catalog import PrinterCatalog
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\devices\catalog.py", line 7, in <module>
+    from ..protocol.families import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\__init__.py", line 2, in <module>
+    from .job import PrinterProtocol, ProtocolJob
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\job.py", line 6, in <module>
+    from ._builders import _build_job_model_from_raster_set
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_builders.py", line 4, in <module>
+    from .commands import (
+    ...<6 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\commands.py", line 3, in <module>
+    from ._prefixed_commands import (
+    ...<7 lines>...
+    )
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\_prefixed_commands.py", line 4, in <module>
+    from .packet import make_packet
+  File "C:\Users\ayoub\Documents\MiniPrinter\TiMini-Print\timiniprint\protocol\packet.py", line 6, in <module>
+    import crc8
+ModuleNotFoundError: No module named 'crc8'

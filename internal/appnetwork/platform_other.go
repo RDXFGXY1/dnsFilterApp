@@ -1,4 +1,4 @@
-//go:build !windows
+//go:build !windows && !linux
 
 package appnetwork
 
@@ -16,4 +16,7 @@ func (unsupportedPlatform) Block(string, string) error {
 }
 func (unsupportedPlatform) Allow(string) error {
 	return errors.New("App Network Control requires Windows")
+}
+func validatePathPlatform(string) error {
+	return errors.New("App Network Control requires Windows or Linux with cgroup v2 and nftables")
 }

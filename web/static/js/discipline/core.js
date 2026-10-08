@@ -3,11 +3,14 @@
 const VIEWS = {
     command:   ['Command Center', 'Decide, focus, execute, and review from one place'],
     today:     ['Today',     'Your daily missions'],
+    tasks:     ['Tasks',     'Inbox, My Day, upcoming work, and reusable workflows'],
     home:      ['Home',      'Your tasks, projects, and momentum'],
     goals:     ['Goals',     'What you are ultimately working toward'],
     habits:    ['Habits',    'Things you do repeatedly — build the streak'],
     calendar:  ['Calendar',  'Your tasks and deadlines over time'],
     reminders: ['Reminders', "Don't forget the important stuff"],
+    journal:   ['Daily Journal', 'Remember the work, lessons, and moments that shaped your day'],
+    inbox:     ['Intelligence Inbox', 'Private briefings, reminders, and decisions from your discipline system'],
     analytics: ['Analytics', 'Everything, across all projects'],
     projects:  ['Projects',  'Everything you are building'],
     workspace: ['Project',   ''],
@@ -30,11 +33,16 @@ function notify(msg, isErr) {
 }
 
 async function api(method, path, body) {
-    const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+    const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', cache: 'no-store' };
     if (body) opts.body = JSON.stringify(body);
-    const r = await fetch('/api/discipline' + path, opts);
-    if (r.status === 401) { window.location.href = '/login'; return null; }
-    return r.json();
+    try {
+        const r = await fetch('/api/discipline' + path, opts);
+        if (r.status === 401) { window.location.href = '/login'; return null; }
+        const data = await r.json().catch(() => ({ error: `Request failed with HTTP ${r.status}` }));
+        return data;
+    } catch (error) {
+        return { error: error?.message || 'Local service is unavailable' };
+    }
 }
 
 function switchView(name) {
@@ -45,12 +53,15 @@ function switchView(name) {
     document.getElementById('page-sub').textContent = meta[1];
     window.scrollTo(0, 0);
     if (name === 'today') loadToday();
+    if (name === 'tasks') loadTodoHub();
     if (name === 'command') loadCommand();
     if (name === 'home') loadHome();
     if (name === 'goals') loadGoals();
     if (name === 'habits') loadHabits();
     if (name === 'calendar') loadCalendar();
     if (name === 'reminders') loadReminders();
+    if (name === 'journal') loadJournal();
+    if (name === 'inbox') loadDisciplineInbox();
     if (name === 'analytics') loadGlobalAnalytics();
     if (name === 'projects') loadProjects();
     if (name === 'activity') loadActivity();

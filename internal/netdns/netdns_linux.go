@@ -23,6 +23,9 @@ func setDNS(iface, dns string) error {
 		}
 		return nil
 	}
+	if hasNetworkManager() {
+		return setNetworkManagerDNS(iface, dns)
+	}
 	return writeResolvConf(dns)
 }
 
@@ -34,12 +37,66 @@ func resetDNS(iface string) error {
 		}
 		return nil
 	}
+	if hasNetworkManager() {
+		return resetNetworkManagerDNS(iface)
+	}
 	return restoreResolvConf()
 }
 
 func hasResolvectl() bool {
-	_, err := exec.LookPath("resolvectl")
+	if _, err := exec.LookPath("resolvectl"); err != nil {
+		return false
+	}
+	_, err := run("resolvectl", "status")
 	return err == nil
+}
+
+func hasNetworkManager() bool {
+	if _, err := exec.LookPath("nmcli"); err != nil {
+		return false
+	}
+	out, err := run("nmcli", "-t", "-f", "RUNNING", "general")
+	return err == nil && strings.EqualFold(strings.TrimSpace(out), "running")
+}
+
+func networkManagerConnection(iface string) (string, error) {
+	out, err := run("nmcli", "-g", "GENERAL.CONNECTION", "device", "show", iface)
+	if err != nil || strings.TrimSpace(out) == "" || strings.TrimSpace(out) == "--" {
+		return "", fmt.Errorf("NetworkManager has no active connection for %s: %v", iface, err)
+	}
+	return strings.TrimSpace(strings.Split(out, "\n")[0]), nil
+}
+
+func setNetworkManagerDNS(iface, dns string) error {
+	connection, err := networkManagerConnection(iface)
+	if err != nil {
+		return err
+	}
+	if out, err := run("nmcli", "connection", "modify", connection,
+		"ipv4.dns", dns, "ipv4.ignore-auto-dns", "yes",
+		"ipv6.dns", "", "ipv6.ignore-auto-dns", "yes"); err != nil {
+		return fmt.Errorf("NetworkManager DNS setup failed: %v: %s", err, out)
+	}
+	if out, err := run("nmcli", "connection", "up", connection); err != nil {
+		return fmt.Errorf("NetworkManager could not reactivate %s: %v: %s", connection, err, out)
+	}
+	return nil
+}
+
+func resetNetworkManagerDNS(iface string) error {
+	connection, err := networkManagerConnection(iface)
+	if err != nil {
+		return err
+	}
+	if out, err := run("nmcli", "connection", "modify", connection,
+		"ipv4.dns", "", "ipv4.ignore-auto-dns", "no",
+		"ipv6.dns", "", "ipv6.ignore-auto-dns", "no"); err != nil {
+		return fmt.Errorf("NetworkManager DNS reset failed: %v: %s", err, out)
+	}
+	if out, err := run("nmcli", "connection", "up", connection); err != nil {
+		return fmt.Errorf("NetworkManager could not reactivate %s: %v: %s", connection, err, out)
+	}
+	return nil
 }
 
 func writeResolvConf(dns string) error {
@@ -73,6 +130,14 @@ func currentDNS(iface string) (string, error) {
 	if hasResolvectl() {
 		if out, err := run("resolvectl", "dns", iface); err == nil {
 			return firstIPs(out), nil
+		}
+	}
+	if hasNetworkManager() {
+		connection, err := networkManagerConnection(iface)
+		if err == nil {
+			if out, err := run("nmcli", "-g", "ipv4.dns", "connection", "show", connection); err == nil {
+				return firstIPs(out), nil
+			}
 		}
 	}
 	data, err := os.ReadFile(resolvConf)

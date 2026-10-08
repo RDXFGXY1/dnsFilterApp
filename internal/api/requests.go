@@ -54,7 +54,10 @@ func (s *Server) decideUnblockRequest(c *gin.Context, decision string) {
 		return
 	}
 	if decision == "approved" {
-		s.filter.AddToWhitelist(item.Domain)
+		if err := s.filter.AddToWhitelist(item.Domain); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 		if s.dnsServer != nil {
 			s.dnsServer.ClearCache()
 		}

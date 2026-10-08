@@ -82,6 +82,9 @@
                 <a href="/discipline">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     Discipline</a>
+                <a href="#plugins" data-view="plugins">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3a2.5 2.5 0 1 0 0 5H10v3H7a2.5 2.5 0 1 0-5 0v2.5h8V17H8.5a2.5 2.5 0 1 0 0 5H13v-8h3v1.5a2.5 2.5 0 1 0 5 0V11h-8V8h1.5a2.5 2.5 0 1 0 0-5H8.5z"/></svg>
+                    Plugins</a>
                 <a href="#" data-view="settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     Settings</a>
@@ -609,6 +612,49 @@
             <div class="notes-workspace">
                 <aside class="panel notes-sidebar"><div class="panel-head"><h2>Notebook</h2><button class="btn" onclick="createDashboardNote()">+ New</button></div><input id="note-search" placeholder="Search notes…" oninput="renderDashboardNotes()"><div id="notes-list" class="notes-list"><span class="no-data">Loading notes…</span></div></aside>
                 <section class="panel note-editor"><div id="note-editor-empty" class="note-editor-empty"><strong>Select a note</strong><span>Create a new note or choose one from the notebook.</span></div><div id="note-editor-form" hidden><div class="note-editor-head"><input id="note-title" placeholder="Note title" oninput="scheduleNoteSave()"><div><button class="btn btn-ghost note-editor-close" onclick="closeDashboardNote()">Close</button><button id="note-pin" class="btn btn-ghost" onclick="toggleCurrentNotePin()">Pin</button><button class="btn btn-danger" onclick="deleteCurrentNote()">Delete</button></div></div><textarea id="note-content" placeholder="Start writing…" oninput="scheduleNoteSave()"></textarea><footer><span id="note-save-state">Saved</span><span id="note-editor-words">0 words</span></footer></div></section>
+            </div>
+        </section>
+
+        <!-- ═══ PLUGIN CENTER ═══ -->
+        <section class="view plugin-center" data-view="plugins">
+            <section class="plugin-hero">
+                <div><span class="command-kicker">Local extensions · API only</span><h2>Plugin Center</h2><p>Connect trusted local tools without loading their code inside DNS Filter. Plugins stay isolated behind an audited, permission-aware API bridge.</p></div>
+                <div class="plugin-hero-stat"><strong id="plugin-installed-count">0</strong><span>Installed</span><small id="plugin-online-summary">Checking local services…</small></div>
+            </section>
+            <div class="plugin-layout">
+                <div class="plugin-main-column">
+                    <section class="panel plugin-install-panel">
+                        <div class="panel-head"><div><span class="command-kicker">Load from disk</span><h2>Install a local plugin</h2></div><span class="plugin-security-badge">Disabled by default</span></div>
+                        <p class="panel-desc">Choose a <code>plugin.json</code> manifest. Review its server address and permissions before enabling it.</p>
+                        <div class="plugin-file-row"><input id="plugin-manifest-file" type="file" accept="application/json,.json"><button class="btn" id="plugin-install-button" type="button">Review & install</button></div>
+                        <p class="plugin-hint">TinyPrinter manifest: <code>integrations/tinyprinter/plugin.json</code></p>
+                    </section>
+                    <section class="plugin-section">
+                        <div class="plugin-section-head"><div><span class="command-kicker">Installed</span><h2>Your local plugins</h2></div><button class="btn btn-ghost" id="plugin-refresh-button" type="button">Refresh</button></div>
+                        <div id="plugin-list" class="plugin-list"><div class="plugin-empty">Loading plugins…</div></div>
+                    </section>
+                </div>
+                <aside class="panel plugin-activity-panel">
+                    <div class="panel-head"><div><span class="command-kicker">Audit trail</span><h2>Plugin activity</h2></div></div>
+                    <p class="panel-desc">Recent installs, state changes, and API calls. Request content is never stored here.</p>
+                    <div id="plugin-events" class="plugin-events"><span class="no-data">No plugin activity yet.</span></div>
+                </aside>
+            </div>
+        </section>
+
+        <section id="plugin-workspace" class="plugin-workspace" role="dialog" aria-modal="true" aria-labelledby="plugin-workspace-title" hidden>
+            <div class="plugin-workspace-dialog">
+                <div class="plugin-section-head"><div><span class="command-kicker">Plugin workspace</span><h2 id="plugin-workspace-title">Plugin</h2><p id="plugin-workspace-description"></p></div><button class="btn btn-ghost" id="plugin-close-workspace" type="button">Close</button></div>
+                <div id="plugin-health-card" class="plugin-health-card"></div>
+                <div id="plugin-view-tabs" class="plugin-view-tabs" role="tablist" aria-label="Plugin interface" hidden>
+                    <button id="plugin-tab-web" class="plugin-view-tab" type="button" role="tab" data-plugin-view="web">Web App</button>
+                    <button id="plugin-tab-native" class="plugin-view-tab" type="button" role="tab" data-plugin-view="native">Native Controls</button>
+                </div>
+                <div id="plugin-native-view" class="plugin-view-surface"><div id="plugin-panels" class="plugin-panels"></div></div>
+                <div id="plugin-web-view" class="plugin-view-surface plugin-web-view" hidden>
+                    <div id="plugin-web-loading" class="plugin-web-loading">Waiting for the local plugin service…</div>
+                    <iframe id="plugin-web-frame" class="plugin-web-frame" title="Plugin web application" sandbox="allow-scripts allow-forms allow-downloads allow-same-origin" referrerpolicy="no-referrer"></iframe>
+                </div>
             </div>
         </section>
 
@@ -1417,6 +1463,7 @@
             requests:   ['Requests',      'Manage unblock requests'],
             todos:      ['Todo List',     'Todos, nested sub-todos, and completion progress'],
             notes:      ['Notes',         'Searchable notes with autosave and pinning'],
+            plugins:    ['Plugin Center', 'Install and control trusted local API extensions'],
         };
         function switchView(name) {
             document.querySelectorAll('.view').forEach(v =>
@@ -1437,6 +1484,7 @@
             if (name === 'decisions' && window.loadDecisionCenter) loadDecisionCenter();
             if (name === 'todos' && window.loadDashboardTodos) loadDashboardTodos();
             if (name === 'notes' && window.loadDashboardNotes) loadDashboardNotes();
+            if (name === 'plugins' && window.loadPluginCenter) loadPluginCenter();
             if (name === 'settings') { loadFilteringStatus(); loadSystemInfo(); loadModules(); loadSources(); loadBlockPage(); loadAutostart(); }
             window.scrollTo(0, 0);
             location.hash = name;
@@ -1790,9 +1838,11 @@
     <script src="/static/js/dashboard-vault.js?v=8"></script>
     <script src="/static/js/dashboard-security-center.js?v=1"></script>
     <script src="/static/js/dashboard-organizer.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/plugin-center.css?v=6">
+    <script src="/static/js/dashboard-plugins.js?v=6"></script>
     <script src="/static/js/theme-modes.js?v=2"></script>
     <link rel="stylesheet" href="/static/css/navigation-architecture.css?v=1">
-    <script src="/static/js/dashboard-navigation.js?v=1"></script>
+    <script src="/static/js/dashboard-navigation.js?v=2"></script>
     <link rel="stylesheet" href="/static/css/console-transition.css?v=1">
     <script src="/static/js/console-transition.js?v=1"></script>
 </body>

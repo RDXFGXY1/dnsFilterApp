@@ -207,11 +207,17 @@ func (s *Server) applyNetworkProfile(c *gin.Context) {
 	}
 	for _, domain := range current {
 		if !wanted[domain] {
-			s.filter.RemoveFromWhitelist(domain)
+			if err := s.filter.RemoveFromWhitelist(domain); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
 		}
 	}
 	for domain := range wanted {
-		s.filter.AddToWhitelist(domain)
+		if err := s.filter.AddToWhitelist(domain); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	}
 	if s.dnsServer != nil {
 		s.dnsServer.SetFiltering(p.State.Filtering)

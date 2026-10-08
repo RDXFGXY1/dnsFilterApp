@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"runtime"
 	"strconv"
 
 	"github.com/RDXFGXY1/dns-filter-app/internal/appnetwork"
@@ -43,7 +44,7 @@ func (s *Server) appNetworkScheduleDelete(c *gin.Context) {
 
 func (s *Server) appNetworkApps(c *gin.Context) {
 	if s.appNetwork == nil || !s.appNetwork.Supported() {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "App Network Control requires Windows"})
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "App Network Control requires Windows Firewall or Linux cgroup v2 with nftables"})
 		return
 	}
 	apps, err := s.appNetwork.Apps()
@@ -51,7 +52,7 @@ func (s *Server) appNetworkApps(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"supported": true, "apps": apps})
+	c.JSON(http.StatusOK, gin.H{"supported": true, "platform": runtime.GOOS, "apps": apps})
 }
 
 func (s *Server) appNetworkEvents(c *gin.Context) {
@@ -72,7 +73,7 @@ func (s *Server) appNetworkAllow(c *gin.Context) { s.setAppNetworkState(c, false
 
 func (s *Server) setAppNetworkState(c *gin.Context, blocked bool) {
 	if s.appNetwork == nil || !s.appNetwork.Supported() {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "App Network Control requires Windows"})
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "App Network Control requires Windows Firewall or Linux cgroup v2 with nftables"})
 		return
 	}
 	var in struct {
@@ -103,7 +104,7 @@ func (s *Server) appNetworkQuarantineList(c *gin.Context) {
 }
 func (s *Server) appNetworkQuarantine(c *gin.Context) {
 	if s.appNetwork == nil || !s.appNetwork.Supported() {
-		c.JSON(503, gin.H{"error": "Quarantine requires Windows"})
+		c.JSON(503, gin.H{"error": "Application quarantine is unavailable on this system"})
 		return
 	}
 	var in struct {

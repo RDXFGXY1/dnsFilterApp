@@ -153,9 +153,8 @@ func New(cfg *config.Config, db *database.DB) (*Engine, error) {
 
 	engine.loadBlockedApps()
 
-	// Load whitelist from config
-	for _, domain := range cfg.Whitelist.Domains {
-		engine.whitelist[normalizeDomain(domain)] = true
+	if err := engine.loadPersistentRules(); err != nil {
+		return nil, fmt.Errorf("failed to load persistent rules: %w", err)
 	}
 
 	packManager, err := securitypacks.New(cfg.SecurityPacks.Directory, cfg.SecurityPacks.TrustedKeys)
@@ -1091,20 +1090,63 @@ func (e *Engine) loadBlocklists() error {
 
 // ─── Whitelist Methods ────────────────────────────────────────────────────────
 
-func (e *Engine) AddToWhitelist(domain string) {
+func (e *Engine) loadPersistentRules() error {
+	// Config entries remain a supported baseline, while dashboard-created
+	// entries live in SQLite so they survive service and machine restarts.
+	for _, domain := range e.cfg.Whitelist.Domains {
+		domain = normalizeDomain(domain)
+		if domain != "" {
+			e.whitelist[domain] = true
+		}
+	}
+
+	whitelist, err := e.db.GetWhitelist()
+	if err != nil {
+		return fmt.Errorf("load whitelist: %w", err)
+	}
+	for _, domain := range whitelist {
+		domain = normalizeDomain(domain)
+		if domain != "" {
+			e.whitelist[domain] = true
+		}
+	}
+
+	customBlocklist, err := e.db.GetCustomBlocklist()
+	if err != nil {
+		return fmt.Errorf("load custom blocklist: %w", err)
+	}
+	for _, domain := range customBlocklist {
+		domain = normalizeDomain(domain)
+		if domain != "" {
+			e.customBlocked[domain] = true
+		}
+	}
+	return nil
+}
+
+func (e *Engine) AddToWhitelist(domain string) error {
 	domain = normalizeDomain(domain)
+	if domain == "" {
+		return fmt.Errorf("domain is required")
+	}
+	if err := e.db.AddToWhitelist(domain); err != nil {
+		return fmt.Errorf("persist whitelist rule: %w", err)
+	}
 	e.mu.Lock()
 	e.whitelist[domain] = true
 	e.mu.Unlock()
-	e.db.AddToWhitelist(domain)
+	return nil
 }
 
-func (e *Engine) RemoveFromWhitelist(domain string) {
+func (e *Engine) RemoveFromWhitelist(domain string) error {
 	domain = normalizeDomain(domain)
+	if err := e.db.RemoveFromWhitelist(domain); err != nil {
+		return fmt.Errorf("remove persisted whitelist rule: %w", err)
+	}
 	e.mu.Lock()
 	delete(e.whitelist, domain)
 	e.mu.Unlock()
-	e.db.RemoveFromWhitelist(domain)
+	return nil
 }
 
 func (e *Engine) GetWhitelist() []string {
@@ -1141,20 +1183,31 @@ func (e *Engine) DecideUnblockRequest(id int, status, note string) error {
 
 // ─── Custom Blocklist Methods ─────────────────────────────────────────────────
 
-func (e *Engine) AddToCustomBlocklist(domain string) {
+func (e *Engine) AddToCustomBlocklist(domain string) error {
 	domain = normalizeDomain(domain)
+	if domain == "" {
+		return fmt.Errorf("domain is required")
+	}
+	if err := e.db.AddToCustomBlocklist(domain); err != nil {
+		return fmt.Errorf("persist custom block rule: %w", err)
+	}
 	e.mu.Lock()
 	e.customBlocked[domain] = true
 	e.mu.Unlock()
 	e.log.Infof("Added %s to custom blocklist", domain)
+	return nil
 }
 
-func (e *Engine) RemoveFromCustomBlocklist(domain string) {
+func (e *Engine) RemoveFromCustomBlocklist(domain string) error {
 	domain = normalizeDomain(domain)
+	if err := e.db.RemoveFromCustomBlocklist(domain); err != nil {
+		return fmt.Errorf("remove persisted custom block rule: %w", err)
+	}
 	e.mu.Lock()
 	delete(e.customBlocked, domain)
 	e.mu.Unlock()
 	e.log.Infof("Removed %s from custom blocklist", domain)
+	return nil
 }
 
 func (e *Engine) GetCustomBlocklist() []string {

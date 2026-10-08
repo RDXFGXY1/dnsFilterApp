@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/RDXFGXY1/dns-filter-app/internal/api"
+	"github.com/RDXFGXY1/dns-filter-app/internal/appnetwork"
+	"github.com/RDXFGXY1/dns-filter-app/internal/autostart"
 	"github.com/RDXFGXY1/dns-filter-app/internal/config"
 	"github.com/RDXFGXY1/dns-filter-app/internal/database"
 	"github.com/RDXFGXY1/dns-filter-app/internal/dns"
@@ -29,7 +31,12 @@ var (
 func main() {
 	// Make relative asset paths (configs/, web/, data/) resolve no matter how
 	// the app is launched — double-click, scheduled task, or from another CWD.
-	chdirToExeDir()
+	// Development runs intentionally keep the repository as the working
+	// directory so templates, static assets, configuration, and data are read
+	// directly from the source tree instead of build/dev.
+	if !hasArgument("-dev") {
+		chdirToExeDir()
+	}
 
 	// Handle subcommands before flag parsing.
 	if len(os.Args) > 1 {
@@ -39,6 +46,23 @@ func main() {
 			return
 		case "reset-dns":
 			runDNSCommand("reset")
+			return
+		case "reset-app-network":
+			runAppNetworkReset()
+			return
+		case "install-autostart":
+			if err := autostart.Enable(); err != nil {
+				fmt.Printf("Failed to install Windows background startup: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println("DNS Filter background startup installed.")
+			return
+		case "uninstall-autostart":
+			if err := autostart.Disable(); err != nil {
+				fmt.Printf("Failed to remove Windows background startup: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println("DNS Filter background startup removed.")
 			return
 		case "version", "--version", "-version":
 			fmt.Println(appversion.Current)
@@ -105,10 +129,11 @@ func main() {
 		log.Fatalf("Failed to initialize DNS server: %v", err)
 	}
 
+	serverFailures := make(chan error, 2)
 	go func() {
 		log.Infof("Starting DNS server on %s:%d", cfg.Server.DNSHost, cfg.Server.DNSPort)
 		if err := dnsServer.Start(); err != nil {
-			log.Fatalf("DNS server failed: %v", err)
+			serverFailures <- fmt.Errorf("DNS server failed: %w", err)
 		}
 	}()
 
@@ -118,7 +143,7 @@ func main() {
 	go func() {
 		log.Infof("Starting web dashboard on %s:%d", cfg.Server.APIHost, cfg.Server.APIPort)
 		if err := apiServer.Start(); err != nil {
-			log.Fatalf("API server failed: %v", err)
+			serverFailures <- fmt.Errorf("API server failed: %w", err)
 		}
 	}()
 
@@ -128,7 +153,13 @@ func main() {
 	// Wait for shutdown signal
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-	<-sigChan
+	exitCode := 0
+	select {
+	case <-sigChan:
+	case err := <-serverFailures:
+		log.Errorf("%v", err)
+		exitCode = 1
+	}
 
 	log.Info("Shutting down gracefully...")
 
@@ -143,6 +174,44 @@ func main() {
 	}
 
 	log.Info("Shutdown complete. Goodbye!")
+	if exitCode != 0 {
+		// The scheduled task's restart policy retries only non-zero exits.
+		_ = db.Close()
+		os.Exit(exitCode)
+	}
+}
+
+func runAppNetworkReset() {
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		fmt.Printf("Failed to load configuration: %v\n", err)
+		os.Exit(1)
+	}
+	db, err := database.New(cfg.Database.Path)
+	if err != nil {
+		fmt.Printf("Failed to open application network state: %v\n", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+	manager, err := appnetwork.New(db.GetDB())
+	if err != nil {
+		fmt.Printf("Failed to initialize application network control: %v\n", err)
+		os.Exit(1)
+	}
+	if err := manager.ResetAll(); err != nil {
+		fmt.Printf("Failed to release application network rules: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Application network rules released.")
+}
+
+func hasArgument(want string) bool {
+	for _, argument := range os.Args[1:] {
+		if argument == want {
+			return true
+		}
+	}
+	return false
 }
 
 // setBootstrapDNS sets the Go default resolver to use Google DNS (8.8.8.8)

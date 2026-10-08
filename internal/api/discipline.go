@@ -1,12 +1,14 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/RDXFGXY1/dns-filter-app/internal/discipline"
+	"github.com/RDXFGXY1/dns-filter-app/internal/vault"
 )
 
 // registerDisciplineRoutes wires the /discipline productivity API.
@@ -41,15 +43,106 @@ func (s *Server) registerDisciplineRoutes(api *gin.RouterGroup) {
 		d.POST("/tasks", s.discCreateTask)
 		d.PATCH("/tasks/:id", s.discUpdateTask)
 		d.DELETE("/tasks/:id", s.discDeleteTask)
+		d.GET("/task-templates", s.taskTemplates)
+		d.POST("/task-templates", s.taskTemplateCreate)
+		d.DELETE("/task-templates/:id", s.taskTemplateDelete)
+		d.POST("/task-templates/:id/apply", s.taskTemplateApply)
 
 		d.GET("/heatmap", s.discHeatmap)
 		d.GET("/stats", s.discStats)
 		d.GET("/day", s.discDay)
 		d.GET("/series", s.discSeries)
 		d.GET("/recent", s.discRecent)
+		d.GET("/journal/types", s.discJournalTypes)
+		d.POST("/journal/types", s.discCreateJournalType)
+		d.DELETE("/journal/types/:id", s.discDeleteJournalType)
+		d.GET("/journal/entries", s.discJournalEntries)
+		d.POST("/journal/entries", s.discCreateJournalEntry)
+		d.PUT("/journal/entries/:id", s.discUpdateJournalEntry)
+		d.DELETE("/journal/entries/:id", s.discDeleteJournalEntry)
+		d.GET("/journal/stats", s.discJournalStats)
+		d.GET("/inbox", s.discInboxMessages)
+		d.GET("/inbox/stats", s.discInboxStats)
+		d.POST("/inbox", s.discCreateInboxMessage)
+		d.POST("/inbox/briefing", s.discGenerateBriefing)
+		d.PATCH("/inbox/:id", s.discUpdateInboxMessage)
+		d.DELETE("/inbox/:id", s.discDeleteInboxMessage)
+		d.GET("/ai-providers", s.aiProviderList)
+		d.POST("/ai-providers", s.aiProviderSave)
+		d.POST("/ai-providers/:id/test", s.aiProviderTest)
+		d.DELETE("/ai-providers/:id", s.aiProviderDelete)
+		d.POST("/focus-sessions/start", s.discStartFocusSession)
+		d.GET("/focus-sessions/active", s.discActiveFocusSession)
+		d.POST("/focus-sessions/:id/distraction", s.discFocusDistraction)
+		d.POST("/focus-sessions/:id/end", s.discEndFocusSession)
+		d.GET("/focus-sessions", s.discFocusSessions)
+		d.GET("/focus-sessions/:id", s.discFocusSession)
 		s.registerPlanningRoutes(d)
 		s.registerProjectTransferRoutes(d)
 	}
+}
+
+func (s *Server) discInboxMessages(c *gin.Context) {
+	x, e := s.discipline.ListInboxMessages(c.DefaultQuery("scope", "inbox"), c.Query("q"))
+	if e != nil {
+		c.JSON(500, gin.H{"error": e.Error()})
+		return
+	}
+	c.JSON(200, x)
+}
+func (s *Server) discInboxStats(c *gin.Context) {
+	x, e := s.discipline.InboxStats()
+	if e != nil {
+		c.JSON(500, gin.H{"error": e.Error()})
+		return
+	}
+	c.JSON(200, x)
+}
+func (s *Server) discCreateInboxMessage(c *gin.Context) {
+	var x discipline.InboxInput
+	if c.ShouldBindJSON(&x) != nil {
+		c.JSON(400, gin.H{"error": "Invalid request"})
+		return
+	}
+	id, e := s.discipline.CreateInboxMessage(x)
+	if e != nil {
+		c.JSON(400, gin.H{"error": e.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "id": id})
+}
+func (s *Server) discGenerateBriefing(c *gin.Context) {
+	id, mode, e := s.generateIntelligenceBriefing(c.Request.Context())
+	if e != nil {
+		status, code := http.StatusBadGateway, "ai_generation_failed"
+		if errors.Is(e, vault.ErrLocked) {
+			status, code = http.StatusLocked, "vault_locked"
+		}
+		c.JSON(status, gin.H{"error": e.Error(), "code": code})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "id": id, "mode": mode})
+}
+func (s *Server) discUpdateInboxMessage(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	var x discipline.InboxPatch
+	if c.ShouldBindJSON(&x) != nil {
+		c.JSON(400, gin.H{"error": "Invalid request"})
+		return
+	}
+	if e := s.discipline.UpdateInboxMessage(id, x); e != nil {
+		c.JSON(400, gin.H{"error": e.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true})
+}
+func (s *Server) discDeleteInboxMessage(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	if e := s.discipline.DeleteInboxMessage(id); e != nil {
+		c.JSON(400, gin.H{"error": e.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true})
 }
 
 func discPriorityXP(priority string) int {

@@ -8,21 +8,19 @@ Once DNS Filter is installed and running, you can manage it through the web dash
 
 ### Accessing the Dashboard
 
-Open your browser and navigate to:
+Open a browser on the protected computer and navigate to:
 ```
-http://localhost:8080
-```
-
-Or if accessing from another device on your network:
-```
-http://[server-ip]:8080
+http://127.0.0.1:8080
 ```
 
-Default credentials:
-- **Username**: admin
-- **Password**: changeme
+There are no default credentials. First-run setup requires a new administrator
+username/password and a Secure Vault password. Save the separately generated
+account recovery key and Vault recovery code when they are displayed; neither can
+be displayed again.
 
-⚠️ **Important**: Change the default password immediately after first login!
+The dashboard is loopback-only by default. Remote dashboard access requires an
+explicit trusted bind/host configuration and should not be enabled without HTTPS
+and appropriate network access controls.
 
 ### Dashboard Overview
 
@@ -305,8 +303,6 @@ Some devices cache DNS settings. After changing router DNS:
    ipconfig /release
    ipconfig /renew
    
-   # macOS
-   sudo dscacheutil -flushcache
    ```
 
 ## Performance Tuning
@@ -385,9 +381,9 @@ database:
 
 ### Security
 
-1. ✅ Change default admin password
-2. ✅ Enable HTTPS for web dashboard
-3. ✅ Restrict dashboard access to local network
+1. ✅ Create a strong administrator password during first-run setup
+2. ✅ Keep the dashboard bound to the local computer unless remote access is deliberately secured
+3. ✅ Save the one-time account and Vault recovery codes offline
 4. ✅ Regularly update blocklists
 5. ✅ Review logs for suspicious activity
 
@@ -410,6 +406,7 @@ database:
 ## Advanced Usage
 
 For advanced topics, see:
-- [Configuration Guide](CONFIGURATION.md)
-- [API Documentation](API.md)
-- [Development Guide](DEVELOPMENT.md)
+- [Installation and platform guide](../INSTALL-WINDOWS-LINUX.md)
+- [Development mode](DEVELOPMENT-MODE.md)
+- [Feature documentation](features/README.md)
+- [Plugin SDK and API contract](PLUGIN-SDK.md)

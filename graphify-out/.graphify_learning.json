@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-29T19:50:55.515269+00:00",
+  "generated_at": "2026-10-08T00:39:23.312266+00:00",
   "nodes": {
     "aiblock_aiblocker": {
       "code_fingerprint": "789691cfd070dc0964f8b72db2d05c445c5dd8a0834c669f86fe76f23f165a54",
@@ -22,7 +22,7 @@
           "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
         }
       ],
-      "score": 1.255741393,
+      "score": 1.038999766,
       "source_file": "internal/aiblock/ai_blocker.go",
       "status": "preferred",
       "uses": 3
@@ -38,16 +38,26 @@
           "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
         }
       ],
-      "score": 0.418812676,
+      "score": 0.346525387,
       "source_file": "internal/aiblock/ai_blocker.go",
       "status": "tentative",
       "uses": 1
     },
     "api_server_setuproutes": {
-      "code_fingerprint": "c6b24410e7c72e7187c4f2731398ace9cca2416d894495ef33b022e1635a396b",
+      "code_fingerprint": "eb4807df2bdddddb416cc545086704df40953d2075b516dc14c8f99ead484475",
       "label": ".setupRoutes()",
-      "last": "2026-08-23T20:50:33.246457+00:00",
+      "last": "2026-10-06T22:02:14.980625+00:00",
       "provenance": [
+        {
+          "date": "2026-10-06T22:02:14.980625+00:00",
+          "outcome": "useful",
+          "q": "Build a language-independent plugin place/store in DNS Filter using local API servers, starting with TinyPrinter"
+        },
+        {
+          "date": "2026-10-06T21:44:27.046922+00:00",
+          "outcome": "useful",
+          "q": "Design a plugin store for DNS Filter where plugins are separate language-independent local API servers, beginning with TinyPrinter"
+        },
         {
           "date": "2026-08-23T20:50:33.246457+00:00",
           "outcome": "useful",
@@ -64,26 +74,31 @@
           "q": "start enhancing the website"
         }
       ],
-      "score": 1.275593755,
+      "score": 3.004545988,
       "source_file": "internal/api/server.go",
       "status": "preferred",
-      "uses": 3
+      "uses": 5
     },
     "application_tui_readme_api_client": {
       "code_fingerprint": "73460387bbaf890fc25c50c59d6299c0748e4de41e2b17d0a3a57bef544635f3",
       "label": "Dashboard API Client",
-      "last": "2026-09-25T13:38:15.344575+00:00",
+      "last": "2026-10-05T23:44:19.180559+00:00",
       "provenance": [
+        {
+          "date": "2026-10-05T23:44:19.180559+00:00",
+          "outcome": "useful",
+          "q": "okay lets do them then and letss use Avalonia fro desktop it suppoer linux and win"
+        },
         {
           "date": "2026-09-25T13:38:15.344575+00:00",
           "outcome": "useful",
           "q": "Are the existing APIs enough to build a stable C# desktop application, and start building it"
         }
       ],
-      "score": 0.906287102,
+      "score": 1.703859764,
       "source_file": "application/TUI/README.md",
-      "status": "tentative",
-      "uses": 1
+      "status": "preferred",
+      "uses": 2
     },
     "blockpage_blockpageserver_getunblockrequests": {
       "code_fingerprint": "9978bc53a211827e765f22b844bbba69cfebc8628f7208494891c8dc4d604eae",
@@ -96,7 +111,7 @@
           "q": "Complete the unblock request system and Requests dashboard tab"
         }
       ],
-      "score": 0.418680245,
+      "score": 0.346415814,
       "source_file": "internal/blockpage/blockpage.go",
       "status": "tentative",
       "uses": 1
@@ -122,7 +137,7 @@
           "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
         }
       ],
-      "score": 1.255564347,
+      "score": 1.038853278,
       "source_file": "internal/categories/categories.go",
       "status": "preferred",
       "uses": 3
@@ -138,7 +153,7 @@
           "q": "next"
         }
       ],
-      "score": 0.999874328,
+      "score": 0.827295492,
       "source_file": "",
       "status": "tentative",
       "uses": 1
@@ -159,7 +174,7 @@
           "q": "Enhance and organize the Settings tab"
         }
       ],
-      "score": 0.837213188,
+      "score": 0.69270975,
       "source_file": "internal/config/config.go",
       "status": "preferred",
       "uses": 2
@@ -167,8 +182,13 @@
     "config_config": {
       "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
       "label": "Config",
-      "last": "2026-09-29T13:32:40.288821+00:00",
+      "last": "2026-10-06T21:30:43.607155+00:00",
       "provenance": [
+        {
+          "date": "2026-10-06T21:30:43.607155+00:00",
+          "outcome": "useful",
+          "q": "Fix wildcard whitelist rules such as *.spotify.com disappearing after Go server restart and audit similar blocklist persistence"
+        },
         {
           "date": "2026-09-29T13:32:40.288821+00:00",
           "outcome": "useful",
@@ -188,17 +208,12 @@
           "date": "2026-09-28T23:54:37.031247+00:00",
           "outcome": "useful",
           "q": "Unify the application version before release"
-        },
-        {
-          "date": "2026-09-28T20:53:43.695879+00:00",
-          "outcome": "useful",
-          "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
         }
       ],
-      "score": 4.927157367,
+      "score": 5.050933893,
       "source_file": "internal/config/config.go",
       "status": "preferred",
-      "uses": 5
+      "uses": 6
     },
     "config_config_savedefault": {
       "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
@@ -211,7 +226,7 @@
           "q": "Which API handlers mutate configuration and call SaveDefault without handling errors, and what runtime state must be rolled back?"
         }
       ],
-      "score": 0.992802106,
+      "score": 0.821443939,
       "source_file": "internal/config/config.go",
       "status": "tentative",
       "uses": 1
@@ -237,7 +252,7 @@
           "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
         }
       ],
-      "score": 1.255579868,
+      "score": 1.03886612,
       "source_file": "internal/config/config.go",
       "status": "preferred",
       "uses": 3
@@ -245,8 +260,18 @@
     "config_securityconfig": {
       "code_fingerprint": "ad887cee4b2ba2be0fc0db15a675d3424d85a2c702c9795ecc7da1a3978b165f",
       "label": "SecurityConfig",
-      "last": "2026-09-29T18:58:17.947823+00:00",
+      "last": "2026-10-06T22:02:14.980625+00:00",
       "provenance": [
+        {
+          "date": "2026-10-06T22:02:14.980625+00:00",
+          "outcome": "useful",
+          "q": "Build a language-independent plugin place/store in DNS Filter using local API servers, starting with TinyPrinter"
+        },
+        {
+          "date": "2026-10-06T21:44:27.046922+00:00",
+          "outcome": "useful",
+          "q": "Design a plugin store for DNS Filter where plugins are separate language-independent local API servers, beginning with TinyPrinter"
+        },
         {
           "date": "2026-09-29T18:58:17.947823+00:00",
           "outcome": "useful",
@@ -261,17 +286,12 @@
           "date": "2026-09-29T00:12:41.247627+00:00",
           "outcome": "useful",
           "q": "Implement secure first-run setup beyond admin/changeme"
-        },
-        {
-          "date": "2026-09-28T20:53:43.695879+00:00",
-          "outcome": "useful",
-          "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
         }
       ],
-      "score": 3.95252303,
+      "score": 5.219435857,
       "source_file": "internal/config/config.go",
       "status": "preferred",
-      "uses": 4
+      "uses": 6
     },
     "configs_config_dns_filter_configuration": {
       "code_fingerprint": "e43a52a33c29eace9ba837cebf1b9971e52ce451c2bdc526a7d150407f70bb5e",
@@ -284,7 +304,7 @@
           "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
         }
       ],
-      "score": 0.978145128,
+      "score": 0.809316763,
       "source_file": "configs/config.yaml",
       "status": "tentative",
       "uses": 1
@@ -300,32 +320,102 @@
           "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
         }
       ],
-      "score": 0.418812676,
+      "score": 0.346525387,
       "source_file": "internal/contentinspector/contentinspector.go",
       "status": "tentative",
       "uses": 1
     },
-    "discipline_manager": {
-      "code_fingerprint": "d8735d3acbf3e0064c496763c82c727df6abf74f45cfe2cba2fab0b0ebc43d52",
-      "label": "Manager",
-      "last": "2026-09-29T13:24:38.253909+00:00",
+    "database_db": {
+      "code_fingerprint": "edb8bdcf56ce3760d8d33f671f9a8d44ec3b7a401f04775bbb41da8b7698f63f",
+      "label": "DB",
+      "last": "2026-10-06T21:30:43.607155+00:00",
       "provenance": [
+        {
+          "date": "2026-10-06T21:30:43.607155+00:00",
+          "outcome": "useful",
+          "q": "Fix wildcard whitelist rules such as *.spotify.com disappearing after Go server restart and audit similar blocklist persistence"
+        }
+      ],
+      "score": 0.974206488,
+      "source_file": "internal/database/database.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "discipline_goal": {
+      "code_fingerprint": "0b62cf47c5de1f495ef34c0c35d6988dccef1358fb884cd769c2f655b2a0486a",
+      "label": "Goal",
+      "last": "2026-10-05T20:26:19.069278+00:00",
+      "neg": 1,
+      "provenance": [
+        {
+          "date": "2026-10-05T20:26:19.069278+00:00",
+          "outcome": "corrected",
+          "q": "got a problem i want jist to do a goal and focuse so i got err"
+        },
+        {
+          "date": "2026-10-05T20:12:12.468386+00:00",
+          "outcome": "useful",
+          "q": "can you edit on this so it display the project and if i select a projet display tasks and sub tasks so i exctly choose waht i need and remove the prototype thisn i want only thikgs that i do of my goal, project etc...."
+        }
+      ],
+      "score": -0.000215272,
+      "source_file": "internal/discipline/discipline.go",
+      "status": "contested",
+      "uses": 1,
+      "verdict": "dead end"
+    },
+    "discipline_manager": {
+      "code_fingerprint": "0b62cf47c5de1f495ef34c0c35d6988dccef1358fb884cd769c2f655b2a0486a",
+      "label": "Manager",
+      "last": "2026-10-08T00:37:48.210731+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-08T00:37:48.210731+00:00",
+          "outcome": "useful",
+          "q": "Implement Arch Linux App Network Control before real-machine testing"
+        },
+        {
+          "date": "2026-10-08T00:24:24.137081+00:00",
+          "outcome": "useful",
+          "q": "Implement the next Arch Linux native network-control phase, starting with Connection Freeze and then App Network Control"
+        },
+        {
+          "date": "2026-10-05T20:39:49.298287+00:00",
+          "outcome": "useful",
+          "q": "focus mode disappears on refresh, focused minutes stays zero, and hide setup while focusing"
+        },
+        {
+          "date": "2026-10-05T20:28:39.854726+00:00",
+          "outcome": "useful",
+          "q": "f3lt 5ayar diyal local activy log fen n9r nchouf logs?"
+        },
         {
           "date": "2026-09-29T13:24:38.253909+00:00",
           "outcome": "useful",
           "q": "Trace service startup and shutdown, Windows DNS routing setup/reset/status, DNS route watch behavior, adapter discovery, sleep/resume or network-change handling, autostart, and desktop health refresh. Identify reliability gaps for restart, resume, and adapter changes and the safest automated tests."
         }
       ],
-      "score": 0.993821154,
+      "score": 4.724207701,
       "source_file": "internal/discipline/discipline.go",
-      "status": "tentative",
-      "uses": 1
+      "status": "preferred",
+      "uses": 5
     },
     "discipline_project": {
-      "code_fingerprint": "d8735d3acbf3e0064c496763c82c727df6abf74f45cfe2cba2fab0b0ebc43d52",
+      "code_fingerprint": "0b62cf47c5de1f495ef34c0c35d6988dccef1358fb884cd769c2f655b2a0486a",
       "label": "Project",
-      "last": "2026-08-23T21:01:44.806267+00:00",
+      "last": "2026-10-05T20:26:19.069278+00:00",
+      "neg": 1,
       "provenance": [
+        {
+          "date": "2026-10-05T20:26:19.069278+00:00",
+          "outcome": "corrected",
+          "q": "got a problem i want jist to do a goal and focuse so i got err"
+        },
+        {
+          "date": "2026-10-05T20:12:12.468386+00:00",
+          "outcome": "useful",
+          "q": "can you edit on this so it display the project and if i select a projet display tasks and sub tasks so i exctly choose waht i need and remove the prototype thisn i want only thikgs that i do of my goal, project etc...."
+        },
         {
           "date": "2026-08-23T21:01:44.806267+00:00",
           "outcome": "useful",
@@ -340,23 +430,30 @@
           "date": "2026-08-23T01:56:01.635883+00:00",
           "outcome": "useful",
           "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
-        },
-        {
-          "date": "2026-08-23T01:43:22.955622+00:00",
-          "outcome": "useful",
-          "q": "What features would be good for the project task planning workspace before implementing the big update?"
         }
       ],
-      "score": 1.680146911,
+      "score": 1.389937395,
       "source_file": "internal/discipline/discipline.go",
-      "status": "preferred",
-      "uses": 4
+      "status": "contested",
+      "uses": 5,
+      "verdict": "useful"
     },
     "discipline_task": {
-      "code_fingerprint": "d8735d3acbf3e0064c496763c82c727df6abf74f45cfe2cba2fab0b0ebc43d52",
+      "code_fingerprint": "0b62cf47c5de1f495ef34c0c35d6988dccef1358fb884cd769c2f655b2a0486a",
       "label": "Task",
-      "last": "2026-08-23T02:39:49.151541+00:00",
+      "last": "2026-10-05T20:26:19.069278+00:00",
+      "neg": 1,
       "provenance": [
+        {
+          "date": "2026-10-05T20:26:19.069278+00:00",
+          "outcome": "corrected",
+          "q": "got a problem i want jist to do a goal and focuse so i got err"
+        },
+        {
+          "date": "2026-10-05T20:12:12.468386+00:00",
+          "outcome": "useful",
+          "q": "can you edit on this so it display the project and if i select a projet display tasks and sub tasks so i exctly choose waht i need and remove the prototype thisn i want only thikgs that i do of my goal, project etc...."
+        },
         {
           "date": "2026-08-23T02:39:49.151541+00:00",
           "outcome": "useful",
@@ -371,17 +468,13 @@
           "date": "2026-08-23T01:56:01.635883+00:00",
           "outcome": "useful",
           "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
-        },
-        {
-          "date": "2026-08-23T01:43:22.955622+00:00",
-          "outcome": "useful",
-          "q": "What features would be good for the project task planning workspace before implementing the big update?"
         }
       ],
-      "score": 1.672684411,
+      "score": 1.383762927,
       "source_file": "internal/discipline/discipline.go",
-      "status": "preferred",
-      "uses": 4
+      "status": "contested",
+      "uses": 5,
+      "verdict": "useful"
     },
     "dns_dnscache": {
       "code_fingerprint": "ceb5c496ab2e1d0a2ec946a9ddd2c45f5060ac993c47f03acefa0921a1f2a50d",
@@ -399,7 +492,7 @@
           "q": "Make website unblocking apply immediately without restarting the browser"
         }
       ],
-      "score": 1.411677392,
+      "score": 1.16802113,
       "source_file": "internal/dns/cache.go",
       "status": "preferred",
       "uses": 2
@@ -415,10 +508,173 @@
           "q": "Make website unblocking apply immediately without restarting the browser"
         }
       ],
-      "score": 0.418875286,
+      "score": 0.346577191,
       "source_file": "internal/dns/server.go",
       "status": "tentative",
       "uses": 1
+    },
+    "docs_running_cross_platform_runtime_guide": {
+      "code_fingerprint": "819d5e2250918bd4f116fd584e8b9715661813a132bb5793151335478f07ce18",
+      "label": "Cross-platform Runtime Guide",
+      "last": "2026-10-06T21:18:16.005793+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T21:18:16.005793+00:00",
+          "outcome": "useful",
+          "q": "Create a README for Windows, Linux and Arch, plus an Arch desktop setup that enables everything with systemctl and starts automatically"
+        },
+        {
+          "date": "2026-10-05T23:44:19.180559+00:00",
+          "outcome": "useful",
+          "q": "okay lets do them then and letss use Avalonia fro desktop it suppoer linux and win"
+        }
+      ],
+      "score": 1.928010036,
+      "source_file": "docs/RUNNING.md",
+      "status": "preferred",
+      "uses": 2
+    },
+    "filter_engine_addtocustomblocklist": {
+      "code_fingerprint": "a09d0e2031c84e37273fde825232211e696e3f117b1238e416b4d8df11667da5",
+      "label": ".AddToCustomBlocklist()",
+      "last": "2026-10-06T21:30:43.607155+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T21:30:43.607155+00:00",
+          "outcome": "useful",
+          "q": "Fix wildcard whitelist rules such as *.spotify.com disappearing after Go server restart and audit similar blocklist persistence"
+        }
+      ],
+      "score": 0.974206488,
+      "source_file": "internal/filter/engine.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "filter_engine_removefromcustomblocklist": {
+      "code_fingerprint": "a09d0e2031c84e37273fde825232211e696e3f117b1238e416b4d8df11667da5",
+      "label": ".RemoveFromCustomBlocklist()",
+      "last": "2026-10-06T21:30:43.607155+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T21:30:43.607155+00:00",
+          "outcome": "useful",
+          "q": "Fix wildcard whitelist rules such as *.spotify.com disappearing after Go server restart and audit similar blocklist persistence"
+        }
+      ],
+      "score": 0.974206488,
+      "source_file": "internal/filter/engine.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "internal_api_discipline": {
+      "code_fingerprint": "19d7f8ef613965fa601bdc84a00d91c1b58a091773927e03778bf0d96873f234",
+      "label": "api/discipline.go",
+      "last": "2026-10-05T20:39:49.298287+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-05T20:39:49.298287+00:00",
+          "outcome": "useful",
+          "q": "focus mode disappears on refresh, focused minutes stays zero, and hide setup while focusing"
+        },
+        {
+          "date": "2026-10-05T20:32:04.087006+00:00",
+          "outcome": "useful",
+          "q": "ok zidha"
+        }
+      ],
+      "score": 1.902238402,
+      "source_file": "internal/api/discipline.go",
+      "status": "preferred",
+      "uses": 2
+    },
+    "internal_autostart_autostart_windows": {
+      "code_fingerprint": "074858a5b0f0348fb2b564f7478d83e8be9bc833eb41e20503128aa589cea746",
+      "label": "autostart_windows.go",
+      "last": "2026-09-30T15:47:17.038822+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-30T15:47:17.038822+00:00",
+          "outcome": "useful",
+          "q": "DNS Filter sometimes stops and after reboot does not work until the GUI opens"
+        }
+      ],
+      "score": 0.843435372,
+      "source_file": "internal/autostart/autostart_windows.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "internal_database_database": {
+      "code_fingerprint": "edb8bdcf56ce3760d8d33f671f9a8d44ec3b7a401f04775bbb41da8b7698f63f",
+      "label": "database.go",
+      "last": "2026-10-06T22:02:14.980625+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T22:02:14.980625+00:00",
+          "outcome": "useful",
+          "q": "Build a language-independent plugin place/store in DNS Filter using local API servers, starting with TinyPrinter"
+        }
+      ],
+      "score": 0.974699354,
+      "source_file": "internal/database/database.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "internal_discipline_discipline": {
+      "code_fingerprint": "0b62cf47c5de1f495ef34c0c35d6988dccef1358fb884cd769c2f655b2a0486a",
+      "label": "discipline/discipline.go",
+      "last": "2026-10-05T20:39:49.298287+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-05T20:39:49.298287+00:00",
+          "outcome": "useful",
+          "q": "focus mode disappears on refresh, focused minutes stays zero, and hide setup while focusing"
+        },
+        {
+          "date": "2026-10-05T20:32:04.087006+00:00",
+          "outcome": "useful",
+          "q": "ok zidha"
+        },
+        {
+          "date": "2026-10-05T20:28:39.854726+00:00",
+          "outcome": "useful",
+          "q": "f3lt 5ayar diyal local activy log fen n9r nchouf logs?"
+        }
+      ],
+      "score": 2.853246499,
+      "source_file": "internal/discipline/discipline.go",
+      "status": "preferred",
+      "uses": 3
+    },
+    "internal_netdns_netdns_linux": {
+      "code_fingerprint": "3ba33d91e728abff93089564e96387b0b0bd35f490bb77c1269f3ad8e3313a1a",
+      "label": "netdns_linux.go",
+      "last": "2026-10-08T00:37:48.210731+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-08T00:37:48.210731+00:00",
+          "outcome": "useful",
+          "q": "Implement Arch Linux App Network Control before real-machine testing"
+        },
+        {
+          "date": "2026-10-08T00:24:24.137081+00:00",
+          "outcome": "useful",
+          "q": "Implement the next Arch Linux native network-control phase, starting with Connection Freeze and then App Network Control"
+        },
+        {
+          "date": "2026-10-06T21:18:16.005793+00:00",
+          "outcome": "useful",
+          "q": "Create a README for Windows, Linux and Arch, plus an Arch desktop setup that enables everything with systemctl and starts automatically"
+        },
+        {
+          "date": "2026-10-05T23:44:19.180559+00:00",
+          "outcome": "useful",
+          "q": "okay lets do them then and letss use Avalonia fro desktop it suppoer linux and win"
+        }
+      ],
+      "score": 3.927744178,
+      "source_file": "internal/netdns/netdns_linux.go",
+      "status": "preferred",
+      "uses": 4
     },
     "internal_netdns_netdns_status": {
       "code_fingerprint": "d1187a8bed124b87d0b4e400d120daeb120cfc0f7e506ab64bcec49e4b4f8287",
@@ -431,8 +687,24 @@
           "q": "start enhancing the website"
         }
       ],
-      "score": 0.42420309,
+      "score": 0.350985413,
       "source_file": "internal/netdns/netdns.go",
+      "status": "tentative",
+      "uses": 1
+    },
+    "internal_netdns_netdns_windows": {
+      "code_fingerprint": "d0e249f54edfe9cc7182cd865ce9c46cbc6b7e596682bd309fc440b0ceaf61a1",
+      "label": "netdns_windows.go",
+      "last": "2026-09-30T16:06:30.949766+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-30T16:06:30.949766+00:00",
+          "outcome": "useful",
+          "q": "Portable DNS Filter test commands failed"
+        }
+      ],
+      "score": 0.843695676,
+      "source_file": "internal/netdns/netdns_windows.go",
       "status": "tentative",
       "uses": 1
     },
@@ -447,7 +719,7 @@
           "q": "Prevent Blocklist, Whitelist, Categories, Keywords and Apps lists from making the workspace too long"
         }
       ],
-      "score": 0.418635631,
+      "score": 0.3463789,
       "source_file": "internal/keywords/keywords.go",
       "status": "tentative",
       "uses": 1
@@ -468,7 +740,7 @@
           "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
         }
       ],
-      "score": 0.836928717,
+      "score": 0.692474379,
       "source_file": "internal/keywords/keywords.go",
       "status": "preferred",
       "uses": 2
@@ -484,16 +756,37 @@
           "q": "Which release-critical fixes should be completed first before the official release?"
         }
       ],
-      "score": 0.992649525,
+      "score": 0.821317693,
       "source_file": "go.mod",
+      "status": "tentative",
+      "uses": 1
+    },
+    "readme_system_dns_setup": {
+      "code_fingerprint": "4906f0349aeba961cc8081128f2c085a7664d615ebaa0d2051f75611739e0a6e",
+      "label": "System DNS Setup",
+      "last": "2026-10-06T21:18:16.005793+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T21:18:16.005793+00:00",
+          "outcome": "useful",
+          "q": "Create a README for Windows, Linux and Arch, plus an Arch desktop setup that enables everything with systemctl and starts automatically"
+        }
+      ],
+      "score": 0.974011742,
+      "source_file": "README.md",
       "status": "tentative",
       "uses": 1
     },
     "releases_readme_release_changelog": {
       "code_fingerprint": "45efce26946ee66011ab6ffe69d55f9c279f17d415aae47d997e31ccca690907",
       "label": "Release Changelog",
-      "last": "2026-09-29T19:43:05.540951+00:00",
+      "last": "2026-09-29T19:53:05.034914+00:00",
       "provenance": [
+        {
+          "date": "2026-09-29T19:53:05.034914+00:00",
+          "outcome": "useful",
+          "q": "next"
+        },
         {
           "date": "2026-09-29T19:43:05.540951+00:00",
           "outcome": "useful",
@@ -515,13 +808,13 @@
           "q": "now tell me do tha app need somtihng to fix ?? befor the official release ?"
         }
       ],
-      "score": 3.951657179,
+      "score": 4.097027195,
       "source_file": "releases/README.md",
       "status": "preferred",
-      "uses": 4
+      "uses": 5
     },
     "releases_unreleased_unreleased_changes": {
-      "code_fingerprint": "a0c3c5222104376ef96d793dd0d74cfc129a4b2e19f4d5fa813216d79f2da769",
+      "code_fingerprint": "6614bc0c0a7a0d7d58171d73b47d568aab0224f6060730ff95327f61d17592a3",
       "label": "Unreleased Changes",
       "last": "2026-09-29T12:11:07.149060+00:00",
       "provenance": [
@@ -531,31 +824,94 @@
           "q": "Which release-critical fixes should be completed first before the official release?"
         }
       ],
-      "score": 0.992649525,
+      "score": 0.821317693,
       "source_file": "releases/UNRELEASED.md",
       "status": "tentative",
       "uses": 1
     },
-    "scripts_build_portable": {
-      "code_fingerprint": "32c0826ef59e41936be4533596c3621472c3c4180274655d1fc7ca86395d5bd2",
-      "label": "build-portable.ps1",
-      "last": "2026-09-29T19:43:05.540951+00:00",
+    "request": {
+      "code_fingerprint": "",
+      "label": "Request",
+      "last": "2026-10-06T22:20:52.133324+00:00",
       "provenance": [
         {
-          "date": "2026-09-29T19:43:05.540951+00:00",
+          "date": "2026-10-06T22:20:52.133324+00:00",
+          "outcome": "useful",
+          "q": "TinyPrinter is connected but plugin scan returns context deadline exceeded; also open plugins in a popup"
+        }
+      ],
+      "score": 0.974990585,
+      "source_file": "",
+      "status": "tentative",
+      "uses": 1
+    },
+    "scripts_build_portable": {
+      "code_fingerprint": "549499b5bea089d540022ff59851a82272e683173ec2834b00537312fb4675fd",
+      "label": "build-portable.ps1",
+      "last": "2026-10-05T23:44:19.180559+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-05T23:44:19.180559+00:00",
+          "outcome": "useful",
+          "q": "okay lets do them then and letss use Avalonia fro desktop it suppoer linux and win"
+        },
+        {
+          "date": "2026-09-30T16:06:30.949766+00:00",
+          "outcome": "useful",
+          "q": "Portable DNS Filter test commands failed"
+        },
+        {
+          "date": "2026-09-30T15:47:17.038822+00:00",
+          "outcome": "useful",
+          "q": "DNS Filter sometimes stops and after reboot does not work until the GUI opens"
+        },
+        {
+          "date": "2026-09-29T19:53:05.034914+00:00",
           "outcome": "useful",
           "q": "next"
         },
         {
-          "date": "2026-09-29T12:11:07.149060+00:00",
+          "date": "2026-09-29T19:43:05.540951+00:00",
           "outcome": "useful",
-          "q": "Which release-critical fixes should be completed first before the official release?"
+          "q": "next"
         }
       ],
-      "score": 1.992523853,
+      "score": 5.117170657,
       "source_file": "scripts/build-portable.ps1",
       "status": "preferred",
-      "uses": 2
+      "uses": 6
+    },
+    "scripts_install_sh__entry": {
+      "code_fingerprint": "cadd8eb96cb010b5edd045c8d7459a35ab2a5e82f08f71c854b3bde57139663a",
+      "label": "install.sh script",
+      "last": "2026-10-06T21:18:16.005793+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T21:18:16.005793+00:00",
+          "outcome": "useful",
+          "q": "Create a README for Windows, Linux and Arch, plus an Arch desktop setup that enables everything with systemctl and starts automatically"
+        }
+      ],
+      "score": 0.974011742,
+      "source_file": "scripts/install.sh",
+      "status": "tentative",
+      "uses": 1
+    },
+    "setup": {
+      "code_fingerprint": "c12cface1999df4ecd3baa66deb5cc8ab0e9c58b71ed9b8edfd9e943711cec3d",
+      "label": "setup.sh",
+      "last": "2026-10-06T21:18:16.005793+00:00",
+      "provenance": [
+        {
+          "date": "2026-10-06T21:18:16.005793+00:00",
+          "outcome": "useful",
+          "q": "Create a README for Windows, Linux and Arch, plus an Arch desktop setup that enables everything with systemctl and starts automatically"
+        }
+      ],
+      "score": 0.974011742,
+      "source_file": "setup.sh",
+      "status": "tentative",
+      "uses": 1
     },
     "template": {
       "code_fingerprint": "",
@@ -568,7 +924,7 @@
           "q": "Harden the dashboard Content Security Policy without breaking dashboard, login, setup, or Discipline."
         }
       ],
-      "score": 0.999155966,
+      "score": 0.826701119,
       "source_file": "",
       "status": "tentative",
       "uses": 1
@@ -584,7 +940,7 @@
           "q": "Remove empty switching views from Protection, Rules and Intelligence, and Settings"
         }
       ],
-      "score": 0.418614505,
+      "score": 0.34636142,
       "source_file": "application/TUI/tui.go",
       "status": "tentative",
       "uses": 1
@@ -620,7 +976,7 @@
           "q": "Review the main dashboard Monitor and Filtering tabs and propose hidden ideas before editing"
         }
       ],
-      "score": 2.093119879,
+      "score": 1.731846283,
       "source_file": "application/TUI/tui.go",
       "status": "preferred",
       "uses": 5
@@ -628,9 +984,24 @@
     "web_static_js_dashboard": {
       "code_fingerprint": "3c65bb2c2b5056305c0bbd03a4a1fd551e3cee8c0d4353e1b38b2adc16d02b7e",
       "label": "dashboard.js",
-      "last": "2026-08-23T20:55:24.087182+00:00",
+      "last": "2026-10-06T22:10:09.898960+00:00",
       "neg": 2,
       "provenance": [
+        {
+          "date": "2026-10-06T22:10:09.898960+00:00",
+          "outcome": "useful",
+          "q": "Plugin Center exists but Plugins cannot be found in the dashboard navigation"
+        },
+        {
+          "date": "2026-10-06T22:02:14.980625+00:00",
+          "outcome": "useful",
+          "q": "Build a language-independent plugin place/store in DNS Filter using local API servers, starting with TinyPrinter"
+        },
+        {
+          "date": "2026-10-06T21:44:27.046922+00:00",
+          "outcome": "useful",
+          "q": "Design a plugin store for DNS Filter where plugins are separate language-independent local API servers, beginning with TinyPrinter"
+        },
         {
           "date": "2026-08-23T20:55:24.087182+00:00",
           "outcome": "corrected",
@@ -640,35 +1011,25 @@
           "date": "2026-08-23T20:50:33.246457+00:00",
           "outcome": "useful",
           "q": "start enhancing the YAML todo importer"
-        },
-        {
-          "date": "2026-08-23T20:37:15.966847+00:00",
-          "outcome": "useful",
-          "q": "a tab for todo list with sub-todos and a note tab"
-        },
-        {
-          "date": "2026-08-23T17:05:03.192256+00:00",
-          "outcome": "useful",
-          "q": "start enhancing the website"
-        },
-        {
-          "date": "2026-08-23T03:52:39.510935+00:00",
-          "outcome": "corrected",
-          "q": "Fix the dark mode because it looks like reversed colors"
         }
       ],
-      "score": 2.942412683,
+      "score": 5.35849424,
       "source_file": "web/static/js/dashboard.js",
       "status": "contested",
-      "uses": 9,
+      "uses": 12,
       "verdict": "useful"
     },
     "web_static_js_discipline": {
       "code_fingerprint": "",
       "label": "discipline.js",
-      "last": "2026-08-23T21:01:44.806267+00:00",
+      "last": "2026-10-05T20:12:12.468386+00:00",
       "neg": 1,
       "provenance": [
+        {
+          "date": "2026-10-05T20:12:12.468386+00:00",
+          "outcome": "useful",
+          "q": "can you edit on this so it display the project and if i select a projet display tasks and sub tasks so i exctly choose waht i need and remove the prototype thisn i want only thikgs that i do of my goal, project etc...."
+        },
         {
           "date": "2026-08-23T21:01:44.806267+00:00",
           "outcome": "useful",
@@ -685,10 +1046,10 @@
           "q": "Add dark mode, a Discipline weekly timetable, and tiny local AI site analysis"
         }
       ],
-      "score": 0.425785954,
+      "score": 1.303052095,
       "source_file": "web/static/js/discipline.js",
       "status": "contested",
-      "uses": 2,
+      "uses": 3,
       "verdict": "useful"
     },
     "web_static_js_discipline_addsubtask": {
@@ -712,7 +1073,7 @@
           "q": "What features would be good for the project task planning workspace before implementing the big update?"
         }
       ],
-      "score": 1.261980646,
+      "score": 1.04416212,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 3
@@ -733,7 +1094,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.836011851,
+      "score": 0.691715764,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 2
@@ -749,7 +1110,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.417951025,
+      "score": 0.345812457,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -775,7 +1136,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 1.254739718,
+      "score": 1.03817098,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 3
@@ -796,7 +1157,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.836243916,
+      "score": 0.691907775,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 2
@@ -817,7 +1178,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.835927041,
+      "score": 0.691645593,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 2
@@ -833,7 +1194,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.417951025,
+      "score": 0.345812457,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -849,7 +1210,7 @@
           "q": "What features would be good for the project task planning workspace before implementing the big update?"
         }
       ],
-      "score": 0.417976017,
+      "score": 0.345833136,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -865,7 +1226,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.417951025,
+      "score": 0.345812457,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -881,7 +1242,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.417951025,
+      "score": 0.345812457,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -907,7 +1268,7 @@
           "q": "What features would be good for the project task planning workspace before implementing the big update?"
         }
       ],
-      "score": 1.254329734,
+      "score": 1.03783176,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 3
@@ -923,7 +1284,7 @@
           "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
         }
       ],
-      "score": 0.418354678,
+      "score": 0.346146439,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -939,7 +1300,7 @@
           "q": "actually one thing i want you to do as you see the disipline page/freturs are littel bit not organizied i want you to organize them and for each tab in dicipline i want to enhace it mait mote complexx"
         }
       ],
-      "score": 0.417951025,
+      "score": 0.345812457,
       "source_file": "web/static/js/discipline.js",
       "status": "tentative",
       "uses": 1
@@ -965,16 +1326,31 @@
           "q": "What features would be good for the project task planning workspace before implementing the big update?"
         }
       ],
-      "score": 1.25439152,
+      "score": 1.037882882,
       "source_file": "web/static/js/discipline.js",
       "status": "preferred",
       "uses": 3
     },
     "web_templates_dashboard_filtering_controls": {
-      "code_fingerprint": "ad8815e4e64559b1b2fe6e41ccb89a8f8837f3a84afb35250ee6e83f4940d3ad",
+      "code_fingerprint": "b0fa2760d91e9533670f323c5a7f0bd0e1acbac15ba5099c4f7710a8c090dbcd",
       "label": "Filtering Controls",
-      "last": "2026-08-23T17:05:03.192256+00:00",
+      "last": "2026-10-08T00:37:48.210731+00:00",
       "provenance": [
+        {
+          "date": "2026-10-08T00:37:48.210731+00:00",
+          "outcome": "useful",
+          "q": "Implement Arch Linux App Network Control before real-machine testing"
+        },
+        {
+          "date": "2026-10-08T00:24:24.137081+00:00",
+          "outcome": "useful",
+          "q": "Implement the next Arch Linux native network-control phase, starting with Connection Freeze and then App Network Control"
+        },
+        {
+          "date": "2026-10-05T23:44:19.180559+00:00",
+          "outcome": "useful",
+          "q": "okay lets do them then and letss use Avalonia fro desktop it suppoer linux and win"
+        },
         {
           "date": "2026-08-23T17:05:03.192256+00:00",
           "outcome": "useful",
@@ -984,20 +1360,15 @@
           "date": "2026-08-23T03:13:00.829608+00:00",
           "outcome": "useful",
           "q": "Enhance and organize the Settings tab"
-        },
-        {
-          "date": "2026-08-23T03:07:33.423285+00:00",
-          "outcome": "useful",
-          "q": "Consolidate App Blocker and Categories, and consolidate Blocklist, Whitelist, and AI Blocker into organized tabs"
         }
       ],
-      "score": 1.261321557,
+      "score": 3.997349227,
       "source_file": "web/templates/dashboard.html",
       "status": "preferred",
-      "uses": 3
+      "uses": 6
     },
     "web_templates_dashboard_management_dashboard": {
-      "code_fingerprint": "ad8815e4e64559b1b2fe6e41ccb89a8f8837f3a84afb35250ee6e83f4940d3ad",
+      "code_fingerprint": "b0fa2760d91e9533670f323c5a7f0bd0e1acbac15ba5099c4f7710a8c090dbcd",
       "label": "DNS Filter Management Dashboard",
       "last": "2026-09-25T13:38:15.344575+00:00",
       "neg": 1,
@@ -1018,18 +1389,33 @@
           "q": "start enhancing the YAML todo importer"
         }
       ],
-      "score": 0.906253988,
+      "score": 0.749834071,
       "source_file": "web/templates/dashboard.html",
       "status": "contested",
       "uses": 2,
       "verdict": "useful"
     },
     "web_templates_discipline_discipline_workspace": {
-      "code_fingerprint": "4787808d77e43567ad0a9cda3093f249b4f0aac7f5fd296eb17d33c3e4e37e30",
+      "code_fingerprint": "58ea178713d2f197c7aff1d7d931cdbba93f7d60e9bbb9d8061876953fc473f4",
       "label": "Discipline Workspace",
-      "last": "2026-08-23T21:01:44.806267+00:00",
+      "last": "2026-10-05T20:39:49.298287+00:00",
       "neg": 1,
       "provenance": [
+        {
+          "date": "2026-10-05T20:39:49.298287+00:00",
+          "outcome": "useful",
+          "q": "focus mode disappears on refresh, focused minutes stays zero, and hide setup while focusing"
+        },
+        {
+          "date": "2026-10-05T20:32:04.087006+00:00",
+          "outcome": "useful",
+          "q": "ok zidha"
+        },
+        {
+          "date": "2026-10-05T20:28:39.854726+00:00",
+          "outcome": "useful",
+          "q": "f3lt 5ayar diyal local activy log fen n9r nchouf logs?"
+        },
         {
           "date": "2026-08-23T21:01:44.806267+00:00",
           "outcome": "useful",
@@ -1039,28 +1425,36 @@
           "date": "2026-08-23T03:52:39.510935+00:00",
           "outcome": "corrected",
           "q": "Fix the dark mode because it looks like reversed colors"
-        },
-        {
-          "date": "2026-08-23T02:39:49.151541+00:00",
-          "outcome": "useful",
-          "q": "Make the tiny task status icon recognizable and add visible buttons for tasks, subtasks, and checklists"
-        },
-        {
-          "date": "2026-08-23T02:30:36.833372+00:00",
-          "outcome": "useful",
-          "q": "Complete every requested project planning feature at production depth"
-        },
-        {
-          "date": "2026-08-23T01:56:01.635883+00:00",
-          "outcome": "useful",
-          "q": "Organize the Discipline HTML, JavaScript, and CSS before building the new project-planning features one by one"
         }
       ],
-      "score": 2.097608714,
+      "score": 4.588806842,
       "source_file": "web/templates/discipline.html",
       "status": "contested",
-      "uses": 6,
+      "uses": 9,
       "verdict": "useful"
+    },
+    "web_templates_discipline_goal_project_task_tracking": {
+      "code_fingerprint": "58ea178713d2f197c7aff1d7d931cdbba93f7d60e9bbb9d8061876953fc473f4",
+      "label": "Goal Project and Task Tracking",
+      "last": "2026-10-05T20:26:19.069278+00:00",
+      "neg": 1,
+      "provenance": [
+        {
+          "date": "2026-10-05T20:26:19.069278+00:00",
+          "outcome": "corrected",
+          "q": "got a problem i want jist to do a goal and focuse so i got err"
+        },
+        {
+          "date": "2026-10-05T20:12:12.468386+00:00",
+          "outcome": "useful",
+          "q": "can you edit on this so it display the project and if i select a projet display tasks and sub tasks so i exctly choose waht i need and remove the prototype thisn i want only thikgs that i do of my goal, project etc...."
+        }
+      ],
+      "score": -0.000215272,
+      "source_file": "web/templates/discipline.html",
+      "status": "contested",
+      "uses": 1,
+      "verdict": "dead end"
     }
   },
   "version": 1

@@ -1,20 +1,67 @@
 # App Network Control
 
-App Network Control blocks outbound internet access for one Windows executable while the rest of the computer remains online. It is separate from DNS application policies: DNS policies block known service domains, while App Network Control creates a Windows Firewall rule for the selected `.exe` path.
+App Network Control blocks outbound network access for one executable while the
+rest of the computer remains online. It is separate from DNS application policies:
+DNS policy blocks known service domains, while this feature controls the operating
+system process itself.
 
 ## Use it
 
 1. Open **Protection → Applications**.
-2. Find a running application, or paste the full path to an `.exe` file.
-3. Select **Block**. Unlock the Configuration Vault when requested.
-4. Select **Allow** to remove the managed firewall rule.
+2. Select a discovered running application or paste its full executable path.
+3. Press **Block** and unlock the Configuration Vault when requested.
+4. Press **Allow** to restore access.
 
-The panel shows running applications, current managed blocks, and the latest control changes. Changes require DNS Filter to be running as Administrator.
+The panel shows discovered/running applications, persisted blocks, and recent rule
+changes. Deleted or moved executables can still be allowed because the application
+uses the stored rule identity rather than requiring the old file to exist.
 
-## Behavior and safety
+## Windows backend
 
-- Version 1 controls outbound connections for all Windows network profiles and covers IPv4 and IPv6 through Windows Firewall.
-- Existing connections may remain alive briefly. Restart the selected application if it does not disconnect immediately.
-- DNS Filter refuses to block its own executable and a small set of critical Windows processes.
-- A rule is tied to the full executable path. If an application updates into a new folder, select its new path.
-- The activity list records rule changes, not every blocked packet. Deep per-packet telemetry requires a future Windows Filtering Platform component.
+- Creates an outbound Windows Firewall rule for the selected `.exe` path.
+- Covers IPv4 and IPv6 across all Windows network profiles.
+- Requires Administrator permission.
+- Rejects DNS Filter itself and critical Windows processes.
+
+## Arch Linux backend
+
+- Requires root, unified cgroup v2, and `nftables`.
+- Creates a private cgroup for the selected executable's processes.
+- Records every process's original cgroup before moving it.
+- Uses only the private `inet dnsfilter_apps` nftables table.
+- Watches for newly launched matching processes while the block remains enabled.
+- Restores processes to their original cgroups before removing the rule.
+- Reloads stored block and quarantine state after service restart.
+
+The backend never intentionally modifies a distro/user nftables table. Test it
+first with a non-critical graphical application. Never select a terminal, desktop
+shell, login manager, systemd, or a process needed to recover the machine.
+
+## Persistence and recovery
+
+Rule intent is stored in SQLite. Temporary Linux process-origin recovery state is
+stored under `/run/dns-filter`. If a stored rule cannot be restored, the manager
+records a failed restoration and changes the displayed state to allowed rather than
+claiming protection that is not active.
+
+Release every DNS Filter-owned app, quarantine, and active schedule rule:
+
+```text
+dns-filter reset-app-network
+```
+
+On Arch, if the command cannot run, deleting the private table restores traffic:
+
+```bash
+sudo nft delete table inet dnsfilter_apps
+```
+
+The Arch uninstaller runs the reset command before stopping the service.
+
+## Limitations
+
+- Windows rule activity records management changes, not every blocked packet.
+- Linux cgroup control is new and still needs validation on real Arch hardware.
+- A process that opens privileged proxies or delegates traffic to another process
+  may not represent a complete security boundary.
+- This feature does not replace application sandboxing or malware protection.

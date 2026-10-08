@@ -5,8 +5,8 @@ This directory contains the permanent documentation for features added to DNS Fi
 ## Security and privacy features
 
 - [Hard System](HARD-SYSTEM.md) — score visible webpage content locally and cover high-risk pages with a browser extension.
-- [App Network Control](APP-NETWORK-CONTROL.md) — block outbound Windows network access for one selected executable.
-- [Connection Freeze](connection-freeze.md) — preserve existing flows and temporarily block new outbound connections on Windows, with application logs.
+- [App Network Control](APP-NETWORK-CONTROL.md) — block one executable through Windows Firewall or Arch cgroup v2 plus nftables.
+- [Connection Freeze](connection-freeze.md) — preserve existing flows and temporarily block new outbound connections on Windows or Arch.
 - [Go Desktop Control](desktop-control.md) — start the server and configure local DNS from Windows.
 
 - [Security Center](SECURITY-CENTER.md) — review the readiness and status of every security feature from one dashboard.
@@ -20,6 +20,17 @@ This directory contains the permanent documentation for features added to DNS Fi
 - [Safe Windows Updates](SAFE-WINDOWS-UPDATES.md) — preserve local state and automatically roll back an unhealthy update.
 - [Safe Windows Uninstall](SAFE-WINDOWS-UNINSTALL.md) — restore network state and remove owned resources while preserving user data by default.
 - [Windows Lifecycle Resilience](WINDOWS-LIFECYCLE-RESILIENCE.md) — retain explicit DNS-routing intent across restart, resume, and adapter changes.
+
+## Discipline features
+
+- [Discipline Task Hub](DISCIPLINE-TASK-HUB.md) — plan goals, projects, tasks, nested steps, time blocks, templates, and recovery work.
+- [Daily Journal](DAILY-JOURNAL.md) — keep local general or custom daily logs with calendar and streak analytics.
+- [Focus Activity Logger](FOCUS-ACTIVITY-LOGGER.md) — optionally record local app/domain activity during focus sessions for later review.
+- [Discipline Intelligence Inbox](DISCIPLINE-INTELLIGENCE-INBOX.md) — generate private local briefings or explicit AI-assisted analysis through a Vault-protected provider.
+
+## Extension platform
+
+- [Plugin SDK](../PLUGIN-SDK.md) — build API-only plugins with bounded permissions, managed runtimes, native controls, or sandboxed local web interfaces.
 
 ## Adding future feature documentation
 

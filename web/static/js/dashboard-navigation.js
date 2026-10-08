@@ -13,7 +13,7 @@
     ['protection', 'Protection', ['protection', 'privacy', 'rules']],
     ['automation', 'Automation', ['profiles', 'schedules', 'focus', 'wellbeing']],
     ['advanced', 'Advanced', ['learning', 'decisions', 'freeze']],
-    ['system', 'System', ['hardsecurity', 'settings', 'requests']]
+    ['system', 'System', ['hardsecurity', 'plugins', 'settings', 'requests']]
   ];
   const icon = path => `<svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>`;
 

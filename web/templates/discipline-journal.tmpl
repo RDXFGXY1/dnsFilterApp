@@ -1,0 +1,70 @@
+{{ define "discipline_journal" }}
+<section class="view journal-view" data-view="journal">
+    <div class="view-guide journal-hero">
+        <div>
+            <span class="command-kicker">Reflect · Learn · Continue</span>
+            <strong>Turn every day into useful memory</strong>
+            <p>Capture general notes or structured logs for studying, coding, fitness, reading, and anything you want to improve.</p>
+        </div>
+        <div class="journal-streak" aria-label="Current journal streak"><b id="journal-streak">0</b><span>day streak</span></div>
+    </div>
+
+    <div class="journal-kpis" id="journal-kpis">
+        <article><span>Entries</span><strong>0</strong><small>all time</small></article>
+        <article><span>Active days</span><strong>0</strong><small>days remembered</small></article>
+        <article><span>Logged time</span><strong>0m</strong><small>intentional activity</small></article>
+        <article><span>Focus</span><strong>—</strong><small>average / 10</small></article>
+    </div>
+
+    <div class="journal-layout">
+        <div class="journal-main">
+            <section class="panel journal-compose">
+                <div class="panel-head"><div><span class="command-kicker">Quick capture</span><h2 id="journal-form-heading">Write today’s entry</h2></div><button class="ws-tab journal-cancel-edit" id="journal-cancel-edit" onclick="resetJournalForm()" hidden>Cancel edit</button></div>
+                <input type="hidden" id="journal-entry-id">
+                <div class="journal-form-grid">
+                    <label class="journal-field journal-title-field"><span>Title</span><input id="journal-title" maxlength="160" placeholder="What happened or what did you learn?"></label>
+                    <label class="journal-field"><span>Log type</span><select id="journal-type"><option value="0">General</option></select></label>
+                    <label class="journal-field"><span>Date</span><input type="date" id="journal-day"></label>
+                    <label class="journal-field"><span>Minutes</span><input type="number" min="0" max="1440" id="journal-duration" placeholder="45"></label>
+                    <label class="journal-field"><span>Mood</span><select id="journal-mood"><option value="0">Not set</option><option value="2">2 · Rough</option><option value="4">4 · Low</option><option value="6">6 · Okay</option><option value="8">8 · Good</option><option value="10">10 · Great</option></select></label>
+                    <label class="journal-field"><span>Focus</span><select id="journal-focus"><option value="0">Not set</option><option value="2">2 · Distracted</option><option value="4">4 · Fragmented</option><option value="6">6 · Steady</option><option value="8">8 · Focused</option><option value="10">10 · Deep work</option></select></label>
+                    <label class="journal-field"><span>Project (optional)</span><select id="journal-project"><option value="0">No project</option></select></label>
+                    <label class="journal-field journal-content-field"><span>Reflection</span><textarea id="journal-content" rows="5" placeholder="What worked? What was difficult? What should happen next?"></textarea></label>
+                    <label class="journal-field journal-tags-field"><span>Tags</span><input id="journal-tags" placeholder="networking, exam, deep-work"></label>
+                    <label class="journal-pin"><input type="checkbox" id="journal-pinned"><span>Pin this entry</span></label>
+                </div>
+                <div class="journal-form-actions"><small>Your journal is stored locally in the application database.</small><button class="btn" id="journal-save" onclick="saveJournalEntry()">Save entry</button></div>
+            </section>
+
+            <section class="panel journal-timeline-panel">
+                <div class="panel-head journal-timeline-head"><div><span class="command-kicker">Timeline</span><h2>Your daily logs</h2></div><span id="journal-result-count" class="journal-result-count">0 entries</span></div>
+                <div class="journal-filters">
+                    <input id="journal-search" type="search" placeholder="Search titles, reflections, or tags…" oninput="queueJournalSearch()">
+                    <select id="journal-filter-type" onchange="loadJournalEntries()"><option value="0">All log types</option></select>
+                    <input id="journal-filter-date" type="date" onchange="loadJournalEntries()" title="Show one day">
+                    <button class="ws-tab" onclick="clearJournalFilters()">Clear</button>
+                </div>
+                <div id="journal-timeline" class="journal-timeline"><div class="no-data">Loading journal…</div></div>
+            </section>
+        </div>
+
+        <aside class="journal-side">
+            <section class="panel journal-calendar-panel">
+                <div class="panel-head"><div><span class="command-kicker">Consistency</span><h2>Last 28 days</h2></div></div>
+                <div id="journal-calendar" class="journal-calendar"></div>
+                <div class="journal-calendar-legend"><span>Quiet</span><i></i><i></i><i></i><i></i><span>More</span></div>
+            </section>
+            <section class="panel journal-types-panel">
+                <div class="panel-head"><div><span class="command-kicker">Custom logs</span><h2>Your categories</h2></div></div>
+                <div class="journal-new-type"><input id="journal-type-name" maxlength="40" placeholder="e.g. Studying"><input id="journal-type-color" type="color" value="#4f73d9" title="Category color"><button class="btn" onclick="createJournalType()">Add</button></div>
+                <div id="journal-types-list" class="journal-types-list"></div>
+            </section>
+            <section class="panel journal-prompt-panel">
+                <span class="command-kicker">Daily prompt</span>
+                <blockquote id="journal-prompt">What did you understand today that you did not understand yesterday?</blockquote>
+                <button class="ws-tab" onclick="nextJournalPrompt()">Another prompt</button>
+            </section>
+        </aside>
+    </div>
+</section>
+{{ end }}

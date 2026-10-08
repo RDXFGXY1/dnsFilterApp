@@ -8,12 +8,16 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
 // Manager owns the discipline tables and logic.
 type Manager struct {
-	db *sql.DB
+	db       *sql.DB
+	focusMu  sync.RWMutex
+	focusID  int64
+	focusEnd chan struct{}
 }
 
 type Goal struct {
@@ -49,31 +53,36 @@ type Project struct {
 }
 
 type Task struct {
-	ID            int64  `json:"id"`
-	ProjectID     int64  `json:"project_id"` // 0 = no project
-	ParentID      int64  `json:"parent_id"`  // 0 = top-level task
-	Title         string `json:"title"`
-	Notes         string `json:"notes"`
-	Status        string `json:"status"`   // todo | in_progress | done
-	Priority      string `json:"priority"` // low | medium | high
-	Size          string `json:"size"`     // XS | S | M | L | XL | ""
-	Labels        string `json:"labels"`
-	DueDate       string `json:"due_date"`
-	StartDate     string `json:"start_date"`
-	EstimateMin   int    `json:"estimate_minutes"`
-	ActualMin     int    `json:"actual_minutes"`
-	Energy        string `json:"energy"`
-	MilestoneID   int64  `json:"milestone_id"`
-	BlockedReason string `json:"blocked_reason"`
-	Recurrence    string `json:"recurrence"`
-	ReminderAt    string `json:"reminder_at"`
-	Links         string `json:"links"`
-	Backlog       bool   `json:"backlog"`
-	Archived      bool   `json:"archived"`
-	Position      int    `json:"position"`
-	Done          bool   `json:"done"`
-	CreatedAt     string `json:"created_at"`
-	CompletedAt   string `json:"completed_at"`
+	ID             int64  `json:"id"`
+	ProjectID      int64  `json:"project_id"` // 0 = no project
+	ParentID       int64  `json:"parent_id"`  // 0 = top-level task
+	Title          string `json:"title"`
+	Notes          string `json:"notes"`
+	Status         string `json:"status"`   // todo | in_progress | done
+	Priority       string `json:"priority"` // low | medium | high
+	Size           string `json:"size"`     // XS | S | M | L | XL | ""
+	Labels         string `json:"labels"`
+	DueDate        string `json:"due_date"`
+	StartDate      string `json:"start_date"`
+	EstimateMin    int    `json:"estimate_minutes"`
+	ActualMin      int    `json:"actual_minutes"`
+	Energy         string `json:"energy"`
+	MilestoneID    int64  `json:"milestone_id"`
+	BlockedReason  string `json:"blocked_reason"`
+	Recurrence     string `json:"recurrence"`
+	ReminderAt     string `json:"reminder_at"`
+	Links          string `json:"links"`
+	Backlog        bool   `json:"backlog"`
+	Archived       bool   `json:"archived"`
+	Position       int    `json:"position"`
+	MyDay          bool   `json:"my_day"`
+	ScheduledAt    string `json:"scheduled_at"`
+	WaitingFor     string `json:"waiting_for"`
+	Evidence       string `json:"evidence"`
+	FocusProfileID int64  `json:"focus_profile_id"`
+	Done           bool   `json:"done"`
+	CreatedAt      string `json:"created_at"`
+	CompletedAt    string `json:"completed_at"`
 }
 
 type DayCount struct {
@@ -218,6 +227,103 @@ func (m *Manager) init() error {
 			related_task_id INTEGER NOT NULL,
 			UNIQUE(task_id, related_task_id)
 		)`,
+		`CREATE TABLE IF NOT EXISTS discipline_task_templates (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			title TEXT NOT NULL,
+			notes TEXT DEFAULT '',
+			priority TEXT DEFAULT 'medium',
+			labels TEXT DEFAULT '',
+			estimate_minutes INTEGER DEFAULT 0,
+			energy TEXT DEFAULT 'medium',
+			checklist TEXT DEFAULT '',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS discipline_journal_types (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL COLLATE NOCASE UNIQUE,
+			color TEXT DEFAULT '#4f73d9',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS discipline_journal_entries (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			type_id INTEGER DEFAULT 0,
+			title TEXT NOT NULL,
+			content TEXT DEFAULT '',
+			day TEXT NOT NULL,
+			duration_minutes INTEGER DEFAULT 0,
+			mood INTEGER DEFAULT 0,
+			focus INTEGER DEFAULT 0,
+			tags TEXT DEFAULT '',
+			project_id INTEGER DEFAULT 0,
+			pinned INTEGER DEFAULT 0,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_disc_journal_day ON discipline_journal_entries(day)`,
+		`CREATE INDEX IF NOT EXISTS idx_disc_journal_type ON discipline_journal_entries(type_id)`,
+		`CREATE TABLE IF NOT EXISTS discipline_focus_sessions (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			task_id INTEGER DEFAULT 0,
+			task_title TEXT DEFAULT '',
+			planned_minutes INTEGER DEFAULT 25,
+			actual_seconds INTEGER DEFAULT 0,
+			status TEXT DEFAULT 'active',
+			activity_logging INTEGER DEFAULT 0,
+			started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			ended_at TEXT DEFAULT '',
+			reflection TEXT DEFAULT '',
+			focus_score INTEGER DEFAULT 0
+		)`,
+		`CREATE TABLE IF NOT EXISTS discipline_focus_activity (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			session_id INTEGER NOT NULL,
+			kind TEXT NOT NULL,
+			name TEXT NOT NULL,
+			seconds INTEGER DEFAULT 0,
+			observations INTEGER DEFAULT 1,
+			first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE(session_id,kind,name)
+		)`,
+		`CREATE TABLE IF NOT EXISTS discipline_distractions (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			session_id INTEGER NOT NULL,
+			label TEXT NOT NULL,
+			note TEXT DEFAULT '',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_disc_focus_activity_session ON discipline_focus_activity(session_id)`,
+		`CREATE TABLE IF NOT EXISTS discipline_inbox_messages (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			sender TEXT NOT NULL DEFAULT 'Discipline Intelligence',
+			subject TEXT NOT NULL,
+			body TEXT NOT NULL DEFAULT '',
+			category TEXT NOT NULL DEFAULT 'insight',
+			severity TEXT NOT NULL DEFAULT 'normal',
+			action_label TEXT NOT NULL DEFAULT '',
+			action_view TEXT NOT NULL DEFAULT '',
+			is_read INTEGER NOT NULL DEFAULT 0,
+			starred INTEGER NOT NULL DEFAULT 0,
+			archived INTEGER NOT NULL DEFAULT 0,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_disc_inbox_state ON discipline_inbox_messages(archived,is_read,created_at)`,
+		`CREATE TABLE IF NOT EXISTS ai_provider_configs (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			provider TEXT NOT NULL,
+			name TEXT NOT NULL,
+			model TEXT NOT NULL,
+			base_url TEXT NOT NULL DEFAULT '',
+			api_key_encrypted BLOB NOT NULL,
+			enabled INTEGER NOT NULL DEFAULT 1,
+			is_default INTEGER NOT NULL DEFAULT 0,
+			last_status TEXT NOT NULL DEFAULT 'not_tested',
+			last_error TEXT NOT NULL DEFAULT '',
+			last_tested_at TEXT NOT NULL DEFAULT '',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
 	}
 	for _, s := range stmts {
 		if _, err := m.db.Exec(s); err != nil {
@@ -245,6 +351,14 @@ func (m *Manager) init() error {
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN backlog INTEGER DEFAULT 0`)
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN archived INTEGER DEFAULT 0`)
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN position INTEGER DEFAULT 0`)
+	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN my_day INTEGER DEFAULT 0`)
+	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN scheduled_at TEXT DEFAULT ''`)
+	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN waiting_for TEXT DEFAULT ''`)
+	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN evidence TEXT DEFAULT ''`)
+	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN focus_profile_id INTEGER DEFAULT 0`)
+	// A process restart stops the in-memory activity recorder. Close any session
+	// left active by the previous process so history never shows a ghost session.
+	m.db.Exec(`UPDATE discipline_focus_sessions SET status='cancelled',actual_seconds=MAX(1,CAST((julianday('now')-julianday(started_at))*86400 AS INTEGER)),ended_at=CURRENT_TIMESTAMP WHERE status='active'`)
 	return nil
 }
 
@@ -677,7 +791,7 @@ func (m *Manager) DeleteReminder(id int64) error {
 
 func (m *Manager) ListTasks(projectID int64, all bool) ([]Task, error) {
 	q := `SELECT id, project_id, title, notes, status, priority, labels, due_date, done, created_at, completed_at, size, parent_id,
-		start_date, estimate_minutes, actual_minutes, energy, milestone_id, blocked_reason, recurrence, reminder_at, links, backlog, archived, position
+		start_date, estimate_minutes, actual_minutes, energy, milestone_id, blocked_reason, recurrence, reminder_at, links, backlog, archived, position, my_day, scheduled_at, waiting_for, evidence, focus_profile_id
 	      FROM discipline_tasks`
 	var args []interface{}
 	if !all {
@@ -705,36 +819,42 @@ func (m *Manager) ListTasks(projectID int64, all bool) ([]Task, error) {
 
 func scanTask(rows *sql.Rows) (Task, error) {
 	var t Task
-	var done, backlog, archived int
+	var done, backlog, archived, myDay int
 	err := rows.Scan(&t.ID, &t.ProjectID, &t.Title, &t.Notes, &t.Status, &t.Priority,
 		&t.Labels, &t.DueDate, &done, &t.CreatedAt, &t.CompletedAt, &t.Size, &t.ParentID,
 		&t.StartDate, &t.EstimateMin, &t.ActualMin, &t.Energy, &t.MilestoneID, &t.BlockedReason,
-		&t.Recurrence, &t.ReminderAt, &t.Links, &backlog, &archived, &t.Position)
+		&t.Recurrence, &t.ReminderAt, &t.Links, &backlog, &archived, &t.Position, &myDay, &t.ScheduledAt, &t.WaitingFor, &t.Evidence, &t.FocusProfileID)
 	t.Done = done == 1
 	t.Backlog = backlog == 1
 	t.Archived = archived == 1
+	t.MyDay = myDay == 1
 	return t, err
 }
 
 type TaskInput struct {
-	ProjectID     int64  `json:"project_id"`
-	ParentID      int64  `json:"parent_id"`
-	Title         string `json:"title"`
-	Notes         string `json:"notes"`
-	Priority      string `json:"priority"`
-	Labels        string `json:"labels"`
-	DueDate       string `json:"due_date"`
-	StartDate     string `json:"start_date"`
-	EstimateMin   int    `json:"estimate_minutes"`
-	ActualMin     int    `json:"actual_minutes"`
-	Energy        string `json:"energy"`
-	MilestoneID   int64  `json:"milestone_id"`
-	BlockedReason string `json:"blocked_reason"`
-	Recurrence    string `json:"recurrence"`
-	ReminderAt    string `json:"reminder_at"`
-	Links         string `json:"links"`
-	Backlog       bool   `json:"backlog"`
-	Position      int    `json:"position"`
+	ProjectID      int64  `json:"project_id"`
+	ParentID       int64  `json:"parent_id"`
+	Title          string `json:"title"`
+	Notes          string `json:"notes"`
+	Priority       string `json:"priority"`
+	Labels         string `json:"labels"`
+	DueDate        string `json:"due_date"`
+	StartDate      string `json:"start_date"`
+	EstimateMin    int    `json:"estimate_minutes"`
+	ActualMin      int    `json:"actual_minutes"`
+	Energy         string `json:"energy"`
+	MilestoneID    int64  `json:"milestone_id"`
+	BlockedReason  string `json:"blocked_reason"`
+	Recurrence     string `json:"recurrence"`
+	ReminderAt     string `json:"reminder_at"`
+	Links          string `json:"links"`
+	Backlog        bool   `json:"backlog"`
+	Position       int    `json:"position"`
+	MyDay          bool   `json:"my_day"`
+	ScheduledAt    string `json:"scheduled_at"`
+	WaitingFor     string `json:"waiting_for"`
+	Evidence       string `json:"evidence"`
+	FocusProfileID int64  `json:"focus_profile_id"`
 }
 
 func (m *Manager) CreateTask(in TaskInput) (int64, error) {
@@ -751,8 +871,12 @@ func (m *Manager) CreateTask(in TaskInput) (int64, error) {
 	if in.Backlog {
 		backlog = 1
 	}
-	res, err := m.db.Exec(`INSERT INTO discipline_tasks (project_id, parent_id, title, notes, priority, labels, due_date, start_date, estimate_minutes, actual_minutes, energy, milestone_id, blocked_reason, recurrence, reminder_at, links, backlog, position)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, in.ProjectID, in.ParentID, strings.TrimSpace(in.Title), in.Notes, in.Priority, in.Labels, in.DueDate, in.StartDate, in.EstimateMin, in.ActualMin, in.Energy, in.MilestoneID, in.BlockedReason, in.Recurrence, in.ReminderAt, in.Links, backlog, in.Position)
+	myDay := 0
+	if in.MyDay {
+		myDay = 1
+	}
+	res, err := m.db.Exec(`INSERT INTO discipline_tasks (project_id, parent_id, title, notes, priority, labels, due_date, start_date, estimate_minutes, actual_minutes, energy, milestone_id, blocked_reason, recurrence, reminder_at, links, backlog, position, my_day, scheduled_at, waiting_for, evidence, focus_profile_id)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, in.ProjectID, in.ParentID, strings.TrimSpace(in.Title), in.Notes, in.Priority, in.Labels, in.DueDate, in.StartDate, in.EstimateMin, in.ActualMin, in.Energy, in.MilestoneID, in.BlockedReason, in.Recurrence, in.ReminderAt, in.Links, backlog, in.Position, myDay, in.ScheduledAt, in.WaitingFor, in.Evidence, in.FocusProfileID)
 	if err != nil {
 		return 0, err
 	}
@@ -763,25 +887,31 @@ func (m *Manager) CreateTask(in TaskInput) (int64, error) {
 
 // TaskPatch carries optional task field updates.
 type TaskPatch struct {
-	Title         *string `json:"title"`
-	Notes         *string `json:"notes"`
-	Status        *string `json:"status"`
-	Priority      *string `json:"priority"`
-	Size          *string `json:"size"`
-	Labels        *string `json:"labels"`
-	DueDate       *string `json:"due_date"`
-	StartDate     *string `json:"start_date"`
-	EstimateMin   *int    `json:"estimate_minutes"`
-	ActualMin     *int    `json:"actual_minutes"`
-	Energy        *string `json:"energy"`
-	MilestoneID   *int64  `json:"milestone_id"`
-	BlockedReason *string `json:"blocked_reason"`
-	Recurrence    *string `json:"recurrence"`
-	ReminderAt    *string `json:"reminder_at"`
-	Links         *string `json:"links"`
-	Backlog       *bool   `json:"backlog"`
-	Archived      *bool   `json:"archived"`
-	Position      *int    `json:"position"`
+	ProjectID      *int64  `json:"project_id"`
+	Title          *string `json:"title"`
+	Notes          *string `json:"notes"`
+	Status         *string `json:"status"`
+	Priority       *string `json:"priority"`
+	Size           *string `json:"size"`
+	Labels         *string `json:"labels"`
+	DueDate        *string `json:"due_date"`
+	StartDate      *string `json:"start_date"`
+	EstimateMin    *int    `json:"estimate_minutes"`
+	ActualMin      *int    `json:"actual_minutes"`
+	Energy         *string `json:"energy"`
+	MilestoneID    *int64  `json:"milestone_id"`
+	BlockedReason  *string `json:"blocked_reason"`
+	Recurrence     *string `json:"recurrence"`
+	ReminderAt     *string `json:"reminder_at"`
+	Links          *string `json:"links"`
+	Backlog        *bool   `json:"backlog"`
+	Archived       *bool   `json:"archived"`
+	Position       *int    `json:"position"`
+	MyDay          *bool   `json:"my_day"`
+	ScheduledAt    *string `json:"scheduled_at"`
+	WaitingFor     *string `json:"waiting_for"`
+	Evidence       *string `json:"evidence"`
+	FocusProfileID *int64  `json:"focus_profile_id"`
 }
 
 // UpdateTask applies a partial update. Returns the updated task and whether it
@@ -793,6 +923,9 @@ func (m *Manager) UpdateTask(id int64, p TaskPatch) (Task, bool, error) {
 	}
 	oldStatus := cur.Status
 	oldPriority := cur.Priority
+	if p.ProjectID != nil {
+		cur.ProjectID = *p.ProjectID
+	}
 
 	if p.Title != nil {
 		cur.Title = *p.Title
@@ -848,6 +981,21 @@ func (m *Manager) UpdateTask(id int64, p TaskPatch) (Task, bool, error) {
 	if p.Position != nil {
 		cur.Position = *p.Position
 	}
+	if p.MyDay != nil {
+		cur.MyDay = *p.MyDay
+	}
+	if p.ScheduledAt != nil {
+		cur.ScheduledAt = *p.ScheduledAt
+	}
+	if p.WaitingFor != nil {
+		cur.WaitingFor = *p.WaitingFor
+	}
+	if p.Evidence != nil {
+		cur.Evidence = *p.Evidence
+	}
+	if p.FocusProfileID != nil {
+		cur.FocusProfileID = *p.FocusProfileID
+	}
 
 	completedNow := false
 	if p.Status != nil {
@@ -866,15 +1014,18 @@ func (m *Manager) UpdateTask(id int64, p TaskPatch) (Task, bool, error) {
 	if cur.Done {
 		done = 1
 	}
-	backlog, archived := 0, 0
+	backlog, archived, myDay := 0, 0, 0
 	if cur.Backlog {
 		backlog = 1
 	}
 	if cur.Archived {
 		archived = 1
 	}
-	_, err = m.db.Exec(`UPDATE discipline_tasks SET title=?, notes=?, status=?, priority=?, size=?, labels=?, due_date=?, done=?, completed_at=?, start_date=?, estimate_minutes=?, actual_minutes=?, energy=?, milestone_id=?, blocked_reason=?, recurrence=?, reminder_at=?, links=?, backlog=?, archived=?, position=? WHERE id=?`,
-		cur.Title, cur.Notes, cur.Status, cur.Priority, cur.Size, cur.Labels, cur.DueDate, done, cur.CompletedAt, cur.StartDate, cur.EstimateMin, cur.ActualMin, cur.Energy, cur.MilestoneID, cur.BlockedReason, cur.Recurrence, cur.ReminderAt, cur.Links, backlog, archived, cur.Position, cur.ID)
+	if cur.MyDay {
+		myDay = 1
+	}
+	_, err = m.db.Exec(`UPDATE discipline_tasks SET project_id=?, title=?, notes=?, status=?, priority=?, size=?, labels=?, due_date=?, done=?, completed_at=?, start_date=?, estimate_minutes=?, actual_minutes=?, energy=?, milestone_id=?, blocked_reason=?, recurrence=?, reminder_at=?, links=?, backlog=?, archived=?, position=?, my_day=?, scheduled_at=?, waiting_for=?, evidence=?, focus_profile_id=? WHERE id=?`,
+		cur.ProjectID, cur.Title, cur.Notes, cur.Status, cur.Priority, cur.Size, cur.Labels, cur.DueDate, done, cur.CompletedAt, cur.StartDate, cur.EstimateMin, cur.ActualMin, cur.Energy, cur.MilestoneID, cur.BlockedReason, cur.Recurrence, cur.ReminderAt, cur.Links, backlog, archived, cur.Position, myDay, cur.ScheduledAt, cur.WaitingFor, cur.Evidence, cur.FocusProfileID, cur.ID)
 	if err != nil {
 		return Task{}, false, err
 	}
@@ -917,6 +1068,7 @@ func (m *Manager) createNextRecurringTask(t Task) {
 		Priority: t.Priority, Labels: t.Labels, DueDate: nextDate(t.DueDate), StartDate: nextDate(t.StartDate),
 		EstimateMin: t.EstimateMin, Energy: t.Energy, MilestoneID: t.MilestoneID,
 		Recurrence: t.Recurrence, Links: t.Links, Position: t.Position,
+		ScheduledAt: t.ScheduledAt, WaitingFor: t.WaitingFor, FocusProfileID: t.FocusProfileID,
 	})
 }
 
@@ -939,14 +1091,14 @@ func (m *Manager) emitTaskEvents(t Task, oldStatus, oldPriority string, complete
 	if p.Priority != nil && t.Priority != oldPriority {
 		m.LogEvent("priority_changed", t.ProjectID, t.ID)
 	}
-	if p.Title != nil || p.Notes != nil || p.Size != nil || p.Labels != nil || p.DueDate != nil || p.StartDate != nil || p.EstimateMin != nil || p.ActualMin != nil || p.MilestoneID != nil || p.BlockedReason != nil || p.Backlog != nil || p.Archived != nil {
+	if p.ProjectID != nil || p.Title != nil || p.Notes != nil || p.Size != nil || p.Labels != nil || p.DueDate != nil || p.StartDate != nil || p.EstimateMin != nil || p.ActualMin != nil || p.MilestoneID != nil || p.BlockedReason != nil || p.Backlog != nil || p.Archived != nil || p.MyDay != nil || p.ScheduledAt != nil || p.WaitingFor != nil || p.Evidence != nil || p.FocusProfileID != nil {
 		m.LogEvent("task_updated", t.ProjectID, t.ID)
 	}
 }
 
 func (m *Manager) getTask(id int64) (Task, error) {
 	rows, err := m.db.Query(`SELECT id, project_id, title, notes, status, priority, labels, due_date, done, created_at, completed_at, size, parent_id,
-		start_date, estimate_minutes, actual_minutes, energy, milestone_id, blocked_reason, recurrence, reminder_at, links, backlog, archived, position
+		start_date, estimate_minutes, actual_minutes, energy, milestone_id, blocked_reason, recurrence, reminder_at, links, backlog, archived, position, my_day, scheduled_at, waiting_for, evidence, focus_profile_id
 		FROM discipline_tasks WHERE id = ?`, id)
 	if err != nil {
 		return Task{}, err

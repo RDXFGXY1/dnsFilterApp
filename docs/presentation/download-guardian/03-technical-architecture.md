@@ -15,7 +15,7 @@ flowchart LR
     R --> Q[File Quarantine Manager]
     DB --> API
     Q --> DB
-    API --> UI[C# WPF Desktop App]
+    API --> UI[C# Avalonia Desktop App]
     R --> NOTIFY[Windows Notification]
 ```
 
@@ -29,7 +29,7 @@ The Go service already owns filtering, APIs, the database, connection intelligen
 - reusable APIs for the desktop app and future interfaces;
 - clearer privilege boundaries.
 
-The C# WPF application should render state, request actions, and display notifications. It should not independently calculate a conflicting risk score.
+The C# Avalonia application should render state, request actions, and display notifications. It should not independently calculate a conflicting risk score.
 
 ## Proposed Go package layout
 

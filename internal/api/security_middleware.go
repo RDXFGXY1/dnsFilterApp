@@ -12,6 +12,7 @@ import (
 )
 
 const maxDashboardRequestBytes int64 = 6 << 20
+const maxPluginFileRequestBytes int64 = 52 << 20
 const cspNonceContextKey = "csp_nonce"
 
 func requestSizeMiddleware() gin.HandlerFunc {
@@ -20,14 +21,18 @@ func requestSizeMiddleware() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		if c.Request.ContentLength > maxDashboardRequestBytes {
+		limit := maxDashboardRequestBytes
+		if strings.HasPrefix(c.Request.URL.Path, "/api/plugins/") && strings.HasSuffix(c.Request.URL.Path, "/file") {
+			limit = maxPluginFileRequestBytes
+		}
+		if c.Request.ContentLength > limit {
 			c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge, gin.H{
 				"error": "Request body is too large",
 				"code":  "request_too_large",
 			})
 			return
 		}
-		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxDashboardRequestBytes)
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, limit)
 		c.Next()
 	}
 }
@@ -102,7 +107,7 @@ func contentSecurityPolicy(nonce string) string {
 		"style-src 'self'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; " +
 		"img-src 'self' data:; font-src 'self' data:; connect-src 'self'; " +
 		"object-src 'none'; media-src 'none'; worker-src 'none'; manifest-src 'none'; " +
-		"base-uri 'none'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'"
+		"base-uri 'none'; frame-src http://127.0.0.1:* http://localhost:*; frame-ancestors 'none'; form-action 'self'"
 }
 
 func requiresCSRF(method, path string) bool {

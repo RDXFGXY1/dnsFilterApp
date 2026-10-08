@@ -1,285 +1,193 @@
-# DNS Content Filter
+# DNS Filter
 
-A high-performance DNS-based content filtering application built in Go. Blocks inappropriate websites at the DNS level, running as a background service with a web-based management dashboard.
+DNS Filter is a local-first DNS protection, network-control, analytics, and
+productivity application. A privileged Go service provides DNS filtering and a
+local API; the same service hosts the web dashboard, while an Avalonia desktop
+client provides a native interface on Windows and Linux.
 
-## Features
+## Supported systems
 
-- 🚀 **High-Performance DNS Server** - Built with Go for speed and efficiency
-- 🛡️ **Content Filtering** - Block adult/inappropriate websites at DNS level
-- 🎯 **Category-Based Blocking** - Predefined and custom blocklists
-- ⚙️ **Web Dashboard** - Easy-to-use management interface
-- 📊 **Analytics & Logging** - Track blocked requests and statistics
-- ⏰ **Schedule-Based Filtering** - Time-based blocking rules
-- 🔐 **Whitelist Management** - Allow specific trusted sites
-- 🌐 **Multi-Device Support** - Works for entire network
-- 💾 **SQLite Database** - Lightweight, no external dependencies
+| System | Status | Package and service |
+|---|---|---|
+| Windows 11 x64 | Validated development platform | Portable package, Windows background startup, Avalonia desktop |
+| Arch Linux / Arch-based x64 | Build verified; real-machine validation pending | Arch archive, `systemd`, Avalonia desktop, `nftables` and cgroup v2 |
+| Arch Linux / Arch-based ARM64 | Build target available; real-machine validation pending | Arch ARM64 archive and `systemd` |
+| Other Linux distributions and macOS | Not officially supported in this phase | Core code may compile, but installation and native security controls are not supported |
 
-## Project Structure
+Read the complete installation guide: [INSTALL-WINDOWS-LINUX.md](INSTALL-WINDOWS-LINUX.md).
 
-```
-dns-filter-app/
-├── cmd/
-│   ├── server/          # Main DNS server application
-│   └── cli/             # Command-line management tool
-├── internal/
-│   ├── dns/             # DNS server logic
-│   ├── filter/          # Filtering engine
-│   ├── database/        # Database operations
-│   ├── api/             # REST API handlers
-│   └── config/          # Configuration management
-├── web/
-│   ├── static/          # CSS, JS, images
-│   └── templates/       # HTML templates
-├── pkg/
-│   ├── blocklist/       # Blocklist management
-│   └── logger/          # Logging utilities
-├── configs/             # Configuration files
-├── scripts/             # Build and deployment scripts
-├── data/                # Database and blocklists
-└── docs/                # Guides, feature documentation, and update notes
-```
+## Main features
 
-## Quick Start
+- DNS filtering with categories, keywords, direct block rules, wildcard
+  exceptions, schedules, and encrypted upstream DNS.
+- Live activity, analytics, decision explanations, connection intelligence, and
+  locally stored logs.
+- Security Center, Secure Vault, encrypted backups, recovery credentials,
+  emergency lockdown, signed security packs, Download Guardian, and Hard System.
+- Connection Freeze on Windows and Arch Linux.
+- Per-application network control and quarantine through Windows Firewall or
+  Linux cgroup v2 plus `nftables`.
+- Plugin Center with API-only plugins, managed local runtimes, native controls,
+  sandboxed local web views, and the TinyPrinter integration.
+- Discipline workspace with goals, projects, nested tasks, focus sessions,
+  opt-in activity logging, Daily Journal, habits, reminders, analytics, and the
+  Intelligence Inbox.
+- Dark Avalonia desktop application and a full local web dashboard.
 
-### Prerequisites
+## Architecture
 
-- Go 1.21 or higher
-- Admin/root privileges (for DNS port 53)
+1. The Go service listens on DNS port `53`, hosts the local dashboard/API on
+   `127.0.0.1:8080`, evaluates policy, and stores local state in SQLite.
+2. The Avalonia desktop application connects to that local API. Closing the
+   desktop window does not stop DNS protection.
+3. Windows native controls use Windows Firewall/WFP. Arch native controls use
+   private `nftables` tables and cgroup v2.
 
-### Installation
+The application is local-first. Some optional features, such as configured AI
+providers or third-party plugins, can contact services chosen by the user.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/RDXFGXY1/dnsFilterApp/main/setup.sh | sudo bash
+## Windows quick start
 
-# Or Clone the repository and Install it manually
+Requirements for building: Go, .NET 8 SDK, and Windows PowerShell.
+
+```powershell
 git clone https://github.com/RDXFGXY1/dnsFilterApp.git
-cd dns-filter-app
-
-# Build the application
-go build -o dns-filter ./cmd/server
+cd dnsFilterApp
+powershell -ExecutionPolicy Bypass -File .\scripts\build-portable.ps1
 ```
 
-### Configuration
+The build creates `dist\dns-filter-portable` and a versioned ZIP. Open the
+portable folder and run **Install or Update DNS Filter.bat** as Administrator.
+Then open `desktop\DNSFilter.exe` or visit `http://127.0.0.1:8080`.
 
-Edit `configs/config.yaml`:
+For repository development without creating a portable ZIP:
 
-```yaml
-server:
-  dns_port: 53
-  api_port: 8080
-  upstream_dns:
-    - "https://1.1.1.1/dns-query" # DNS-over-HTTPS
-    - "tls://1.1.1.1:853"         # DNS-over-TLS
-
-advanced:
-  secure_dns_only: true
-  upstream_timeout_seconds: 5
-
-filtering:
-  enabled: true
-  block_categories:
-    - adult
-    - malware
-    - gambling
-
-database:
-  path: "./data/dns-filter.db"
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\dev-server.ps1
 ```
 
-### Signed security packs
+## Arch Linux quick start
 
-Security packs are verified with Ed25519 before installation and rechecked at
-startup. Generate a local publisher key and sign a newline-separated domain
-file with:
+Requirements for building: Go, .NET 8 SDK, `bash`, and standard archive tools.
 
 ```bash
-go run ./cmd/security-pack keygen -id local -out-dir ./data/security-pack-keys
-go run ./cmd/security-pack sign -key-id local -private ./data/security-pack-keys/local.private -id local-threats -name "Local Threats" -category malware -domains domains.txt -out local-threats.json
+git clone https://github.com/RDXFGXY1/dnsFilterApp.git
+cd dnsFilterApp
+chmod +x scripts/build-arch.sh
+./scripts/build-arch.sh x64
+cd dist
+tar -xzf dns-filter-arch-x64.tar.gz
+cd dns-filter-linux-x64
+sudo ./install-arch.sh
 ```
 
-Add the contents of `local.public` as a trusted publisher key in the Blocklists
-screen, then verify and install `local-threats.json`. Never share the private key.
+The installer verifies Arch, installs runtime dependencies, installs the service
+under `/opt/dns-filter`, enables `dns-filter.service`, waits for the health check,
+and then routes system DNS through the local filter.
 
-### Web Dashboard
+Run diagnostics after installation:
 
-Access the dashboard at: `http://localhost:8080`
-
-Default credentials:
-- Username: `admin`
-- Password: `changeme` (please change on first login)
-
-## Usage
-
-### Running as Background Service
-
-#### Linux (systemd)
 ```bash
-sudo cp scripts/dns-filter.service /etc/systemd/system/
-sudo systemctl enable dns-filter
-sudo systemctl start dns-filter
+sudo /opt/dns-filter/arch-diagnostics.sh
 ```
 
-#### Windows
+Open **DNS Filter** from the application menu, run
+`/opt/dns-filter/desktop/DNSFilter`, or visit `http://127.0.0.1:8080`.
+
+The first real-machine validation sequence is documented in
+[docs/ARCH-TEST-CHECKLIST.md](docs/ARCH-TEST-CHECKLIST.md).
+
+## First-run setup
+
+There is no default username or password. On first launch, the local setup page
+requires you to:
+
+1. Create an administrator username and strong password.
+2. Create or reuse that password for the Secure Vault.
+3. Choose the Vault auto-lock time.
+4. Save the separate one-time account recovery key and Vault recovery code.
+
+The setup route is loopback-only and closes after setup succeeds. Store both
+recovery credentials offline; they protect different layers and cannot be shown
+again.
+
+## Everyday operation
+
+- Dashboard: `http://127.0.0.1:8080`
+- Local health: `http://127.0.0.1:8080/healthz`
+- Enable system DNS routing: `dns-filter setup-dns`
+- Restore automatic DNS: `dns-filter reset-dns`
+- Release all per-app network rules: `dns-filter reset-app-network`
+
+On Windows, run privileged maintenance commands from an Administrator PowerShell.
+On Arch, use `sudo /opt/dns-filter/dns-filter <command>`.
+
+## Updating and removing
+
+Windows:
+
+- Run **Install or Update DNS Filter.bat** from the new package.
+- Run **Uninstall DNS Filter.bat** to remove it.
+- Updates and normal uninstall preserve configuration and local data by default.
+
+Arch:
+
 ```bash
-# Run as Windows Service
-./dns-filter install
-./dns-filter start
+sudo ./install-arch.sh          # install or update
+sudo ./uninstall-arch.sh        # uninstall and preserve local data
+sudo ./uninstall-arch.sh --purge
 ```
 
-#### macOS (launchd)
-```bash
-sudo cp scripts/com.dnsfilter.plist /Library/LaunchDaemons/
-sudo launchctl load /Library/LaunchDaemons/com.dnsfilter.plist
-```
+Arch updates create timestamped backups in `/var/lib/dns-filter-backups`.
+A normal uninstall preserves state in `/var/lib/dns-filter-preserved`; `--purge`
+removes preserved data and backups.
 
-### Setting as System DNS
-
-#### Automatic (recommended, cross-platform)
-
-The binary can point your system's DNS at the filter and undo it. Run from an
-elevated shell (Administrator on Windows, `sudo` on Linux/macOS):
+## Development and verification
 
 ```bash
-# Point system DNS at the local filter (127.0.0.1)
-./dns-filter setup-dns
-
-# Restore automatic (DHCP) DNS
-./dns-filter reset-dns
-```
-
-> On Windows PowerShell, call the binary by its path, e.g.
-> `.\build\dns-filter.exe setup-dns` (the name `dns-filter` only works if the
-> binary is on your PATH). You can also toggle this from the web dashboard's
-> **Middleman** button once the server is running as Administrator.
-
-It auto-detects the active network interface and uses the right mechanism per OS
-(`netsh` on Windows, `resolvectl`/`resolv.conf` on Linux, `networksetup` on macOS).
-
-#### Manual
-
-**Windows:**
-1. Control Panel → Network Connections
-2. Right-click your connection → Properties
-3. Select IPv4 → Properties
-4. Set DNS to: `127.0.0.1`
-
-**Linux:**
-```bash
-# Edit /etc/resolv.conf
-nameserver 127.0.0.1
-```
-
-**macOS:**
-1. System Preferences → Network
-2. Select connection → Advanced → DNS
-3. Add: `127.0.0.1`
-
-## Development
-
-### Building from Source
-
-```bash
-# Install dependencies
-go mod download
-
-# Run tests
 go test ./...
-
-# Build for current platform
-make build
-
-# Build for all platforms
-make build-all
+go run ./cmd/server -dev
 ```
 
-### Running in Development Mode
+Platform packages:
+
+```powershell
+# Windows
+powershell -ExecutionPolicy Bypass -File .\scripts\build-portable.ps1
+```
 
 ```bash
-# Run with auto-reload
-go run cmd/server/main.go --dev
+# Arch x64 or ARM64
+./scripts/build-arch.sh x64
+./scripts/build-arch.sh arm64
 ```
 
-### Adding Custom Blocklists
-
-```bash
-# Via CLI
-./dns-filter blocklist add --url "https://example.com/blocklist.txt"
-
-# Via API
-curl -X POST http://localhost:8080/api/blocklists \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com/blocklist.txt", "enabled": true}'
-```
-
-## API Documentation
-
-### Authentication
-The first launch opens `/setup` and requires creation of a local administrator
-and Secure Vault. The dashboard authenticates with a cryptographically random,
-HttpOnly, SameSite=Strict local session cookie. There is no shared default
-password and this release does not claim to use JWT or Bearer-token API access.
-
-Protected API calls must come from an authenticated local dashboard or desktop
-session. First-run setup is accepted only through the computer's loopback
-interface and closes after completion.
-
-### Endpoints
-
-- `GET /api/stats` - Get filtering statistics
-- `GET /api/recent` - List recently blocked domains
-- `POST /api/whitelist` - Add domain to whitelist
-- `DELETE /api/whitelist/:domain` - Remove from whitelist
-- `POST /api/blocklist/update` - Refresh configured blocklists
-- `GET /api/system/info` - Read local service and DNS information
-
-Feature and usage documentation: [docs/README.md](docs/README.md)
-
-## Security Considerations
-
-- Use the first-run wizard to create unique administrator and Vault passwords
-- Save the two one-time recovery credentials separately and offline
-- Keep the dashboard bound to loopback unless HTTPS and access controls are configured
-- Regularly update blocklists
-- Monitor logs for unusual activity
+Do not commit or publish active `configs/` or `data/` directories. They can
+contain password hashes, Vault state, recovery data, plugin configuration, and
+local browsing/activity history.
 
 ## Documentation
 
+- [Windows and Arch installation guide](INSTALL-WINDOWS-LINUX.md)
 - [Documentation index](docs/README.md)
+- [Arch test checklist](docs/ARCH-TEST-CHECKLIST.md)
+- [Development mode](docs/DEVELOPMENT-MODE.md)
+- [Plugin SDK](docs/PLUGIN-SDK.md)
 - [Feature documentation](docs/features/README.md)
-- [Updates and release notes](docs/updates/README.md)
+- [Unreleased changes](releases/UNRELEASED.md)
 
-## Contributing
+## Important limitations
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+- DNS Filter improves policy control and visibility but does not replace an
+  antivirus product, operating-system updates, a firewall strategy, or a VPN.
+- DNS filtering sees domain lookups, not the full contents of encrypted traffic.
+- Browser Secure DNS can bypass system DNS unless it is disabled or configured to
+  use the local filter.
+- Arch App Network Control is new and must be validated on real hardware. Test it
+  with a non-critical application before relying on it.
 
-## License
+## License and support
 
-MIT License - see [LICENSE](LICENSE) file for details
-
-## Support
-
-- Documentation: [docs/README.md](docs/README.md)
-- Issues: GitHub Issues
-- Discussions: GitHub Discussions
-
-If you find a bug, encounter unexpected behavior, or have a feature request, please open an issue on GitHub so we can track and address it:
-
-- **Report an issue:** https://github.com/RDXFGXY1/dnsFilterApp/issues
-
-When opening an issue, include as much of the following as possible:
-- **Description:** what you expected vs what happened
-- **Steps to reproduce:** exact commands or actions
-- **Environment:** OS, Go version, installation method (setup.sh or manual)
-- **Logs / error output:** relevant log lines or stack traces
-
-This helps maintainers triage and fix problems faster. Thank you for contributing!
-
-## Roadmap
-
-- [x] DNS-over-HTTPS (DoH) support
-- [x] DNS-over-TLS (DoT) support
-- [ ] Machine learning-based filtering
-- [ ] Mobile app for remote management
-- [ ] Multi-user support with profiles
-- [ ] Cloud sync for settings
-- [ ] Advanced analytics dashboard
+See [LICENSE](LICENSE). Report reproducible problems through
+[GitHub Issues](https://github.com/RDXFGXY1/dnsFilterApp/issues) and include the
+operating system, installation method, steps, and relevant sanitized logs.

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "org.nullstudio.tinyprinter",
+  "name": "TinyPrinter Studio",
+  "version": "1.1.0",
+  "description": "A complete local workspace for connecting, previewing, printing files, formulas, and study sheets.",
+  "publisher": "NullStudio",
+  "icon": "printer",
+  "ui": {"mode":"both","default_view":"web","web_path":"/"},
+  "server": {
+    "base_url": "http://127.0.0.1:8765",
+    "health_endpoint": "/api/status",
+    "start_mode": "on_demand",
+    "runtime": {
+      "windows": {"executable":"C:\\Users\\ayoub\\Documents\\MiniPrinter\\TiMini-Print\\venv\\Scripts\\python.exe","args":["timiniprint_web.py","--no-browser"],"working_directory":"C:\\Users\\ayoub\\Documents\\MiniPrinter\\TiMini-Print"},
+      "startup_timeout_seconds": 30,
+      "shutdown_timeout_seconds": 10
+    }
+  },
+  "permissions": ["printer.status","printer.discovery","printer.connection","printer.print","printer.preview","printer.export","printer.paper-control"],
+  "panels": [
+    {"id":"bluetooth","title":"Bluetooth connection","description":"Discover and connect to a nearby supported printer.","actions":["scan","connect","disconnect"]},
+    {"id":"serial","title":"Serial connection","description":"Review serial options and connect using a port and printer model.","actions":["serial-options","serial-connect"]},
+    {"id":"text","title":"Text printing","description":"Print wrapped text with configurable darkness.","actions":["print-text"]},
+    {"id":"files","title":"File printing","description":"Print PNG, JPG, GIF, BMP, PDF, or TXT files up to 50 MB.","actions":["print-file"]},
+    {"id":"math","title":"Math & LaTeX","description":"Preview and print typeset mathematical formulas.","actions":["latex-preview","print-latex"]},
+    {"id":"study","title":"Study sheets","description":"Build, preview, export, and print notes, formulas, flashcards, and QR links.","actions":["study-preview","study-export-png","study-export-pdf","print-study"]},
+    {"id":"paper","title":"Printer tools","description":"Move paper and print darkness calibration samples.","actions":["feed","retract","calibration"]}
+  ],
+  "actions": [
+    {"id":"scan","label":"Scan for printers","description":"Discover supported Bluetooth printers.","method":"POST","path":"/api/scan","permission":"printer.discovery","timeout_seconds":60},
+    {"id":"connect","label":"Connect Bluetooth","method":"POST","path":"/api/connect","permission":"printer.connection","timeout_seconds":45,"fields":[{"id":"device_id","label":"Device number","type":"number","required":true,"default":0}]},
+    {"id":"disconnect","label":"Disconnect","method":"POST","path":"/api/disconnect","permission":"printer.connection","confirm":"Disconnect the current printer?"},
+    {"id":"serial-options","label":"Load serial options","description":"List available COM ports and supported model keys.","method":"GET","path":"/api/serial/options","permission":"printer.status"},
+    {"id":"serial-connect","label":"Connect serial printer","method":"POST","path":"/api/serial/connect","permission":"printer.connection","timeout_seconds":45,"fields":[{"id":"path","label":"Port","type":"text","required":true,"placeholder":"COM4"},{"id":"model_key","label":"Printer model key","type":"text","required":true,"placeholder":"luck_a2"},{"id":"baud_rate","label":"Baud rate","type":"number","required":true,"default":115200}]},
+    {"id":"print-text","label":"Print text","method":"POST","path":"/api/print/text","permission":"printer.print","timeout_seconds":60,"confirm":"Send this text to the connected printer?","fields":[{"id":"text","label":"Text","type":"textarea","required":true,"placeholder":"Write something to print…"},{"id":"settings.blackening","label":"Darkness","type":"select","default":3,"options":[{"label":"1 · Light","value":1},{"label":"2","value":2},{"label":"3 · Balanced","value":3},{"label":"4","value":4},{"label":"5 · Dark","value":5}]},{"id":"settings.text_wrap","label":"Wrap text","type":"checkbox","default":true}]},
+    {"id":"print-file","label":"Print file","description":"Upload an image, PDF, or text document.","method":"POST","path":"/api/print/file","permission":"printer.print","timeout_seconds":120,"body_type":"binary","binary":{"file_field":"file","filename_header":"X-Filename","metadata_header":"X-Print-Settings","metadata_root":"settings","max_bytes":52428800},"confirm":"Print this file now?","fields":[{"id":"file","label":"File","type":"file","required":true,"accept":".png,.jpg,.jpeg,.gif,.bmp,.pdf,.txt"},{"id":"settings.blackening","label":"Darkness","type":"select","default":4,"options":[{"label":"1 · Light","value":1},{"label":"2","value":2},{"label":"3","value":3},{"label":"4","value":4},{"label":"5 · Dark","value":5}]},{"id":"settings.image_mode","label":"Image mode","type":"select","default":"threshold","options":[{"label":"Threshold","value":"threshold"},{"label":"Grayscale","value":"grayscale"},{"label":"Atkinson","value":"atkinson"},{"label":"Floyd–Steinberg","value":"floyd_steinberg"},{"label":"Bayer 4","value":"bayer_4"},{"label":"Bayer 8","value":"bayer_8"}]},{"id":"settings.rotate_90_clockwise","label":"Rotate 90° clockwise","type":"checkbox","default":false},{"id":"settings.trim_side_margins","label":"Trim side margins","type":"checkbox","default":true},{"id":"settings.trim_top_bottom_margins","label":"Trim top and bottom margins","type":"checkbox","default":true},{"id":"settings.pdf_pages","label":"PDF pages","type":"text","placeholder":"1-3,5"},{"id":"settings.page_gap_mm","label":"Page gap (mm)","type":"number","default":5}]},
+    {"id":"latex-preview","label":"Preview formula","method":"POST","path":"/api/latex/preview","permission":"printer.preview","response_type":"image","timeout_seconds":90,"fields":[{"id":"latex","label":"LaTeX","type":"textarea","required":true,"placeholder":"x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}"}]},
+    {"id":"print-latex","label":"Print LaTeX","method":"POST","path":"/api/print/latex","permission":"printer.print","timeout_seconds":90,"confirm":"Render and print this formula?","fields":[{"id":"latex","label":"LaTeX","type":"textarea","required":true,"placeholder":"E = mc^2"},{"id":"settings.blackening","label":"Darkness","type":"select","default":4,"options":[{"label":"1","value":1},{"label":"2","value":2},{"label":"3","value":3},{"label":"4","value":4},{"label":"5","value":5}]}]},
+    {"id":"study-preview","label":"Preview study sheet","method":"POST","path":"/api/study/preview","permission":"printer.preview","response_type":"image","timeout_seconds":90,"fields":[{"id":"title","label":"Title","type":"text"},{"id":"notes","label":"Notes","type":"textarea"},{"id":"formulas","label":"Formulas","type":"textarea"},{"id":"cards","label":"Flashcards (question | answer)","type":"textarea","transform":"cards_lines"},{"id":"qr_url","label":"QR URL","type":"url","placeholder":"https://example.com/lesson"}]},
+    {"id":"study-export-png","label":"Export PNG","method":"POST","path":"/api/study/export","permission":"printer.export","response_type":"download","timeout_seconds":90,"fields":[{"id":"title","label":"Title","type":"text"},{"id":"notes","label":"Notes","type":"textarea"},{"id":"formulas","label":"Formulas","type":"textarea"},{"id":"cards","label":"Flashcards (question | answer)","type":"textarea","transform":"cards_lines"},{"id":"qr_url","label":"QR URL","type":"url"},{"id":"format","label":"Format","type":"select","default":"png","options":[{"label":"PNG","value":"png"}]}]},
+    {"id":"study-export-pdf","label":"Export PDF","method":"POST","path":"/api/study/export","permission":"printer.export","response_type":"download","timeout_seconds":90,"fields":[{"id":"title","label":"Title","type":"text"},{"id":"notes","label":"Notes","type":"textarea"},{"id":"formulas","label":"Formulas","type":"textarea"},{"id":"cards","label":"Flashcards (question | answer)","type":"textarea","transform":"cards_lines"},{"id":"qr_url","label":"QR URL","type":"url"},{"id":"format","label":"Format","type":"select","default":"pdf","options":[{"label":"PDF","value":"pdf"}]}]},
+    {"id":"print-study","label":"Print study sheet","method":"POST","path":"/api/print/study","permission":"printer.print","timeout_seconds":120,"confirm":"Render and print this study sheet?","fields":[{"id":"title","label":"Title","type":"text"},{"id":"notes","label":"Notes","type":"textarea"},{"id":"formulas","label":"Formulas","type":"textarea"},{"id":"cards","label":"Flashcards (question | answer)","type":"textarea","transform":"cards_lines"},{"id":"qr_url","label":"QR URL","type":"url"},{"id":"settings.blackening","label":"Darkness","type":"select","default":5,"options":[{"label":"1","value":1},{"label":"2","value":2},{"label":"3","value":3},{"label":"4","value":4},{"label":"5","value":5}]}]},
+    {"id":"calibration","label":"Print calibration","method":"POST","path":"/api/print/calibration","permission":"printer.print","timeout_seconds":120,"confirm":"Print all five darkness samples?"},
+    {"id":"feed","label":"Feed paper","method":"POST","path":"/api/feed","permission":"printer.paper-control"},
+    {"id":"retract","label":"Retract paper","method":"POST","path":"/api/retract","permission":"printer.paper-control"}
+  ]
+}
