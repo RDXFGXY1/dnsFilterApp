@@ -40,6 +40,14 @@ Inspect the private rules only:
 sudo nft list table inet dnsfilter_freeze
 ```
 
+The last rule in the `output` chain must contain both `counter drop` and the
+comment `dns-filter-connection-freeze`. If the dashboard reports an error, run:
+
+```bash
+sudo /opt/dns-filter/arch-diagnostics.sh
+journalctl -u dns-filter.service -n 100 --no-pager
+```
+
 ## 4. Test App Network Control
 
 1. Choose a non-critical graphical application such as Spotify, Discord, Firefox,

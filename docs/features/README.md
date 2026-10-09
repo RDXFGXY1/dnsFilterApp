@@ -42,4 +42,4 @@ Create one Markdown file per feature and add it to this index. A feature documen
 4. Its security or privacy guarantees.
 5. Its limitations and recovery procedure.
 
-Release-specific summaries belong in [`../updates`](../updates/README.md).
+Release-specific summaries belong in [`../releases`](../releases/README.md).

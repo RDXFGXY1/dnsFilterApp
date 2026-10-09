@@ -406,7 +406,7 @@ database:
 ## Advanced Usage
 
 For advanced topics, see:
-- [Installation and platform guide](../INSTALL-WINDOWS-LINUX.md)
+- [Installation and platform guide](installation/README.md)
 - [Development mode](DEVELOPMENT-MODE.md)
 - [Feature documentation](features/README.md)
 - [Plugin SDK and API contract](PLUGIN-SDK.md)

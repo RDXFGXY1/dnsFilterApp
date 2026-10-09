@@ -50,11 +50,20 @@ add rule inet dnsfilter_freeze output ip protocol icmp accept
 add rule inet dnsfilter_freeze output meta l4proto ipv6-icmp accept
 add rule inet dnsfilter_freeze output udp dport { 53, 67, 68, 546, 547 } accept
 add rule inet dnsfilter_freeze output tcp dport { 53, 853 } accept
-add rule inet dnsfilter_freeze output ct state new counter drop comment "dns-filter-connection-freeze"
+add rule inet dnsfilter_freeze output counter drop comment "dns-filter-connection-freeze"
 `
 	if err := runNftScript(script); err != nil {
 		_ = runNftCommand("delete", "table", "inet", linuxFreezeTable)
 		return nil, err
+	}
+	// Do not report an active freeze unless the kernel can list the installed
+	// tagged drop rule. This catches partial/unsupported nftables transactions.
+	if _, found, err := linuxDropCounter(); err != nil || !found {
+		_ = runNftCommand("delete", "table", "inet", linuxFreezeTable)
+		if err != nil {
+			return nil, fmt.Errorf("verify Connection Freeze rule: %w", err)
+		}
+		return nil, fmt.Errorf("verify Connection Freeze rule: tagged drop rule was not installed")
 	}
 	return &linuxBackend{}, nil
 }
@@ -125,17 +134,29 @@ func (b *linuxBackend) Events() ([]Event, error) {
 }
 
 func linuxDropPackets() (uint64, error) {
+	packets, found, err := linuxDropCounter()
+	if err != nil {
+		return 0, err
+	}
+	if !found {
+		return 0, fmt.Errorf("nftables connection log: tagged drop rule is missing")
+	}
+	return packets, nil
+}
+
+func linuxDropCounter() (uint64, bool, error) {
 	out, err := exec.Command(nftBinary, "-j", "list", "chain", "inet", linuxFreezeTable, "output").CombinedOutput()
 	if err != nil {
-		return 0, fmt.Errorf("nftables connection log: %s", strings.TrimSpace(string(out)))
+		return 0, false, fmt.Errorf("nftables connection log: %s", strings.TrimSpace(string(out)))
 	}
 	var document struct {
 		Nftables []json.RawMessage `json:"nftables"`
 	}
 	if err := json.NewDecoder(bytes.NewReader(out)).Decode(&document); err != nil {
-		return 0, fmt.Errorf("decode nftables counters: %w", err)
+		return 0, false, fmt.Errorf("decode nftables counters: %w", err)
 	}
 	var total uint64
+	found := false
 	for _, item := range document.Nftables {
 		var wrapped struct {
 			Rule struct {
@@ -146,6 +167,7 @@ func linuxDropPackets() (uint64, error) {
 		if json.Unmarshal(item, &wrapped) != nil || wrapped.Rule.Comment != "dns-filter-connection-freeze" {
 			continue
 		}
+		found = true
 		for _, expression := range wrapped.Rule.Expr {
 			var counter struct {
 				Counter *struct {
@@ -157,5 +179,5 @@ func linuxDropPackets() (uint64, error) {
 			}
 		}
 	}
-	return total, nil
+	return total, found, nil
 }

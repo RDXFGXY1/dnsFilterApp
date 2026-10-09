@@ -42,13 +42,14 @@ Format
 - Added a repository-based development runner that rebuilds and restarts the local server without creating a portable package.
 - Runtime configuration, Vault data, databases, logs, and machine approval state are excluded from release source packages.
 - Fresh packages receive a sanitized configuration template instead of the developer's local configuration.
-- Continuous integration verifies Go on Linux and Windows, builds the WPF desktop, and checks JavaScript syntax.
+- Continuous integration verifies Go on Linux and Windows, builds the Avalonia desktop, and checks JavaScript syntax.
 - Windows portable releases include a health-checked installer/updater with automatic executable and web-asset rollback.
 - Windows releases include a scoped uninstaller that restores automatic DNS and removes only DNS Filter-owned firewall, startup, service, and certificate resources.
 - Windows installation registers the DNS service independently of the GUI at boot and retries it after unexpected exits.
 
 ## Fixed
 
+- Arch Connection Freeze now drops every non-exempt outbound packet after established-flow and essential-service allowances, and reports active only after verifying the tagged nftables rule.
 - Applications can be allowed after their executable was moved or deleted because stored rule identity is used for removal.
 - Arch uninstall releases application network controls and restores DNS before removing the systemd service.
 - Clean Arch reinstall restores configuration and data preserved by a previous normal uninstall.

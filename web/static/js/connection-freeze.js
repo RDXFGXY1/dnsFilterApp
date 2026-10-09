@@ -15,7 +15,7 @@
             const r = await api('GET', '/connection-freeze');
             if (!r || r.error) throw new Error(r?.error || 'Cannot read Connection Freeze status');
             const s = r.status;
-            el('freeze-status').textContent = s.active ? (s.manual ? 'Active — until you stop it manually' : `Active — ends at ${new Date(s.until).toLocaleTimeString()}`) : (s.supported ? 'Off — new connections are allowed' : 'Available on Windows only');
+            el('freeze-status').textContent = s.active ? (s.manual ? 'Active — until you stop it manually' : `Active — ends at ${new Date(s.until).toLocaleTimeString()}`) : (s.supported ? 'Off — new connections are allowed' : 'Requires Windows or Linux with nftables');
             document.querySelector('.freeze-page').dataset.active = String(s.active);
             el('freeze-badge').textContent = s.active ? (s.manual ? 'Manual freeze' : 'Timed freeze') : 'Not active';
             el('freeze-error').textContent = s.error || '';

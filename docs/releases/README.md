@@ -1,15 +1,26 @@
-# Releases / Changelog
+# Releases and changelog
 
-This folder is used to track release notes, bug fixes, and new features for the project.
+This is the single home for release notes, bug fixes, and development updates.
+Do not create another changelog directory elsewhere in the repository.
 
 Guidelines
 - Add entries to `UNRELEASED.md` while you work on changes.
 - When you're ready to publish a release, copy relevant sections from `UNRELEASED.md` to a new file named `vX.Y.Z.md` (for example `v1.0.0.md`) and update the version header/date.
 - Keep each released file focused and small: list Added, Changed, Fixed, and Deprecated items.
+- Use `YYYY-MM-DD-short-title.md` for a dated development update that is not yet a versioned release.
 
 Files
 - `UNRELEASED.md` - Working area for ongoing changes.
 - `v1.0.0.md` - Example initial release notes (existing baseline).
+- `2026-10-09-arch-validation-and-docs.md` - Arch boot validation, Connection Freeze correction, and documentation reorganization.
+
+Historical updates
+- `2026-10-08-arch-linux-foundation.md`
+- `2026-09-privacy-security-suite.md`
+- `2026-09-25-classic-dark.md`
+- `2026-09-25-aurora-preview.md`
+- `2026-09-24-dns-routing.md`
+- `2026-09-24-connection-freeze.md`
 
 Semantic versioning
 - We recommend using semantic versioning: `MAJOR.MINOR.PATCH`.

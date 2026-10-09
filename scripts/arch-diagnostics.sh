@@ -22,7 +22,16 @@ else
 fi
 
 command -v systemctl >/dev/null 2>&1 && ok "systemd is available." || bad "systemd is missing."
-command -v nft >/dev/null 2>&1 && ok "nftables is available." || warn "nftables is missing; advanced network controls will be unavailable."
+if command -v nft >/dev/null 2>&1; then
+  ok "nftables is available."
+  if nft list tables >/dev/null 2>&1; then
+    ok "The service account can access the nftables ruleset."
+  else
+    bad "nftables is installed but the current account cannot access the ruleset; run diagnostics with sudo."
+  fi
+else
+  warn "nftables is missing; advanced network controls will be unavailable."
+fi
 [[ -r /sys/fs/cgroup/cgroup.controllers ]] && ok "Unified cgroup v2 is available." || warn "cgroup v2 is unavailable; per-application network control will be disabled."
 command -v curl >/dev/null 2>&1 && ok "curl is available." || bad "curl is missing."
 [[ -x "$INSTALL_DIR/dns-filter" ]] && ok "DNS Filter service binary is installed." || bad "Service binary is missing from $INSTALL_DIR."
@@ -31,6 +40,18 @@ command -v curl >/dev/null 2>&1 && ok "curl is available." || bad "curl is missi
 if command -v systemctl >/dev/null 2>&1; then
   systemctl is-enabled --quiet "$SERVICE" && ok "Service starts automatically at boot." || bad "Service is not enabled."
   systemctl is-active --quiet "$SERVICE" && ok "Service is running." || bad "Service is not running."
+  SERVICE_PID="$(systemctl show --property MainPID --value "$SERVICE" 2>/dev/null || true)"
+  if [[ "$SERVICE_PID" =~ ^[1-9][0-9]*$ ]] && [[ -r "/proc/$SERVICE_PID/status" ]]; then
+    grep -q '^NoNewPrivs:[[:space:]]*1' "/proc/$SERVICE_PID/status" && ok "Service hardening is active." || warn "Could not confirm NoNewPrivileges for the service."
+  fi
+fi
+
+if nft list table inet dnsfilter_freeze >/dev/null 2>&1; then
+  nft list chain inet dnsfilter_freeze output 2>/dev/null | grep -q 'dns-filter-connection-freeze' \
+    && ok "Connection Freeze has an active verified nftables rule." \
+    || bad "Connection Freeze table exists but its tagged drop rule is missing."
+else
+  ok "Connection Freeze is currently off; no stale private table exists."
 fi
 
 if command -v curl >/dev/null 2>&1; then

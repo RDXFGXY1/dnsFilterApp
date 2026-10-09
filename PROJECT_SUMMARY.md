@@ -133,8 +133,9 @@ Login:
 
 | Document | Description |
 |----------|-------------|
-| [QUICKSTART.md](docs/QUICKSTART.md) | Get running in 5 minutes |
-| [INSTALLATION.md](docs/INSTALLATION.md) | Complete installation guide |
+| [Installation](docs/installation/README.md) | Supported platforms and setup index |
+| [Windows](docs/installation/windows/README.md) | Windows build, install, update, and recovery |
+| [Arch Linux](docs/installation/arch/README.md) | Arch build, systemd install, update, and recovery |
 | [USAGE.md](docs/USAGE.md) | User manual and features |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical deep dive |
 
@@ -373,8 +374,8 @@ netstat -tulpn | grep :8080
 ## 🎓 Learning Resources
 
 ### For Users
-1. Read [QUICKSTART.md](docs/QUICKSTART.md)
-2. Follow [INSTALLATION.md](docs/INSTALLATION.md)
+1. Read the [installation overview](docs/installation/README.md)
+2. Follow the Windows or Arch platform guide
 3. Explore [USAGE.md](docs/USAGE.md)
 
 ### For Developers

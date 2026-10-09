@@ -1,6 +1,11 @@
-# Fix: Invalid username or password on /login
+# Historical fix: invalid username or password on /login
 
 Date: 2026-02-21
+
+> Historical record only. Current releases do not ship a shared `admin` /
+> `changeme` login. First-run setup creates a user-selected administrator
+> password and separate one-time recovery credentials. Do not follow the old
+> verification credentials below on a current installation.
 
 ## Summary
 

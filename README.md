@@ -10,11 +10,13 @@ client provides a native interface on Windows and Linux.
 | System | Status | Package and service |
 |---|---|---|
 | Windows 11 x64 | Validated development platform | Portable package, Windows background startup, Avalonia desktop |
-| Arch Linux / Arch-based x64 | Build verified; real-machine validation pending | Arch archive, `systemd`, Avalonia desktop, `nftables` and cgroup v2 |
+| Arch Linux / Arch-based x64 | DNS, dashboard, desktop, and reboot startup verified; advanced network-control validation in progress | Arch archive, `systemd`, Avalonia desktop, `nftables` and cgroup v2 |
 | Arch Linux / Arch-based ARM64 | Build target available; real-machine validation pending | Arch ARM64 archive and `systemd` |
 | Other Linux distributions and macOS | Not officially supported in this phase | Core code may compile, but installation and native security controls are not supported |
 
-Read the complete installation guide: [INSTALL-WINDOWS-LINUX.md](INSTALL-WINDOWS-LINUX.md).
+Start with the [installation overview](docs/installation/README.md), then choose
+the dedicated [Windows](docs/installation/windows/README.md) or
+[Arch Linux](docs/installation/arch/README.md) guide.
 
 ## Main features
 
@@ -95,7 +97,7 @@ Open **DNS Filter** from the application menu, run
 `/opt/dns-filter/desktop/DNSFilter`, or visit `http://127.0.0.1:8080`.
 
 The first real-machine validation sequence is documented in
-[docs/ARCH-TEST-CHECKLIST.md](docs/ARCH-TEST-CHECKLIST.md).
+[docs/installation/arch/TEST-CHECKLIST.md](docs/installation/arch/TEST-CHECKLIST.md).
 
 ## First-run setup
 
@@ -168,13 +170,16 @@ local browsing/activity history.
 
 ## Documentation
 
-- [Windows and Arch installation guide](INSTALL-WINDOWS-LINUX.md)
+- [Installation overview](docs/installation/README.md)
+- [Windows installation](docs/installation/windows/README.md)
+- [Arch Linux installation](docs/installation/arch/README.md)
 - [Documentation index](docs/README.md)
-- [Arch test checklist](docs/ARCH-TEST-CHECKLIST.md)
+- [Arch test checklist](docs/installation/arch/TEST-CHECKLIST.md)
 - [Development mode](docs/DEVELOPMENT-MODE.md)
 - [Plugin SDK](docs/PLUGIN-SDK.md)
 - [Feature documentation](docs/features/README.md)
-- [Unreleased changes](releases/UNRELEASED.md)
+- [Releases and changelog](docs/releases/README.md)
+- [Unreleased changes](docs/releases/UNRELEASED.md)
 
 ## Important limitations
 

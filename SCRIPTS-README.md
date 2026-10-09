@@ -241,7 +241,7 @@ After DNS Filter starts, you MUST disable Secure DNS in your browser, otherwise 
 Check these files in order:
 1. **Script logs:** `data/logs/dns-filter-startup.log`
 2. **DNS Filter logs:** `data/logs/dns-filter.log`
-3. **Documentation:** `docs/RUNNING.md`
+3. **Documentation:** `docs/installation/windows/README.md` or `docs/installation/arch/README.md`
 4. **Architecture:** `docs/ARCHITECTURE.md`
 
 ---

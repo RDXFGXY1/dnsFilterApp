@@ -58,7 +58,7 @@ if (Get-Command dotnet -ErrorAction SilentlyContinue) {
     if ($LASTEXITCODE -ne 0) { throw "desktop build failed" }
     Get-ChildItem -LiteralPath $desktop -Filter *.pdb -Recurse -File | Remove-Item -Force
 }
-if (Test-Path "docs\RUNNING.md") { Copy-Item "docs\RUNNING.md" $dist }
+if (Test-Path "docs\installation\windows\README.md") { Copy-Item "docs\installation\windows\README.md" (Join-Path $dist "RUNNING.md") }
 New-Item -ItemType Directory -Force -Path (Join-Path $dist "data\logs") | Out-Null
 
 # ── Launcher: Start ──────────────────────────────────────────────────────────

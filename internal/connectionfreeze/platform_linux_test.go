@@ -26,6 +26,23 @@ printf '%s' '{"nftables":[{"rule":{"comment":"dns-filter-connection-freeze","exp
 	}
 }
 
+func TestLinuxDropPacketsRejectsMissingTaggedRule(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "nft")
+	script := `#!/bin/sh
+printf '%s' '{"nftables":[{"chain":{"family":"inet","table":"dnsfilter_freeze","name":"output"}}]}'
+`
+	if err := os.WriteFile(path, []byte(script), 0700); err != nil {
+		t.Fatal(err)
+	}
+	old := nftBinary
+	nftBinary = path
+	t.Cleanup(func() { nftBinary = old })
+	if _, err := linuxDropPackets(); err == nil {
+		t.Fatal("expected a missing tagged-rule error")
+	}
+}
+
 func TestLinuxBackendEmitsOnlyCounterDeltas(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "nft")

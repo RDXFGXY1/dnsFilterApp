@@ -381,7 +381,7 @@ dns-filter-app/
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+Contribution guidance should cover:
 - Code style guidelines
 - Pull request process
 - Testing requirements
@@ -389,4 +389,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+MIT License - see [LICENSE](../LICENSE)
