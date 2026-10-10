@@ -46,6 +46,9 @@ configs/config.yaml
 application/**/bin/
 application/**/obj/
 
+# Local Graphify knowledge graph, caches, and agent memory
+graphify-out/
+
 # IDE
 .vscode/
 .idea/
