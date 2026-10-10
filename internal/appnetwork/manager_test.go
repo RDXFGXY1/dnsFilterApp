@@ -11,12 +11,18 @@ import (
 type fakePlatform struct {
 	blocked string
 	allowed string
+	running []App
+	blocks  []string
 }
 
-func (f *fakePlatform) Supported() bool               { return true }
-func (f *fakePlatform) RunningApps() ([]App, error)   { return []App{}, nil }
-func (f *fakePlatform) Block(path, rule string) error { f.blocked = path + "|" + rule; return nil }
-func (f *fakePlatform) Allow(rule string) error       { f.allowed = rule; return nil }
+func (f *fakePlatform) Supported() bool             { return true }
+func (f *fakePlatform) RunningApps() ([]App, error) { return f.running, nil }
+func (f *fakePlatform) Block(path, rule string) error {
+	f.blocked = path + "|" + rule
+	f.blocks = append(f.blocks, path)
+	return nil
+}
+func (f *fakePlatform) Allow(rule string) error { f.allowed = rule; return nil }
 
 func TestBlockAndAllowApplication(t *testing.T) {
 	db, err := sql.Open("sqlite", ":memory:")
@@ -156,5 +162,31 @@ func TestQuarantineAndRelease(t *testing.T) {
 	items, _ = m.Quarantined()
 	if len(items) != 0 || fake.allowed == "" {
 		t.Fatalf("release failed: %+v", items)
+	}
+}
+
+func TestFocusAllowlistBlocksOnlyNonAllowedAppsAndReleasesThem(t *testing.T) {
+	db, _ := sql.Open("sqlite", ":memory:")
+	t.Cleanup(func() { _ = db.Close() })
+	allowedFile, _ := os.CreateTemp(t.TempDir(), "allowed-*.exe")
+	blockedFile, _ := os.CreateTemp(t.TempDir(), "blocked-*.exe")
+	_ = allowedFile.Close()
+	_ = blockedFile.Close()
+	fake := &fakePlatform{running: []App{{Name: "Allowed", Path: allowedFile.Name()}, {Name: "Blocked", Path: blockedFile.Name()}}}
+	m, err := newWithPlatform(db, fake)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = m.BeginFocusAllowlist([]string{allowedFile.Name()}); err != nil {
+		t.Fatal(err)
+	}
+	if len(fake.blocks) != 1 || fake.blocks[0] != blockedFile.Name() {
+		t.Fatalf("unexpected focus blocks: %#v", fake.blocks)
+	}
+	if err = m.EndFocusAllowlist(); err != nil {
+		t.Fatal(err)
+	}
+	if fake.allowed == "" {
+		t.Fatal("focus rule was not released")
 	}
 }

@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,15 +19,26 @@ func (s *Server) discStartFocusSession(c *gin.Context) {
 		TaskTitle       string `json:"task_title"`
 		Minutes         int    `json:"minutes"`
 		ActivityLogging bool   `json:"activity_logging"`
+		CapsuleID       int64  `json:"capsule_id"`
 	}
 	if c.ShouldBindJSON(&x) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	id, err := s.discipline.StartFocusSession(x.TaskID, x.TaskTitle, x.Minutes, x.ActivityLogging)
+	id, err := s.discipline.StartFocusSession(x.TaskID, x.TaskTitle, x.Minutes, x.ActivityLogging, x.CapsuleID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+	if x.CapsuleID > 0 && s.appNetwork != nil {
+		capsule, capsuleErr := s.discipline.FocusCapsule(x.CapsuleID)
+		if capsuleErr == nil && len(capsule.AllowedApps) > 0 {
+			if err := s.appNetwork.BeginFocusAllowlist(capsule.AllowedApps, time.Duration(x.Minutes)*time.Minute); err != nil {
+				_, _ = s.discipline.EndFocusSession(id, "cancelled", "Application allowlist could not start", 0, false)
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+		}
 	}
 	c.JSON(http.StatusCreated, gin.H{"success": true, "id": id})
 }
@@ -77,7 +89,13 @@ func (s *Server) discEndFocusSession(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "session": item})
+	warning := ""
+	if s.appNetwork != nil {
+		if releaseErr := s.appNetwork.EndFocusAllowlist(); releaseErr != nil {
+			warning = releaseErr.Error()
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "session": item, "warning": warning})
 }
 
 func (s *Server) discFocusSessions(c *gin.Context) {
@@ -95,4 +113,13 @@ func (s *Server) discFocusSession(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, item)
+}
+
+func (s *Server) discFocusCoach(c *gin.Context) {
+	id, mode, err := s.generateFocusCoach(c.Request.Context(), focusSessionID(c))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message_id": id, "mode": mode})
 }

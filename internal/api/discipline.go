@@ -77,6 +77,11 @@ func (s *Server) registerDisciplineRoutes(api *gin.RouterGroup) {
 		d.POST("/focus-sessions/:id/end", s.discEndFocusSession)
 		d.GET("/focus-sessions", s.discFocusSessions)
 		d.GET("/focus-sessions/:id", s.discFocusSession)
+		d.POST("/focus-sessions/:id/coach", s.discFocusCoach)
+		d.GET("/focus-capsules", s.discFocusCapsules)
+		d.POST("/focus-capsules", s.discSaveFocusCapsule)
+		d.PUT("/focus-capsules/:id", s.discSaveFocusCapsule)
+		d.DELETE("/focus-capsules/:id", s.discDeleteFocusCapsule)
 		s.registerPlanningRoutes(d)
 		s.registerProjectTransferRoutes(d)
 	}

@@ -36,6 +36,20 @@
                                 <label><span>Project · optional</span><select id="focus-project" onchange="focusProjectChanged()"><option value="">Focus directly on the goal</option></select></label>
                                 <label class="focus-task-field"><span>Task or sub-task · optional</span><select id="focus-task" disabled><option value="">Focus directly on the goal</option></select></label>
                             </div>
+                            <div class="focus-capsule-picker">
+                                <label><span>Focus Capsule · optional</span><select id="focus-capsule" onchange="focusCapsuleChanged()"><option value="">No browser mission lock</option></select></label>
+                                <button class="ws-tab" type="button" onclick="toggleCapsuleEditor()">Manage</button>
+                            </div>
+                            <div class="focus-capsule-editor" id="focus-capsule-editor" hidden>
+                                <input id="capsule-name-input" placeholder="Capsule name · e.g. C++ Learning">
+                                <input id="capsule-description-input" placeholder="Mission description">
+                                <textarea id="capsule-channels-input" placeholder="Allowed YouTube channels · one ID, @handle, name, or channel URL per line"></textarea>
+                                <textarea id="capsule-domains-input" placeholder="Allowed websites · one domain per line"></textarea>
+                                <textarea id="capsule-apps-input" placeholder="Allowed application paths or executable names · one per line"></textarea>
+                                <p class="focus-capsule-warning">When this list is not empty, other eligible user applications lose network access until the session ends. DNS Filter and critical system processes are always excluded.</p>
+                                <div class="focus-capsule-options"><select id="capsule-style-input"><option value="motivation">Motivation block page</option><option value="roast">Roast block page</option><option value="meme">Meme block page</option><option value="strict">Strict block page</option></select><label><input id="capsule-strict-input" type="checkbox" checked> Lock websites outside this capsule</label></div>
+                                <div class="focus-capsule-actions"><button class="btn" type="button" onclick="saveFocusCapsule()">Save capsule</button><button class="ws-tab" type="button" onclick="newFocusCapsule()">New</button><button class="ws-tab focus-capsule-delete" type="button" onclick="deleteFocusCapsule()">Delete</button></div>
+                            </div>
                             <p class="focus-selection-note" id="focus-selection-note">Completed, archived, and backlog work is hidden.</p>
                             <div class="focus-presets">
                                 <button onclick="setFocusMinutes(15)">15m</button><button onclick="setFocusMinutes(25)">25m</button><button onclick="setFocusMinutes(50)">50m</button>

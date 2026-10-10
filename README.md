@@ -34,6 +34,9 @@ the dedicated [Windows](docs/installation/windows/README.md) or
 - Discipline workspace with goals, projects, nested tasks, focus sessions,
   opt-in activity logging, Daily Journal, habits, reminders, analytics, and the
   Intelligence Inbox.
+- Focus Capsules that combine selected goals or tasks with allowed applications,
+  websites, and YouTube channels, a local block page, crash recovery, and an
+  optional AI Session Coach review.
 - Dark Avalonia desktop application and a full local web dashboard.
 
 ## Architecture
@@ -176,10 +179,12 @@ local browsing/activity history.
 - [Documentation index](docs/README.md)
 - [Arch test checklist](docs/installation/arch/TEST-CHECKLIST.md)
 - [Development mode](docs/DEVELOPMENT-MODE.md)
+- [Browser extension setup](extensions/hard-system/README.md)
 - [Plugin SDK](docs/PLUGIN-SDK.md)
 - [Feature documentation](docs/features/README.md)
 - [Releases and changelog](docs/releases/README.md)
 - [Unreleased changes](docs/releases/UNRELEASED.md)
+- [v2.6.0-beta.1 release candidate notes](docs/releases/v2.6.0-beta.1.md)
 
 ## Important limitations
 

@@ -26,6 +26,7 @@ This directory contains the permanent documentation for features added to DNS Fi
 - [Discipline Task Hub](DISCIPLINE-TASK-HUB.md) — plan goals, projects, tasks, nested steps, time blocks, templates, and recovery work.
 - [Daily Journal](DAILY-JOURNAL.md) — keep local general or custom daily logs with calendar and streak analytics.
 - [Focus Activity Logger](FOCUS-ACTIVITY-LOGGER.md) — optionally record local app/domain activity during focus sessions for later review.
+- [Focus Capsules](FOCUS-CAPSULES.md) — lock a focus session to selected apps, websites, and YouTube channels with crash recovery and AI coaching.
 - [Discipline Intelligence Inbox](DISCIPLINE-INTELLIGENCE-INBOX.md) — generate private local briefings or explicit AI-assisted analysis through a Vault-protected provider.
 
 ## Extension platform

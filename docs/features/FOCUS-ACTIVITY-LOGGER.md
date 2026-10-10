@@ -17,4 +17,6 @@ The user can add a reflection and focus score. A completed session can create a 
 
 ## AI analysis boundary
 
-The current implementation stores structured local data and is AI-ready. A later model integration should receive an aggregated summary rather than unrestricted raw activity. Model use must remain visible, optional, and separately consented.
+Focus History now includes an explicit **AI coach** action. It sends the selected structured session record to the enabled provider only when the user requests it and the Secure Vault is unlocked. Without a configured provider, the app creates a deterministic local review. The resulting review is saved to Intelligence Inbox. Model use remains visible and optional.
+
+Focus Capsules extend this logger with browser mission rules, crash recovery, and temporary application network allowlists. See [Focus Capsules](FOCUS-CAPSULES.md).

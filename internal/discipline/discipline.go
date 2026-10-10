@@ -115,6 +115,7 @@ func New(db *sql.DB) (*Manager, error) {
 	if err := m.init(); err != nil {
 		return nil, err
 	}
+	m.restoreFocusSession()
 	return m, nil
 }
 
@@ -294,6 +295,18 @@ func (m *Manager) init() error {
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_disc_focus_activity_session ON discipline_focus_activity(session_id)`,
+		`CREATE TABLE IF NOT EXISTS discipline_focus_capsules (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			description TEXT DEFAULT '',
+			allowed_apps TEXT DEFAULT '[]',
+			allowed_domains TEXT DEFAULT '[]',
+			youtube_channels TEXT DEFAULT '[]',
+			block_style TEXT DEFAULT 'motivation',
+			strict INTEGER DEFAULT 1,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
 		`CREATE TABLE IF NOT EXISTS discipline_inbox_messages (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			sender TEXT NOT NULL DEFAULT 'Discipline Intelligence',
@@ -356,9 +369,8 @@ func (m *Manager) init() error {
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN waiting_for TEXT DEFAULT ''`)
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN evidence TEXT DEFAULT ''`)
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN focus_profile_id INTEGER DEFAULT 0`)
-	// A process restart stops the in-memory activity recorder. Close any session
-	// left active by the previous process so history never shows a ghost session.
-	m.db.Exec(`UPDATE discipline_focus_sessions SET status='cancelled',actual_seconds=MAX(1,CAST((julianday('now')-julianday(started_at))*86400 AS INTEGER)),ended_at=CURRENT_TIMESTAMP WHERE status='active'`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN capsule_id INTEGER DEFAULT 0`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN locked_youtube_channel TEXT DEFAULT ''`)
 	return nil
 }
 

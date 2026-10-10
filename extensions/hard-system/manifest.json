@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "DNS Filter Hard System",
-  "description": "Locally scores visible page content and blocks high-risk pages.",
-  "version": "0.2.0",
-  "permissions": ["storage"],
+  "description": "Local webpage risk protection and Focus Capsule enforcement.",
+  "version": "0.3.0",
+  "permissions": ["storage", "activeTab"],
   "host_permissions": ["http://127.0.0.1:8080/*", "http://dnsfilter.localhost:8080/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [{

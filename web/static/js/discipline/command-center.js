@@ -6,6 +6,7 @@ let focusTimer = null;
 let focusSessionID = 0;
 let focusActivityTimer = null;
 let focusRestoreAttempted = false;
+let focusCapsules = [];
 
 function daysFromToday(ds) {
     if (!ds) return 999;
@@ -36,9 +37,9 @@ function dueLanguage(t) {
 }
 
 async function loadCommand() {
-    const [tasksRaw, projectsRaw, goalsRaw, statsRaw, weekRaw] = await Promise.all([
+    const [tasksRaw, projectsRaw, goalsRaw, statsRaw, weekRaw, capsulesRaw] = await Promise.all([
         api('GET', '/tasks?all=1'), api('GET', '/projects'), api('GET', '/goals'),
-        api('GET', '/stats'), api('GET', '/heatmap?days=7'),
+        api('GET', '/stats'), api('GET', '/heatmap?days=7'), api('GET', '/focus-capsules'),
     ]);
     const tasks = tasksRaw || [], projects = projectsRaw || [], goals = goalsRaw || [];
     const open = tasks.filter(t => !t.done), overdue = open.filter(t => daysFromToday(t.due_date) < 0);
@@ -46,6 +47,8 @@ async function loadCommand() {
     const blocked = open.filter(t => (t.labels || '').toLowerCase().split(',').some(x => x.trim() === 'blocked'));
     const doing = open.filter(t => t.status === 'in_progress');
     commandCache = { tasks, projects, goals, stats: statsRaw || {} };
+    focusCapsules = Array.isArray(capsulesRaw) ? capsulesRaw : [];
+    renderFocusCapsules();
 
     const dueSoon = open.filter(t => daysFromToday(t.due_date) >= 0 && daysFromToday(t.due_date) <= 7).length;
     const completion = tasks.length ? Math.round(tasks.filter(t => t.done).length * 100 / tasks.length) : 100;
@@ -141,6 +144,58 @@ async function commandCapture() {
     parsed.project_id = Number(document.getElementById('command-project').value || 0);
     const r = await api('POST', '/tasks', parsed);
     if (r && r.success) { input.value = ''; notify('Captured and added to your system'); loadCommand(); }
+}
+
+function capsuleLines(values) { return (values || []).join('\n'); }
+function readCapsuleLines(id) { return (document.getElementById(id)?.value || '').split(/\r?\n/).map(x => x.trim()).filter(Boolean); }
+function renderFocusCapsules(preferredID = 0) {
+    const select = document.getElementById('focus-capsule');
+    if (!select) return;
+    const current = String(preferredID || select.value || '');
+    select.innerHTML = '<option value="">No browser mission lock</option>' + focusCapsules.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
+    if ([...select.options].some(x => x.value === current)) select.value = current;
+}
+function toggleCapsuleEditor() {
+    const editor = document.getElementById('focus-capsule-editor');
+    editor.hidden = !editor.hidden;
+    if (!editor.hidden) focusCapsuleChanged();
+}
+function focusCapsuleChanged() {
+    const id = Number(document.getElementById('focus-capsule')?.value || 0);
+    const item = focusCapsules.find(x => Number(x.id) === id);
+    if (!item) return newFocusCapsule(false);
+    document.getElementById('capsule-name-input').value = item.name || '';
+    document.getElementById('capsule-description-input').value = item.description || '';
+    document.getElementById('capsule-channels-input').value = capsuleLines(item.youtube_channels);
+    document.getElementById('capsule-domains-input').value = capsuleLines(item.allowed_domains);
+    document.getElementById('capsule-apps-input').value = capsuleLines(item.allowed_apps);
+    document.getElementById('capsule-style-input').value = item.block_style || 'motivation';
+    document.getElementById('capsule-strict-input').checked = Boolean(item.strict);
+}
+function newFocusCapsule(clearSelection = true) {
+    if (clearSelection) document.getElementById('focus-capsule').value = '';
+    ['capsule-name-input','capsule-description-input','capsule-channels-input','capsule-domains-input','capsule-apps-input'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('capsule-style-input').value = 'motivation';
+    document.getElementById('capsule-strict-input').checked = true;
+}
+async function saveFocusCapsule() {
+    const id = Number(document.getElementById('focus-capsule')?.value || 0);
+    const body = { name:document.getElementById('capsule-name-input').value.trim(), description:document.getElementById('capsule-description-input').value.trim(), youtube_channels:readCapsuleLines('capsule-channels-input'), allowed_domains:readCapsuleLines('capsule-domains-input'), allowed_apps:readCapsuleLines('capsule-apps-input'), block_style:document.getElementById('capsule-style-input').value, strict:document.getElementById('capsule-strict-input').checked };
+    if (!body.name) return notify('Give the capsule a name', true);
+    const result = await api(id ? 'PUT' : 'POST', id ? `/focus-capsules/${id}` : '/focus-capsules', body);
+    if (!result?.success) return notify(result?.error || 'Could not save the capsule', true);
+    const saved = result.capsule;
+    const index = focusCapsules.findIndex(x => Number(x.id) === Number(saved.id));
+    if (index >= 0) focusCapsules[index] = saved; else focusCapsules.push(saved);
+    focusCapsules.sort((a,b) => a.name.localeCompare(b.name)); renderFocusCapsules(saved.id); focusCapsuleChanged(); notify('Focus Capsule saved');
+}
+async function deleteFocusCapsule() {
+    const id = Number(document.getElementById('focus-capsule')?.value || 0);
+    if (!id) return notify('Choose a capsule to delete', true);
+    if (!confirm('Delete this Focus Capsule? Focus history will remain.')) return;
+    const result = await api('DELETE', `/focus-capsules/${id}`);
+    if (!result?.success) return notify(result?.error || 'Could not delete the capsule', true);
+    focusCapsules = focusCapsules.filter(x => Number(x.id) !== id); renderFocusCapsules(); newFocusCapsule(); notify('Focus Capsule deleted');
 }
 
 function focusEligibleTasks() {
@@ -344,14 +399,20 @@ async function openFocusSession(id, button) {
         return;
     }
     const activity = s.activity || [], apps = activity.filter(a => a.kind === 'app'), domains = activity.filter(a => a.kind === 'domain'), distractions = s.distractions || [];
+    const capsule = focusCapsules.find(item => Number(item.id) === Number(s.capsule_id));
+    const capsuleSummary = capsule
+        ? `<div class="focus-history-notice"><strong>Focus Capsule · ${esc(capsule.name)}</strong>${s.locked_youtube_channel ? `<br>Locked YouTube channel: ${esc(s.locked_youtube_channel)}` : ''}</div>`
+        : '';
     const activityRows = items => items.length ? items.map(a => `<div class="focus-activity-row"><div><strong>${esc(a.name)}</strong><small>${a.observations} observation${Number(a.observations) === 1 ? '' : 's'}</small></div><b>${focusDuration(a.seconds)}</b></div>`).join('') : '<p class="focus-history-muted">No records captured.</p>';
-    detail.innerHTML = `<header class="focus-detail-head"><div><span class="command-kicker">Session ${s.id}</span><h3>${esc(s.task_title || 'Focused work')}</h3><p>${focusWhen(s.started_at)} · ${esc(s.status || 'active')}</p></div><div class="focus-detail-time"><strong>${focusDuration(s.actual_seconds)}</strong><span>${s.planned_minutes || 0}m planned</span></div></header>
+    detail.innerHTML = `<header class="focus-detail-head"><div><span class="command-kicker">Session ${s.id}</span><h3>${esc(s.task_title || 'Focused work')}</h3><p>${focusWhen(s.started_at)} · ${esc(s.status || 'active')}</p></div><div class="focus-detail-time"><strong>${focusDuration(s.actual_seconds)}</strong><span>${s.planned_minutes || 0}m planned</span><button class="ws-tab" onclick="generateFocusCoach(${s.id},this)">AI coach</button></div></header>
+        ${capsuleSummary}
         ${s.activity_logging ? '' : '<div class="focus-history-notice">Local activity logging was disabled for this session.</div>'}
         <div class="focus-detail-kpis"><span><strong>${apps.length}</strong> apps</span><span><strong>${domains.length}</strong> domains</span><span><strong>${activity.reduce((n,a)=>n+Number(a.observations||0),0)}</strong> observations</span><span><strong>${distractions.length}</strong> distractions</span></div>
         <div class="focus-activity-columns"><section><h4>Applications</h4>${activityRows(apps)}</section><section><h4>DNS-visible domains</h4>${activityRows(domains)}</section></div>
         <section class="focus-distraction-log"><h4>Distractions</h4>${distractions.length ? distractions.map(d => `<span>${esc(d.label)}${d.note ? ` · ${esc(d.note)}` : ''}</span>`).join('') : '<p class="focus-history-muted">No distractions logged.</p>'}</section>
         ${s.reflection ? `<section class="focus-reflection"><h4>Reflection</h4><p>${esc(s.reflection)}</p>${s.focus_score ? `<b>Focus score ${s.focus_score}/10</b>` : ''}</section>` : ''}`;
 }
+async function generateFocusCoach(id,button){button.disabled=true;button.textContent='Analyzing…';const result=await api('POST',`/focus-sessions/${id}/coach`,{});button.disabled=false;button.textContent='AI coach';if(!result?.success)return notify(result?.error||'Could not generate the session review',true);notify(`${result.mode==='ai'?'AI':'Local'} session review sent to Intelligence Inbox`)}
 function renderFocusClock() {
     document.getElementById('focus-clock').textContent = `${String(Math.floor(focusSeconds/60)).padStart(2,'0')}:${String(focusSeconds%60).padStart(2,'0')}`;
 }
@@ -364,11 +425,11 @@ function startFocusCountdown() {
         if (focusSeconds <= 0) {
             clearInterval(focusTimer); focusTimer = null;
             addStoredFocusSeconds(focusSessionMinutes * 60);
-            await finishFocusSession('completed', true);
+            const result = await finishFocusSession('completed', true);
             focusSessionID = 0; clearFocusState(); setFocusRunningUI(false); renderFocusLog();
             document.getElementById('focus-start').textContent = 'Start another';
             document.getElementById('focus-state').textContent = 'Complete';
-            notify('Focus session complete — journal and activity summary saved');
+            notify(result?.warning || 'Focus session complete — journal and activity summary saved', Boolean(result?.warning));
         }
     }, 1000);
 }
@@ -397,7 +458,7 @@ async function endFocusSession() {
     renderFocusClock(); renderFocusLog();
     document.getElementById('focus-start').textContent = 'Start another';
     document.getElementById('focus-state').textContent = 'Complete';
-    notify('Focus session ended — time, reflection, and activity saved');
+    notify(result?.warning || 'Focus session ended — time, reflection, and activity saved', Boolean(result?.warning));
 }
 async function resetFocus() {
     clearInterval(focusTimer); focusTimer = null;
@@ -420,10 +481,11 @@ async function toggleFocus() {
     const taskOption=document.getElementById('focus-task').selectedOptions[0],projectOption=document.getElementById('focus-project').selectedOptions[0],goalOption=document.getElementById('focus-goal').selectedOptions[0];
     const focusTitle=taskID?(taskOption?.dataset.title||taskOption?.textContent.trim()):projectID?`Project · ${projectOption?.textContent.trim()}`:`Goal · ${goalOption?.textContent.trim()}`;
     const activityLogging=document.getElementById('focus-activity-log').checked;
-    const started=await api('POST','/focus-sessions/start',{task_id:taskID,task_title:focusTitle||'Focused work',minutes:focusSessionMinutes,activity_logging:activityLogging});
+    const capsuleID=Number(document.getElementById('focus-capsule')?.value||0);
+    const started=await api('POST','/focus-sessions/start',{task_id:taskID,task_title:focusTitle||'Focused work',minutes:focusSessionMinutes,activity_logging:activityLogging,capsule_id:capsuleID});
     if(!started?.success)return notify(started?.error||'Could not start the focus session',true);
     focusSessionID=started.id;
-    localStorage.setItem(focusStateKey(),JSON.stringify({sessionID:focusSessionID,minutes:focusSessionMinutes,seconds:focusSeconds,running:true,updatedAt:Date.now(),activityLogging}));
+    localStorage.setItem(focusStateKey(),JSON.stringify({sessionID:focusSessionID,minutes:focusSessionMinutes,seconds:focusSeconds,running:true,updatedAt:Date.now(),activityLogging,capsuleID}));
     setFocusRunningUI(true, activityLogging); loadFocusHistory();
     document.getElementById('focus-start').textContent = 'Pause'; document.getElementById('focus-state').textContent = 'Focusing';
     startFocusCountdown(); renderFocusLog();

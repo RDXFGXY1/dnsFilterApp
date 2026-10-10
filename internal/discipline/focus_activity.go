@@ -7,19 +7,21 @@ import (
 )
 
 type FocusSession struct {
-	ID              int64           `json:"id"`
-	TaskID          int64           `json:"task_id"`
-	TaskTitle       string          `json:"task_title"`
-	PlannedMinutes  int             `json:"planned_minutes"`
-	ActualSeconds   int             `json:"actual_seconds"`
-	Status          string          `json:"status"`
-	ActivityLogging bool            `json:"activity_logging"`
-	StartedAt       string          `json:"started_at"`
-	EndedAt         string          `json:"ended_at"`
-	Reflection      string          `json:"reflection"`
-	FocusScore      int             `json:"focus_score"`
-	Activity        []FocusActivity `json:"activity,omitempty"`
-	Distractions    []Distraction   `json:"distractions,omitempty"`
+	ID                   int64           `json:"id"`
+	CapsuleID            int64           `json:"capsule_id"`
+	LockedYouTubeChannel string          `json:"locked_youtube_channel"`
+	TaskID               int64           `json:"task_id"`
+	TaskTitle            string          `json:"task_title"`
+	PlannedMinutes       int             `json:"planned_minutes"`
+	ActualSeconds        int             `json:"actual_seconds"`
+	Status               string          `json:"status"`
+	ActivityLogging      bool            `json:"activity_logging"`
+	StartedAt            string          `json:"started_at"`
+	EndedAt              string          `json:"ended_at"`
+	Reflection           string          `json:"reflection"`
+	FocusScore           int             `json:"focus_score"`
+	Activity             []FocusActivity `json:"activity,omitempty"`
+	Distractions         []Distraction   `json:"distractions,omitempty"`
 }
 
 type FocusActivity struct {
@@ -38,7 +40,7 @@ type Distraction struct {
 	CreatedAt string `json:"created_at"`
 }
 
-func (m *Manager) StartFocusSession(taskID int64, taskTitle string, minutes int, logging bool) (int64, error) {
+func (m *Manager) StartFocusSession(taskID int64, taskTitle string, minutes int, logging bool, capsuleID ...int64) (int64, error) {
 	if minutes < 1 || minutes > 720 {
 		return 0, errors.New("focus duration must be between 1 and 720 minutes")
 	}
@@ -47,7 +49,16 @@ func (m *Manager) StartFocusSession(taskID int64, taskTitle string, minutes int,
 	if m.focusID != 0 {
 		return 0, errors.New("a focus session is already active")
 	}
-	r, err := m.db.Exec(`INSERT INTO discipline_focus_sessions(task_id,task_title,planned_minutes,activity_logging) VALUES(?,?,?,?)`, taskID, strings.TrimSpace(taskTitle), minutes, logging)
+	selectedCapsule := int64(0)
+	if len(capsuleID) > 0 {
+		selectedCapsule = capsuleID[0]
+		if selectedCapsule > 0 {
+			if _, err := m.FocusCapsule(selectedCapsule); err != nil {
+				return 0, errors.New("focus capsule not found")
+			}
+		}
+	}
+	r, err := m.db.Exec(`INSERT INTO discipline_focus_sessions(task_id,task_title,planned_minutes,activity_logging,capsule_id) VALUES(?,?,?,?,?)`, taskID, strings.TrimSpace(taskTitle), minutes, logging, selectedCapsule)
 	if err != nil {
 		return 0, err
 	}
@@ -60,7 +71,53 @@ func (m *Manager) StartFocusSession(taskID int64, taskTitle string, minutes int,
 	if logging {
 		go m.trackForegroundApps(id, m.focusEnd)
 	}
+	m.scheduleFocusExpiry(id, time.Duration(minutes)*time.Minute, m.focusEnd)
 	return id, nil
+}
+
+func (m *Manager) scheduleFocusExpiry(id int64, remaining time.Duration, stop <-chan struct{}) {
+	if remaining <= 0 {
+		remaining = time.Second
+	}
+	go func() {
+		timer := time.NewTimer(remaining)
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+			_, _ = m.EndFocusSession(id, "completed", "Session ended automatically when its planned time expired.", 0, false)
+		case <-stop:
+		}
+	}()
+}
+
+// restoreFocusSession resumes an unfinished session after a local service or
+// computer restart. Expired sessions are closed; live ones restart the private
+// foreground activity recorder when consent was enabled.
+func (m *Manager) restoreFocusSession() {
+	var id int64
+	var planned int
+	var logging bool
+	var started string
+	err := m.db.QueryRow(`SELECT id,planned_minutes,activity_logging,started_at FROM discipline_focus_sessions WHERE status='active' ORDER BY id DESC LIMIT 1`).Scan(&id, &planned, &logging, &started)
+	if err != nil {
+		return
+	}
+	start, err := time.ParseInLocation("2006-01-02 15:04:05", strings.TrimSuffix(started, "Z"), time.Local)
+	if err != nil {
+		start, err = time.Parse(time.RFC3339, started)
+	}
+	if err != nil || time.Since(start) >= time.Duration(planned)*time.Minute {
+		_, _ = m.db.Exec(`UPDATE discipline_focus_sessions SET status='completed',actual_seconds=MAX(1,planned_minutes*60),ended_at=CURRENT_TIMESTAMP WHERE id=?`, id)
+		return
+	}
+	m.focusMu.Lock()
+	m.focusID = id
+	m.focusEnd = make(chan struct{})
+	m.focusMu.Unlock()
+	if logging {
+		go m.trackForegroundApps(id, m.focusEnd)
+	}
+	m.scheduleFocusExpiry(id, time.Duration(planned)*time.Minute-time.Since(start), m.focusEnd)
 }
 
 func (m *Manager) ActiveFocusSessionID() int64 {
@@ -143,7 +200,7 @@ func (m *Manager) EndFocusSession(sessionID int64, status, reflection string, sc
 
 func (m *Manager) FocusSessionDetails(id int64) (FocusSession, error) {
 	var s FocusSession
-	err := m.db.QueryRow(`SELECT id,task_id,task_title,planned_minutes,actual_seconds,status,activity_logging,started_at,ended_at,reflection,focus_score FROM discipline_focus_sessions WHERE id=?`, id).Scan(&s.ID, &s.TaskID, &s.TaskTitle, &s.PlannedMinutes, &s.ActualSeconds, &s.Status, &s.ActivityLogging, &s.StartedAt, &s.EndedAt, &s.Reflection, &s.FocusScore)
+	err := m.db.QueryRow(`SELECT id,capsule_id,locked_youtube_channel,task_id,task_title,planned_minutes,actual_seconds,status,activity_logging,started_at,ended_at,reflection,focus_score FROM discipline_focus_sessions WHERE id=?`, id).Scan(&s.ID, &s.CapsuleID, &s.LockedYouTubeChannel, &s.TaskID, &s.TaskTitle, &s.PlannedMinutes, &s.ActualSeconds, &s.Status, &s.ActivityLogging, &s.StartedAt, &s.EndedAt, &s.Reflection, &s.FocusScore)
 	if err != nil {
 		return s, err
 	}

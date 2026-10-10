@@ -95,6 +95,12 @@ func linuxRunningApps() ([]App, error) {
 			continue
 		}
 		path = strings.TrimSuffix(path, " (deleted)")
+		// The DNS service normally runs as root. Focus allowlists must only
+		// target interactive user processes, never system daemons.
+		status, statusErr := os.ReadFile(filepath.Join("/proc", entry.Name(), "status"))
+		if statusErr != nil || !linuxInteractiveUID(status) {
+			continue
+		}
 		if _, exists := byPath[path]; exists {
 			continue
 		}
@@ -106,6 +112,21 @@ func linuxRunningApps() ([]App, error) {
 	}
 	sort.Slice(apps, func(i, j int) bool { return strings.ToLower(apps[i].Name) < strings.ToLower(apps[j].Name) })
 	return apps, nil
+}
+
+func linuxInteractiveUID(status []byte) bool {
+	for _, line := range strings.Split(string(status), "\n") {
+		if !strings.HasPrefix(line, "Uid:") {
+			continue
+		}
+		fields := strings.Fields(strings.TrimPrefix(line, "Uid:"))
+		if len(fields) == 0 {
+			return false
+		}
+		uid, err := strconv.Atoi(fields[0])
+		return err == nil && uid >= 1000 && uid != 65534
+	}
+	return false
 }
 
 func (p *linuxPlatform) Block(path, rule string) error {

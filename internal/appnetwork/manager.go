@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -42,8 +43,10 @@ type platform interface {
 }
 
 type Manager struct {
-	db       *sql.DB
-	platform platform
+	db         *sql.DB
+	platform   platform
+	focusMu    sync.Mutex
+	focusTimer *time.Timer
 }
 
 func New(db *sql.DB) (*Manager, error) {
@@ -127,7 +130,15 @@ func newWithPlatform(db *sql.DB, p platform) (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Manager{db: db, platform: p}, nil
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS app_network_focus_rules(path TEXT PRIMARY KEY,name TEXT NOT NULL,rule_name TEXT NOT NULL,created_at TIMESTAMP NOT NULL)`)
+	if err != nil {
+		return nil, err
+	}
+	m := &Manager{db: db, platform: p}
+	// Focus rules are transient. Remove anything left by a crash before the API
+	// decides whether an active recovered capsule should be enforced again.
+	_ = m.EndFocusAllowlist()
+	return m, nil
 }
 
 type QuarantineEntry struct {
@@ -344,6 +355,122 @@ func ruleName(path string) string {
 	return "DNSFilter-App-" + hex.EncodeToString(sum[:8])
 }
 
+func focusRuleName(path string) string {
+	sum := sha256.Sum256([]byte(strings.ToLower(filepath.Clean(path))))
+	return "DNSFilter-Focus-" + hex.EncodeToString(sum[:8])
+}
+
+func allowlistMatch(path string, allowed []string) bool {
+	clean := strings.ToLower(filepath.Clean(path))
+	base := strings.ToLower(filepath.Base(clean))
+	for _, item := range allowed {
+		item = strings.ToLower(strings.TrimSpace(strings.Trim(item, `"`)))
+		if item == "" {
+			continue
+		}
+		if clean == strings.ToLower(filepath.Clean(item)) || base == strings.ToLower(filepath.Base(item)) {
+			return true
+		}
+	}
+	return false
+}
+
+func safeFocusCandidate(path string) bool {
+	clean := filepath.Clean(path)
+	if self, err := os.Executable(); err == nil && strings.EqualFold(clean, filepath.Clean(self)) {
+		return false
+	}
+	lower := strings.ToLower(clean)
+	if volume := strings.ToLower(os.Getenv("SystemRoot")); volume != "" && strings.HasPrefix(lower, strings.TrimRight(filepath.Clean(volume), `\/`)+string(os.PathSeparator)) {
+		return false
+	}
+	if lower == "/usr/lib/systemd/systemd" || lower == "/usr/bin/systemd" || lower == "/usr/bin/init" || lower == "/sbin/init" {
+		return false
+	}
+	return validatePathPlatform(clean) == nil
+}
+
+// BeginFocusAllowlist blocks eligible running user applications except the
+// explicitly allowed paths/names. Every rule is tracked separately from manual
+// and quarantine rules so the whole session can be rolled back atomically.
+func (m *Manager) BeginFocusAllowlist(allowed []string, maximum ...time.Duration) error {
+	if !m.Supported() {
+		return errors.New("application allowlist is unavailable on this system")
+	}
+	if err := m.EndFocusAllowlist(); err != nil {
+		return err
+	}
+	if len(allowed) == 0 {
+		return nil
+	}
+	apps, err := m.platform.RunningApps()
+	if err != nil {
+		return err
+	}
+	blocked := []struct{ path, rule string }{}
+	seen := map[string]bool{}
+	for _, app := range apps {
+		key := strings.ToLower(filepath.Clean(app.Path))
+		if app.Path == "" || seen[key] || allowlistMatch(app.Path, allowed) || !safeFocusCandidate(app.Path) {
+			continue
+		}
+		seen[key] = true
+		rule := focusRuleName(app.Path)
+		if err := m.platform.Block(app.Path, rule); err != nil {
+			for _, item := range blocked {
+				_ = m.platform.Allow(item.rule)
+			}
+			_, _ = m.db.Exec(`DELETE FROM app_network_focus_rules`)
+			return fmt.Errorf("focus allowlist could not isolate %s: %w", filepath.Base(app.Path), err)
+		}
+		blocked = append(blocked, struct{ path, rule string }{app.Path, rule})
+		_, _ = m.db.Exec(`INSERT OR REPLACE INTO app_network_focus_rules(path,name,rule_name,created_at) VALUES(?,?,?,?)`, app.Path, filepath.Base(app.Path), rule, time.Now().UTC())
+	}
+	if len(maximum) > 0 && maximum[0] > 0 {
+		m.focusMu.Lock()
+		m.focusTimer = time.AfterFunc(maximum[0], func() { _ = m.EndFocusAllowlist() })
+		m.focusMu.Unlock()
+	}
+	return nil
+}
+
+// EndFocusAllowlist removes only the temporary rules owned by Focus Capsules.
+func (m *Manager) EndFocusAllowlist() error {
+	m.focusMu.Lock()
+	if m.focusTimer != nil {
+		m.focusTimer.Stop()
+		m.focusTimer = nil
+	}
+	m.focusMu.Unlock()
+	rows, err := m.db.Query(`SELECT path,rule_name FROM app_network_focus_rules`)
+	if err != nil {
+		return err
+	}
+	type item struct{ path, rule string }
+	var items []item
+	for rows.Next() {
+		var x item
+		if err := rows.Scan(&x.path, &x.rule); err != nil {
+			_ = rows.Close()
+			return err
+		}
+		items = append(items, x)
+	}
+	_ = rows.Close()
+	var failures []string
+	for _, x := range items {
+		if err := m.platform.Allow(x.rule); err != nil {
+			failures = append(failures, filepath.Base(x.path)+": "+err.Error())
+			continue
+		}
+		_, _ = m.db.Exec(`DELETE FROM app_network_focus_rules WHERE path=?`, x.path)
+	}
+	if len(failures) > 0 {
+		return fmt.Errorf("could not release focus application rules: %s", strings.Join(failures, "; "))
+	}
+	return nil
+}
+
 func (m *Manager) SetBlocked(path string, blocked bool) error {
 	var clean, name, rule string
 	var err error
@@ -457,6 +584,7 @@ func (m *Manager) ResetAll() error {
 		`SELECT path,rule_name FROM app_network_rules WHERE blocked=1`,
 		`SELECT path,rule_name FROM app_quarantine`,
 		`SELECT path,'DNSFilter-Schedule-' || id FROM app_network_schedules WHERE active=1`,
+		`SELECT path,rule_name FROM app_network_focus_rules`,
 	}
 	for _, query := range queries {
 		rows, err := m.db.Query(query)
@@ -487,5 +615,6 @@ func (m *Manager) ResetAll() error {
 	_, _ = m.db.Exec(`UPDATE app_network_rules SET blocked=0,updated_at=?`, time.Now().UTC())
 	_, _ = m.db.Exec(`UPDATE app_network_schedules SET active=0,updated_at=?`, time.Now().UTC())
 	_, _ = m.db.Exec(`DELETE FROM app_quarantine`)
+	_, _ = m.db.Exec(`DELETE FROM app_network_focus_rules`)
 	return nil
 }

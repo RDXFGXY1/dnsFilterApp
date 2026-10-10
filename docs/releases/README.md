@@ -11,6 +11,7 @@ Guidelines
 
 Files
 - `UNRELEASED.md` - Working area for ongoing changes.
+- `v2.6.0-beta.1.md` - Current cross-platform release candidate and known limitations.
 - `v1.0.0.md` - Example initial release notes (existing baseline).
 - `2026-10-09-arch-validation-and-docs.md` - Arch boot validation, Connection Freeze correction, and documentation reorganization.
 

@@ -20,6 +20,12 @@ async function load() {
   } else {
     document.getElementById('status').textContent = state.hardSystemConnected ? 'Ready to analyze' : 'Service unavailable';
   }
+  const focus = await chrome.runtime.sendMessage({ type: 'focus-capsule-check', page: { url: '', title: '', channels: [] } }).catch(() => null);
+  const capsule = focus?.result;
+  document.getElementById('capsule-name').textContent = capsule?.active && capsule?.capsule ? capsule.capsule : 'No active capsule';
+  document.getElementById('capsule-copy').textContent = capsule?.active ? 'Browser mission lock is active for this focus session.' : 'Start a Discipline focus session to lock the browser mission.';
+  document.getElementById('capsule-state').textContent = capsule?.active && capsule?.capsule ? 'ACTIVE' : 'OFF';
+  document.getElementById('capsule-state').classList.toggle('active', Boolean(capsule?.active && capsule?.capsule));
 }
 enabled.addEventListener('change', async () => {
   await chrome.storage.local.set({ hardSystemEnabled: enabled.checked });

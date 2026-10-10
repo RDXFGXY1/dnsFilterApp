@@ -15,6 +15,11 @@ Format
 
 ## Added
 
+- Discipline Focus Capsules with reusable domain, YouTube-channel, application, strictness, and block-page personality settings.
+- Channel-aware YouTube mission lock in the existing Hard System extension, including automatic first-video channel learning and same-channel continuation.
+- Temporary Windows and Arch application network allowlists with rollback, expiration watchdogs, critical-process exclusions, and restart recovery.
+- AI Session Coach reviews for saved focus sessions with provider-backed analysis and a private deterministic fallback delivered to Intelligence Inbox.
+- Crash-safe restoration of unexpired focus sessions, local activity recording, learned channel state, and remaining enforcement time.
 - Arch Connection Freeze backend using an isolated nftables table, established-flow preservation, aggregate blocked-packet events, and automatic cleanup.
 - Arch per-application network control using cgroup v2 process isolation, private nftables rules, automatic process discovery, persisted recovery state, and safe allow/restore behavior.
 - Arch installation health and diagnostics helpers, safe update backups, and systemd-managed automatic startup.

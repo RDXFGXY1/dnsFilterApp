@@ -122,6 +122,13 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 		s.log.Warnf("App Network Control unavailable: %v", err)
 	} else {
 		s.appNetwork = mgr
+		if s.discipline != nil {
+			if capsule, ok := s.discipline.ActiveFocusCapsule(); ok && len(capsule.AllowedApps) > 0 {
+				if err := mgr.BeginFocusAllowlist(capsule.AllowedApps, s.discipline.ActiveFocusRemaining()); err != nil {
+					s.log.Warnf("Recovered Focus Capsule app allowlist unavailable: %v", err)
+				}
+			}
+		}
 	}
 	if mgr, err := networkintel.New(db.GetDB()); err != nil {
 		s.log.Warnf("Connection Intelligence unavailable: %v", err)
@@ -181,6 +188,8 @@ func (s *Server) setupRoutes() {
 	s.router.GET("/logout", s.handleLogout)
 	s.router.OPTIONS("/extension/v1/analyze", s.hardSystemPreflight)
 	s.router.POST("/extension/v1/analyze", s.hardSystemAnalyze)
+	s.router.OPTIONS("/extension/v1/focus/check", s.hardSystemPreflight)
+	s.router.POST("/extension/v1/focus/check", s.extensionFocusCheck)
 
 	// Protected page routes
 	s.router.GET("/", s.authCheck(), s.handleDashboard)
