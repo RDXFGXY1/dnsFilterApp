@@ -196,8 +196,8 @@ local browsing/activity history.
 - Arch App Network Control is new and must be validated on real hardware. Test it
   with a non-critical application before relying on it.
 
-## License and support
-
-See [LICENSE](LICENSE). Report reproducible problems through
-[GitHub Issues](https://github.com/RDXFGXY1/dnsFilterApp/issues) and include the
-operating system, installation method, steps, and relevant sanitized logs.
+## License
+DNSFilter is free and open-source software licensed under the **GNU General Public License v3.0 (GPL-3.0-only)**.
+You are free to use, study, modify, and redistribute the software under the terms of the GPLv3.
+See the [LICENSE](LICENSE) file for details.
+The DNSFilter name and official branding are subject to a separate [Trademark Policy](TRADEMARKS.md).
