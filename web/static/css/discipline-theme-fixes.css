@@ -1,0 +1,68 @@
+/* Final Discipline skin: sharp geometry, blue accents, neutral black surfaces. */
+.discipline-view,
+.view-guide,.view-kpi,.system-health,.health-score,.health-bar,.insight-banner,
+.project-command,.project-health,.project-signal,.project-command-progress,.project-status,.project-edit,
+.workspace-pane,.workspace-mode-menu,.ws-tab,.ws-more,.bulk-bar,
+.ght-row,.task-block,.tcard,.tcard-head,.tcard-subs,.tcard-sub,.sub-badge,.tw-toggle,
+.task-status-button,.task-status-menu,.hierarchy-action,.hierarchy-primary,
+.inbox-shell,.inbox-folders>button,.inbox-message,.inbox-avatar,.ai-provider-logo,
+.todo-capture,.todo-layout,.todo-rail>button,.todo-project-nav button,.todo-summary span,.todo-item,.todo-check,.todo-dialog,
+.journal-entry,.journal-calendar-day,.journal-type-chip,
+.command-hero,.command-metric,.focus-panel,.focus-session-item,
+.modal,.dialog,.drawer,button,input,select,textarea {
+    border-radius:0!important;
+}
+
+:root[data-theme="dark"] .main,
+:root[data-theme="dark"] .main.wide { background:#050607!important; }
+:root[data-theme="dark"] .page-head { background:#050607!important; }
+:root[data-theme="dark"] .dashboard-command,
+:root[data-theme="dark"] .view-guide,
+:root[data-theme="dark"] .system-health,
+:root[data-theme="dark"] .insight-banner,
+:root[data-theme="dark"] .command-hero { background:#101214!important; color:#f2f5fb!important; border-color:#343a46!important; box-shadow:inset 4px 0 0 var(--primary)!important; }
+:root[data-theme="dark"] .health-score { border-color:var(--primary)!important; }
+:root[data-theme="dark"] .health-bar { background:#262a31!important; border-color:#454c59!important; }
+:root[data-theme="dark"] .health-bar span,
+:root[data-theme="dark"] .progress-fill,
+:root[data-theme="dark"] .mini-bar span,
+:root[data-theme="dark"] .hbar-fill,
+:root[data-theme="dark"] .bc-bar { background:linear-gradient(90deg,#365fc8,#66a9cc)!important; }
+
+/* Project workspace must never inherit the light --ink value as a surface. */
+:root[data-theme="dark"] .project-command { background:#0b0d10!important; color:#f5f7fb!important; border-color:#3b4350!important; box-shadow:5px 5px 0 #3158bd!important; }
+:root[data-theme="dark"] .project-title-line h2 { color:#fff!important; }
+:root[data-theme="dark"] .project-objective { color:#9fa9b8!important; }
+:root[data-theme="dark"] .project-health,
+:root[data-theme="dark"] .project-signal,
+:root[data-theme="dark"] .project-command-progress,
+:root[data-theme="dark"] .planning-signal { background:#15181d!important; border-color:#343b47!important; }
+:root[data-theme="dark"] .project-health strong { color:#6f91eb!important; }
+:root[data-theme="dark"] .project-command .ws-tab:not(.active) { background:#171a20!important; color:#e8ecf4!important; border-color:#434b58!important; }
+:root[data-theme="dark"] .project-command .ws-tab.active { background:#3158bd!important; border-color:#6f8ee0!important; box-shadow:none!important; }
+
+/* Parent tasks and nested work use neutral black/blue instead of brown/orange. */
+:root[data-theme="dark"] .tcard,
+:root[data-theme="dark"] .ght-row,
+:root[data-theme="dark"] .ght-row.is-sub,
+:root[data-theme="dark"] .tcard-subs { background:#0d0f12!important; border-color:#343a44!important; }
+:root[data-theme="dark"] .task-block.has-kids>.ght-row:first-child,
+:root[data-theme="dark"] .tcard.has-kids>.tcard-head { background:#141a29!important; box-shadow:inset 4px 0 0 #4268cc!important; }
+:root[data-theme="dark"] .tcard-meta { background:#15181d!important; border-color:#343a44!important; }
+:root[data-theme="dark"] .sub-badge { background:#0a0c0f!important; color:#fff!important; border:1px solid #4268cc!important; }
+:root[data-theme="dark"] .ght-row.p-medium,
+:root[data-theme="dark"] .tcard.p-medium { border-left-color:#6685dc!important; box-shadow:inset 4px 0 0 #6685dc; }
+:root[data-theme="dark"] .task-status-button.status_in_progress,
+:root[data-theme="dark"] .task-status-button.status-in_progress,
+:root[data-theme="dark"] .csel.status_in_progress,
+:root[data-theme="dark"] .csel.status-in_progress { color:#91aaf0!important; border-color:#6685dc!important; }
+
+/* Activity heatmaps now belong to the same blue visual language. */
+:root[data-theme="dark"] .mhc.l1,:root[data-theme="dark"] .hcell.l1 { background:#1d2b50!important; }
+:root[data-theme="dark"] .mhc.l2,:root[data-theme="dark"] .hcell.l2 { background:#29468d!important; }
+:root[data-theme="dark"] .mhc.l3,:root[data-theme="dark"] .hcell.l3 { background:#3f68cc!important; }
+:root[data-theme="dark"] .mhc.l4,:root[data-theme="dark"] .hcell.l4 { background:#78a0ff!important; }
+
+@media(max-width:700px){
+    .notification-center-panel{right:8px;top:62px}
+}

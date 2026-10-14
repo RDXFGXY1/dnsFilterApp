@@ -110,7 +110,11 @@ func (s *Server) generateIntelligenceBriefing(ctx context.Context) (int64, strin
 		return id, "local", x
 	}
 	if e != nil {
-		return 0, "ai", e
+		// The API key is deliberately unavailable while the vault is locked.
+		// A daily briefing is productivity data, so it must still work using the
+		// deterministic local analyzer instead of forcing a vault unlock.
+		id, localErr := s.discipline.GenerateDailyBriefing()
+		return id, "local_fallback", localErr
 	}
 	snap, e := s.disciplineBriefingSnapshot()
 	if e != nil {
@@ -124,13 +128,15 @@ func (s *Server) generateIntelligenceBriefing(ctx context.Context) (int64, strin
 	defer cancel()
 	raw, e := callBriefingProvider(ctx, p, prompt)
 	if e != nil {
-		s.recordAIProviderResult(p.ID, false, e.Error())
-		return 0, "ai", e
+		s.recordAIProviderResult(p.ID, false, friendlyAIProviderError(e))
+		id, localErr := s.discipline.GenerateDailyBriefing()
+		return id, "local_fallback", localErr
 	}
 	msg, e := parseAIBriefing(raw)
 	if e != nil {
 		s.recordAIProviderResult(p.ID, false, e.Error())
-		return 0, "ai", e
+		id, localErr := s.discipline.GenerateDailyBriefing()
+		return id, "local_fallback", localErr
 	}
 	id, e := s.discipline.CreateInboxMessage(discipline.InboxInput{Sender: p.Name, Subject: msg.Subject, Body: msg.Body, Category: msg.Category, Severity: msg.Severity, ActionLabel: msg.ActionLabel, ActionView: msg.ActionView})
 	if e != nil {
@@ -138,6 +144,25 @@ func (s *Server) generateIntelligenceBriefing(ctx context.Context) (int64, strin
 	}
 	s.recordAIProviderResult(p.ID, true, "")
 	return id, "ai", nil
+}
+
+// friendlyAIProviderError keeps temporary provider failures understandable and
+// prevents a large upstream JSON response from leaking into UI notifications.
+func friendlyAIProviderError(err error) string {
+	if err == nil {
+		return ""
+	}
+	text := strings.ToLower(err.Error())
+	switch {
+	case strings.Contains(text, "http 429"):
+		return "The AI provider is rate-limited. Local analysis was used instead."
+	case strings.Contains(text, "http 500"), strings.Contains(text, "http 502"), strings.Contains(text, "http 503"), strings.Contains(text, "http 504"), strings.Contains(text, "unavailable"), strings.Contains(text, "high demand"):
+		return "The AI provider is temporarily unavailable. Local analysis was used instead."
+	case errors.Is(err, context.DeadlineExceeded), strings.Contains(text, "timeout"), strings.Contains(text, "deadline exceeded"):
+		return "The AI provider timed out. Local analysis was used instead."
+	default:
+		return "The AI provider could not complete the request. Local analysis was used instead."
+	}
 }
 func (s *Server) recordAIProviderResult(id int64, ok bool, detail string) {
 	status := "connected"

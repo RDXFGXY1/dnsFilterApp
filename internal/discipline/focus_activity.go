@@ -20,6 +20,12 @@ type FocusSession struct {
 	EndedAt              string          `json:"ended_at"`
 	Reflection           string          `json:"reflection"`
 	FocusScore           int             `json:"focus_score"`
+	ReviewMessageID      int64           `json:"review_message_id"`
+	ReviewMode           string          `json:"review_mode"`
+	ReviewStatus         string          `json:"review_status"`
+	ReviewError          string          `json:"review_error"`
+	ReviewedAt           string          `json:"reviewed_at"`
+	Review               *InboxMessage   `json:"review,omitempty"`
 	Activity             []FocusActivity `json:"activity,omitempty"`
 	Distractions         []Distraction   `json:"distractions,omitempty"`
 }
@@ -200,9 +206,14 @@ func (m *Manager) EndFocusSession(sessionID int64, status, reflection string, sc
 
 func (m *Manager) FocusSessionDetails(id int64) (FocusSession, error) {
 	var s FocusSession
-	err := m.db.QueryRow(`SELECT id,capsule_id,locked_youtube_channel,task_id,task_title,planned_minutes,actual_seconds,status,activity_logging,started_at,ended_at,reflection,focus_score FROM discipline_focus_sessions WHERE id=?`, id).Scan(&s.ID, &s.CapsuleID, &s.LockedYouTubeChannel, &s.TaskID, &s.TaskTitle, &s.PlannedMinutes, &s.ActualSeconds, &s.Status, &s.ActivityLogging, &s.StartedAt, &s.EndedAt, &s.Reflection, &s.FocusScore)
+	err := m.db.QueryRow(`SELECT id,capsule_id,locked_youtube_channel,task_id,task_title,planned_minutes,actual_seconds,status,activity_logging,started_at,ended_at,reflection,focus_score,review_message_id,review_mode,review_status,review_error,reviewed_at FROM discipline_focus_sessions WHERE id=?`, id).Scan(&s.ID, &s.CapsuleID, &s.LockedYouTubeChannel, &s.TaskID, &s.TaskTitle, &s.PlannedMinutes, &s.ActualSeconds, &s.Status, &s.ActivityLogging, &s.StartedAt, &s.EndedAt, &s.Reflection, &s.FocusScore, &s.ReviewMessageID, &s.ReviewMode, &s.ReviewStatus, &s.ReviewError, &s.ReviewedAt)
 	if err != nil {
 		return s, err
+	}
+	if s.ReviewMessageID > 0 {
+		if review, reviewErr := m.GetInboxMessage(s.ReviewMessageID); reviewErr == nil {
+			s.Review = &review
+		}
 	}
 	rows, err := m.db.Query(`SELECT kind,name,seconds,observations,first_seen,last_seen FROM discipline_focus_activity WHERE session_id=? ORDER BY seconds DESC,observations DESC`, id)
 	if err == nil {
@@ -225,6 +236,25 @@ func (m *Manager) FocusSessionDetails(id int64) (FocusSession, error) {
 		}
 	}
 	return s, nil
+}
+
+func (m *Manager) SetFocusReviewState(sessionID int64, status, mode string, messageID int64, errorText string) error {
+	if status == "" {
+		status = "not_analyzed"
+	}
+	reviewedAt := ""
+	if status == "ready" || status == "failed" {
+		reviewedAt = time.Now().Format(time.RFC3339)
+	}
+	result, err := m.db.Exec(`UPDATE discipline_focus_sessions SET review_status=?,review_mode=?,review_message_id=?,review_error=?,reviewed_at=? WHERE id=?`, status, mode, messageID, strings.TrimSpace(errorText), reviewedAt, sessionID)
+	if err != nil {
+		return err
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return errors.New("focus session not found")
+	}
+	return nil
 }
 
 func (m *Manager) RecentFocusSessions(limit int) ([]FocusSession, error) {

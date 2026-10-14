@@ -7,6 +7,7 @@ This directory contains the permanent documentation for features added to DNS Fi
 - [Hard System](HARD-SYSTEM.md) — score visible webpage content locally and cover high-risk pages with a browser extension.
 - [App Network Control](APP-NETWORK-CONTROL.md) — block one executable through Windows Firewall or Arch cgroup v2 plus nftables.
 - [Connection Freeze](connection-freeze.md) — preserve existing flows and temporarily block new outbound connections on Windows or Arch.
+- [Live Network Test](NETWORK-TEST.md) — measure live TCP latency, jitter, inferred packet loss, download speed, and upload speed on demand.
 - [Go Desktop Control](desktop-control.md) — start the server and configure local DNS from Windows.
 
 - [Security Center](SECURITY-CENTER.md) — review the readiness and status of every security feature from one dashboard.

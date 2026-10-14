@@ -105,10 +105,10 @@ Log 'Matching DNS Filter local CA certificate removed when present.'
 
 $immutable = @(
     'dns-filter.exe', 'web', 'desktop', '.rollback', '.installed-version',
-    'update-windows.ps1', 'uninstall-windows.ps1',
+    'update-windows.ps1', 'uninstall-windows.ps1', 'emergency-restore-dns.ps1',
     'Install or Update DNS Filter.bat', 'Uninstall DNS Filter.bat',
     '1. Start DNS Filter.bat', '2. Enable Protection.bat', '3. Disable Protection.bat',
-    'README.txt', 'RUNNING.md', 'VERSION'
+    'EMERGENCY - Restore Normal DNS.bat', 'README.txt', 'RUNNING.md', 'VERSION'
 )
 foreach ($relative in $immutable) {
     $target = Join-Path $install $relative

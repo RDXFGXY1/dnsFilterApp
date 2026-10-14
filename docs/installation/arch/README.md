@@ -117,6 +117,11 @@ sudo ./uninstall-arch.sh --purge
 ## Emergency recovery
 
 ```bash
+# Works even when the DNS Filter binary or API is unavailable
+sudo /opt/dns-filter/emergency-restore-dns.sh
+# Re-enable later with: sudo systemctl enable --now dns-filter.service
+
+# Normal application-assisted recovery
 sudo /opt/dns-filter/dns-filter reset-app-network
 sudo /opt/dns-filter/dns-filter reset-dns
 
@@ -133,6 +138,7 @@ sudo nft delete table inet dnsfilter_freeze
 | `/opt/dns-filter/desktop/DNSFilter` | Avalonia desktop client |
 | `/opt/dns-filter/configs/` | Configuration and custom rules |
 | `/opt/dns-filter/data/` | Database, logs, Vault, and local state |
+| `/opt/dns-filter/emergency-restore-dns.sh` | Standalone automatic-DNS recovery |
 | `/etc/systemd/system/dns-filter.service` | Background service |
 | `/usr/share/applications/dns-filter.desktop` | Application-menu entry |
 | `/var/lib/dns-filter-backups/` | Update backups |

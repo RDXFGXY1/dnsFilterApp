@@ -106,12 +106,12 @@ function renderBarchart(elId, series) {
 function taskPriority(tasks) {
     const p = { high: 0, medium: 0, low: 0 };
     tasks.forEach(t => { p[t.priority] = (p[t.priority] || 0) + 1; });
-    return [['High', p.high, '#d1553b'], ['Medium', p.medium, '#d97706'], ['Low', p.low, '#2f8a55']];
+    return [['High', p.high, '#d1553b'], ['Medium', p.medium, '#6685dc'], ['Low', p.low, '#2f8a55']];
 }
 function taskStatus(tasks) {
     const s = { todo: 0, in_progress: 0, done: 0 };
     tasks.forEach(t => { s[t.status] = (s[t.status] || 0) + 1; });
-    return [['Todo', s.todo, '#9a9384'], ['In progress', s.in_progress, '#d97706'], ['Done', s.done, '#2f8a55']];
+    return [['Todo', s.todo, '#8a93a3'], ['In progress', s.in_progress, '#4268cc'], ['Done', s.done, '#2f8a55']];
 }
 function taskLabels(tasks) {
     const c = {};

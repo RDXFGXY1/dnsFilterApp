@@ -116,6 +116,12 @@ func (m *Manager) ListInboxMessages(scope, query string) ([]InboxMessage, error)
 	return out, rows.Err()
 }
 
+func (m *Manager) GetInboxMessage(id int64) (InboxMessage, error) {
+	var x InboxMessage
+	err := m.db.QueryRow(`SELECT id,sender,subject,body,category,severity,action_label,action_view,is_read,starred,archived,created_at FROM discipline_inbox_messages WHERE id=?`, id).Scan(&x.ID, &x.Sender, &x.Subject, &x.Body, &x.Category, &x.Severity, &x.ActionLabel, &x.ActionView, &x.IsRead, &x.Starred, &x.Archived, &x.CreatedAt)
+	return x, err
+}
+
 func (m *Manager) InboxStats() (InboxStats, error) {
 	var s InboxStats
 	err := m.db.QueryRow(`SELECT COUNT(*),COALESCE(SUM(CASE WHEN is_read=0 AND archived=0 THEN 1 ELSE 0 END),0),COALESCE(SUM(CASE WHEN starred=1 AND archived=0 THEN 1 ELSE 0 END),0),COALESCE(SUM(archived),0) FROM discipline_inbox_messages`).Scan(&s.Total, &s.Unread, &s.Starred, &s.Archived)

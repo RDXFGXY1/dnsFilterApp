@@ -43,6 +43,7 @@ configs/config.yaml
 
 # Local build/test caches
 .tmp-go-cache-*/
+.cache/
 application/**/bin/
 application/**/obj/
 

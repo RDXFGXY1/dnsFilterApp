@@ -26,6 +26,7 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
 	"github.com/RDXFGXY1/dns-filter-app/internal/hardsystem"
 	"github.com/RDXFGXY1/dns-filter-app/internal/netdns"
+	"github.com/RDXFGXY1/dns-filter-app/internal/nettest"
 	"github.com/RDXFGXY1/dns-filter-app/internal/networkintel"
 	"github.com/RDXFGXY1/dns-filter-app/internal/plugins"
 	"github.com/RDXFGXY1/dns-filter-app/internal/vault"
@@ -49,6 +50,7 @@ type Server struct {
 	hardSystem       *hardsystem.Manager
 	appNetwork       *appnetwork.Manager
 	networkIntel     *networkintel.Manager
+	networkTest      *nettest.Manager
 	dnsWatch         *dnswatch.Manager
 	dnsBypass        *dnsbypass.Manager
 	downloadGuard    *downloadguard.Manager
@@ -86,6 +88,7 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 		csrfTokens:       make(map[string]string),
 		loginAttempts:    make(map[string]authAttempt),
 		recoveryAttempts: make(map[string]authAttempt),
+		networkTest:      nettest.New(),
 	}
 	router.Use(gin.Recovery(), s.securityMiddleware(), requestSizeMiddleware())
 

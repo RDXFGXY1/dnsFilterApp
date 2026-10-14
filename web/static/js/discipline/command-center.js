@@ -381,10 +381,11 @@ async function loadFocusHistory(keepSelection = false) {
     }
     list.innerHTML = sessions.map(s => {
         const activityCount = (s.activity || []).reduce((n,a) => n + Number(a.observations || 0), 0);
+        const reviewLabel = s.review_status === 'ready' ? (s.review_mode === 'ai' ? ' · AI reviewed' : ' · Local review') : '';
         return `<button class="focus-session-item ${selected === Number(s.id) ? 'active' : ''}" data-id="${s.id}" onclick="openFocusSession(${s.id},this)">
             <span class="focus-session-status ${esc(s.status || 'active')}">${esc(s.status || 'active')}</span>
             <strong>${esc(s.task_title || 'Focused work')}</strong>
-            <small>${focusWhen(s.started_at)} · ${focusDuration(s.actual_seconds)} · ${activityCount} observations</small>
+            <small>${focusWhen(s.started_at)} · ${focusDuration(s.actual_seconds)} · ${activityCount} observations${reviewLabel}</small>
         </button>`;
     }).join('');
     if (selected && sessions.some(s => Number(s.id) === selected)) openFocusSession(selected, list.querySelector(`[data-id="${selected}"]`));
@@ -404,15 +405,28 @@ async function openFocusSession(id, button) {
         ? `<div class="focus-history-notice"><strong>Focus Capsule · ${esc(capsule.name)}</strong>${s.locked_youtube_channel ? `<br>Locked YouTube channel: ${esc(s.locked_youtube_channel)}` : ''}</div>`
         : '';
     const activityRows = items => items.length ? items.map(a => `<div class="focus-activity-row"><div><strong>${esc(a.name)}</strong><small>${a.observations} observation${Number(a.observations) === 1 ? '' : 's'}</small></div><b>${focusDuration(a.seconds)}</b></div>`).join('') : '<p class="focus-history-muted">No records captured.</p>';
-    detail.innerHTML = `<header class="focus-detail-head"><div><span class="command-kicker">Session ${s.id}</span><h3>${esc(s.task_title || 'Focused work')}</h3><p>${focusWhen(s.started_at)} · ${esc(s.status || 'active')}</p></div><div class="focus-detail-time"><strong>${focusDuration(s.actual_seconds)}</strong><span>${s.planned_minutes || 0}m planned</span><button class="ws-tab" onclick="generateFocusCoach(${s.id},this)">AI coach</button></div></header>
+    const reviewMode = s.review_mode === 'ai' ? 'AI review' : s.review_mode === 'local_fallback' ? 'Local fallback' : 'Local review';
+    const review = s.review ? `<section class="focus-ai-review"><div><span class="command-kicker">${reviewMode}</span><h4>${esc(s.review.subject || 'Session review')}</h4></div><p>${esc(s.review.body || '').replace(/\n/g,'<br>')}</p><small>Saved to Intelligence Inbox · ${focusWhen(s.reviewed_at || s.review.created_at)}</small></section>` : s.review_status === 'failed' ? `<section class="focus-ai-review failed"><h4>Review failed</h4><p>${esc(s.review_error || 'The review could not be generated. Your local analytics are still available below.')}</p></section>` : '';
+    const coachButton = s.status === 'active' ? '' : `<button class="ws-tab" onclick="generateFocusCoach(${s.id},this)">${s.review_mode === 'ai' ? 'Regenerate AI review' : s.review ? 'Upgrade with AI' : 'Generate AI review'}</button>`;
+    detail.innerHTML = `<header class="focus-detail-head"><div><span class="command-kicker">Session ${s.id}</span><h3>${esc(s.task_title || 'Focused work')}</h3><p>${focusWhen(s.started_at)} · ${esc(s.status || 'active')}</p></div><div class="focus-detail-time"><strong>${focusDuration(s.actual_seconds)}</strong><span>${s.planned_minutes || 0}m planned</span>${coachButton}</div></header>
         ${capsuleSummary}
+        ${review}
         ${s.activity_logging ? '' : '<div class="focus-history-notice">Local activity logging was disabled for this session.</div>'}
         <div class="focus-detail-kpis"><span><strong>${apps.length}</strong> apps</span><span><strong>${domains.length}</strong> domains</span><span><strong>${activity.reduce((n,a)=>n+Number(a.observations||0),0)}</strong> observations</span><span><strong>${distractions.length}</strong> distractions</span></div>
         <div class="focus-activity-columns"><section><h4>Applications</h4>${activityRows(apps)}</section><section><h4>DNS-visible domains</h4>${activityRows(domains)}</section></div>
         <section class="focus-distraction-log"><h4>Distractions</h4>${distractions.length ? distractions.map(d => `<span>${esc(d.label)}${d.note ? ` · ${esc(d.note)}` : ''}</span>`).join('') : '<p class="focus-history-muted">No distractions logged.</p>'}</section>
         ${s.reflection ? `<section class="focus-reflection"><h4>Reflection</h4><p>${esc(s.reflection)}</p>${s.focus_score ? `<b>Focus score ${s.focus_score}/10</b>` : ''}</section>` : ''}`;
 }
-async function generateFocusCoach(id,button){button.disabled=true;button.textContent='Analyzing…';const result=await api('POST',`/focus-sessions/${id}/coach`,{});button.disabled=false;button.textContent='AI coach';if(!result?.success)return notify(result?.error||'Could not generate the session review',true);notify(`${result.mode==='ai'?'AI':'Local'} session review sent to Intelligence Inbox`)}
+async function generateFocusCoach(id,button){
+    const original=button.textContent;
+    button.disabled=true;button.textContent='Analyzing…';
+    const result=await api('POST',`/focus-sessions/${id}/coach`,{regenerate:true});
+    if(!result?.success){button.disabled=false;button.textContent=original;return notify(result?.error||'Could not generate the session review',true)}
+    const activeButton=document.querySelector(`.focus-session-item[data-id="${id}"]`);
+    await openFocusSession(id,activeButton);
+    await loadFocusHistory(true);
+    notify(result.mode==='ai'?'AI focus review is ready and saved to Intelligence Inbox':'AI was unavailable, so a reliable local review was saved instead');
+}
 function renderFocusClock() {
     document.getElementById('focus-clock').textContent = `${String(Math.floor(focusSeconds/60)).padStart(2,'0')}:${String(focusSeconds%60).padStart(2,'0')}`;
 }
@@ -429,7 +443,7 @@ function startFocusCountdown() {
             focusSessionID = 0; clearFocusState(); setFocusRunningUI(false); renderFocusLog();
             document.getElementById('focus-start').textContent = 'Start another';
             document.getElementById('focus-state').textContent = 'Complete';
-            notify(result?.warning || 'Focus session complete — journal and activity summary saved', Boolean(result?.warning));
+            notify(result?.warning || 'Focus session complete — review saved to Intelligence Inbox', Boolean(result?.warning));
         }
     }, 1000);
 }
@@ -458,7 +472,7 @@ async function endFocusSession() {
     renderFocusClock(); renderFocusLog();
     document.getElementById('focus-start').textContent = 'Start another';
     document.getElementById('focus-state').textContent = 'Complete';
-    notify(result?.warning || 'Focus session ended — time, reflection, and activity saved', Boolean(result?.warning));
+    notify(result?.warning || 'Focus session ended — review saved to Intelligence Inbox', Boolean(result?.warning));
 }
 async function resetFocus() {
     clearInterval(focusTimer); focusTimer = null;

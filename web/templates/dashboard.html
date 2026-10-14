@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/static/css/security-center.css?v=1">
     <link rel="stylesheet" href="/static/css/dashboard-organizer.css?v=1">
     <link rel="stylesheet" href="/static/css/professional-ui.css?v=3">
+    <link rel="stylesheet" href="/static/css/notification-center.css?v=2">
 </head>
 <body>
     <div class="app">
@@ -36,6 +37,9 @@
                 <a href="#" data-view="live">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
                     Live</a>
+                <a href="#networktest" data-view="networktest">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4-4 4 3 7-8"/><path d="M15 7h4v4"/><path d="M4 20h16"/></svg>
+                    Network Test</a>
                 <a href="#" data-view="activity">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     Activity</a>
@@ -818,10 +822,12 @@
 
     <div class="notification" id="notification"></div>
 
+    <script src="/static/js/notification-center.js?v=1"></script>
     <script src="/static/js/security-bootstrap.js?v=1"></script>
     <script nonce="{{ .csp_nonce }}">
         // ── Notifications ──────────────────────────────────────────
         function showNotification(msg, isError = false) {
+            window.saveAppNotification?.(msg, Boolean(isError), { source: 'DNS Filter' });
             const el = document.getElementById('notification');
             el.textContent = (isError ? '⚠  ' : '✓  ') + msg;
             el.classList.toggle('error', !!isError);
@@ -1834,6 +1840,8 @@
     <link rel="stylesheet" href="/static/css/connection-freeze.css?v=2">
     <script src="/static/js/connection-freeze.js?v=2"></script>
     <script src="/static/js/dashboard-security-packs.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/network-test.css?v=1">
+    <script src="/static/js/dashboard-network-test.js?v=1"></script>
     <link rel="stylesheet" href="/static/css/vault-quick-unlock.css?v=2">
     <script src="/static/js/dashboard-vault.js?v=8"></script>
     <script src="/static/js/dashboard-security-center.js?v=1"></script>

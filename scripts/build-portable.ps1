@@ -50,6 +50,7 @@ Copy-Item "configs\custom-blocklist.yaml" (Join-Path $dist "configs\custom-block
 Copy-Item "web" $dist -Recurse
 Copy-Item "scripts\update-windows.ps1" (Join-Path $dist "update-windows.ps1")
 Copy-Item "scripts\uninstall-windows.ps1" (Join-Path $dist "uninstall-windows.ps1")
+Copy-Item "scripts\emergency-restore-dns.ps1" (Join-Path $dist "emergency-restore-dns.ps1")
 Copy-Item "internal\version\VERSION" (Join-Path $dist "VERSION")
 if (Get-Command dotnet -ErrorAction SilentlyContinue) {
     Write-Host "==> Publishing Windows desktop..." -ForegroundColor Cyan
@@ -159,6 +160,10 @@ TO STOP
   - Close the DNS Filter window, then run "3. Disable Protection.bat" to restore normal DNS.
   - IMPORTANT: if you stop the filter without disabling protection, DNS will not work.
 
+EMERGENCY RECOVERY
+  - If the app or service cannot start, run "EMERGENCY - Restore Normal DNS.bat".
+  - It restores automatic DNS without deleting configuration, Vault, or other user data.
+
 NOTES
   - Runs as Administrator (needs ports 53 / 80 / 443).
   - "2. Enable Protection.bat" routes both IPv4 and IPv6 DNS locally and installs the
@@ -203,6 +208,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\uninstall-windows.ps1" -I
 pause
 '@
 Set-Content -Path (Join-Path $dist "Uninstall DNS Filter.bat") -Value $uninstall -Encoding ASCII
+
+$emergencyRecovery = @'
+@echo off
+title DNS Filter - Emergency DNS Recovery
+cd /d "%~dp0"
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\emergency-restore-dns.ps1"
+if %errorlevel% neq 0 pause
+'@
+Set-Content -Path (Join-Path $dist "EMERGENCY - Restore Normal DNS.bat") -Value $emergencyRecovery -Encoding ASCII
 Set-Content -Path (Join-Path $dist "README.txt") -Value $readme -Encoding UTF8
 
 # ── Authenticode signing ────────────────────────────────────────────────────

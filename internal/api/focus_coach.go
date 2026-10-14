@@ -41,11 +41,18 @@ func localFocusCoach(session discipline.FocusSession) aiBriefing {
 	return aiBriefing{Subject: "Focus review · " + session.TaskTitle, Body: body, Category: "Focus coach", Severity: "success", ActionLabel: "Open Command Center", ActionView: "command"}
 }
 
-func (s *Server) generateFocusCoach(ctx context.Context, sessionID int64) (int64, string, error) {
+func (s *Server) generateFocusCoach(ctx context.Context, sessionID int64, regenerate bool) (int64, string, error) {
 	session, err := s.discipline.FocusSessionDetails(sessionID)
 	if err != nil {
 		return 0, "", err
 	}
+	if session.Status == "active" {
+		return 0, "", errors.New("finish the focus session before requesting its review")
+	}
+	if session.ReviewMessageID > 0 && !regenerate && session.Review != nil {
+		return session.ReviewMessageID, session.ReviewMode, nil
+	}
+	_ = s.discipline.SetFocusReviewState(sessionID, "analyzing", session.ReviewMode, session.ReviewMessageID, "")
 	message := localFocusCoach(session)
 	mode := "local"
 	provider, providerErr := s.defaultBriefingProvider()
@@ -58,24 +65,36 @@ func (s *Server) generateFocusCoach(ctx context.Context, sessionID int64) (int64
 		defer cancel()
 		raw, err := callBriefingProvider(requestCtx, provider, prompt)
 		if err != nil {
-			s.recordAIProviderResult(provider.ID, false, err.Error())
-			return 0, "ai", err
+			s.recordAIProviderResult(provider.ID, false, friendlyAIProviderError(err))
+			mode = "local_fallback"
+		} else if parsed, parseErr := parseAIBriefing(raw); parseErr != nil {
+			s.recordAIProviderResult(provider.ID, false, parseErr.Error())
+			mode = "local_fallback"
+		} else {
+			message = parsed
+			message.Category, message.ActionLabel, message.ActionView = "Focus coach", "Open Command Center", "command"
+			mode = "ai"
+			s.recordAIProviderResult(provider.ID, true, "")
 		}
-		message, err = parseAIBriefing(raw)
-		if err != nil {
-			s.recordAIProviderResult(provider.ID, false, err.Error())
-			return 0, "ai", err
-		}
-		message.Category, message.ActionLabel, message.ActionView = "Focus coach", "Open Command Center", "command"
-		mode = "ai"
-		s.recordAIProviderResult(provider.ID, true, "")
 	} else if !errors.Is(providerErr, sql.ErrNoRows) {
-		return 0, "ai", providerErr
+		// A locked vault only makes the encrypted provider key unavailable. The
+		// local focus review remains usable and is still saved to the inbox.
+		mode = "local_fallback"
 	}
 	sender := "Discipline Session Coach"
 	if mode == "ai" {
 		sender = strings.TrimSpace(provider.Name)
 	}
 	id, err := s.discipline.CreateInboxMessage(discipline.InboxInput{Sender: sender, Subject: message.Subject, Body: message.Body, Category: message.Category, Severity: message.Severity, ActionLabel: message.ActionLabel, ActionView: message.ActionView})
-	return id, mode, err
+	if err != nil {
+		_ = s.discipline.SetFocusReviewState(sessionID, "failed", mode, session.ReviewMessageID, err.Error())
+		return 0, mode, err
+	}
+	if regenerate && session.ReviewMessageID > 0 && session.ReviewMessageID != id {
+		_ = s.discipline.DeleteInboxMessage(session.ReviewMessageID)
+	}
+	if err := s.discipline.SetFocusReviewState(sessionID, "ready", mode, id, ""); err != nil {
+		return 0, mode, err
+	}
+	return id, mode, nil
 }

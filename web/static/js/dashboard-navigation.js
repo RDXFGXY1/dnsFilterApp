@@ -9,7 +9,7 @@
   };
   const groups = [
     ['dashboard', 'Dashboard', ['overview', 'security']],
-    ['monitor', 'Monitor', ['live', 'connections', 'alerts', 'destinations', 'downloads', 'routewatch', 'activity']],
+    ['monitor', 'Monitor', ['live', 'networktest', 'connections', 'alerts', 'destinations', 'downloads', 'routewatch', 'activity']],
     ['protection', 'Protection', ['protection', 'privacy', 'rules']],
     ['automation', 'Automation', ['profiles', 'schedules', 'focus', 'wellbeing']],
     ['advanced', 'Advanced', ['learning', 'decisions', 'freeze']],

@@ -48,6 +48,7 @@ if [[ ! -x "$DESKTOP_SOURCE" ]]; then DESKTOP_SOURCE="$SOURCE_DIR/build/desktop/
 [[ -f "$SOURCE_DIR/dns-filter.service" ]] || fail "The systemd service file is missing."
 [[ -x "$SOURCE_DIR/arch-health-check.sh" ]] || fail "The Arch health-check helper is missing."
 [[ -x "$SOURCE_DIR/arch-diagnostics.sh" ]] || fail "The Arch diagnostics helper is missing."
+[[ -x "$SOURCE_DIR/emergency-restore-dns.sh" ]] || fail "The emergency DNS recovery helper is missing."
 
 if [[ $INSTALL_DEPS -eq 1 ]]; then
   step "Installing required Arch runtime libraries"
@@ -93,6 +94,7 @@ fi
 [[ -f "$SOURCE_DIR/README.md" ]] && install -m 0644 "$SOURCE_DIR/README.md" "$INSTALL_DIR/README.md"
 install -m 0755 "$SOURCE_DIR/arch-health-check.sh" "$INSTALL_DIR/arch-health-check.sh"
 install -m 0755 "$SOURCE_DIR/arch-diagnostics.sh" "$INSTALL_DIR/arch-diagnostics.sh"
+install -m 0755 "$SOURCE_DIR/emergency-restore-dns.sh" "$INSTALL_DIR/emergency-restore-dns.sh"
 chmod 0700 "$INSTALL_DIR/configs" "$INSTALL_DIR/data"
 
 step "Installing and enabling the systemd background service"

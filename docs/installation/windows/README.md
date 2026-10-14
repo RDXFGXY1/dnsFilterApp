@@ -55,6 +55,13 @@ JavaScript changes become visible after a browser refresh.
 
 ## Health and recovery
 
+If DNS Filter cannot start or `dns-filter.exe` is unavailable, run
+**EMERGENCY - Restore Normal DNS.bat** as Administrator from the extracted or
+installed release folder. It stops DNS Filter temporarily and restores automatic
+DNS without deleting configuration, Vault, logs, or other user data. Automatic
+startup is paused; run **Install or Update DNS Filter.bat** again when you want
+to re-enable protection.
+
 Run commands from an Administrator PowerShell terminal:
 
 ```powershell

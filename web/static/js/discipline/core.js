@@ -24,6 +24,7 @@ function esc(s) {
 }
 
 function notify(msg, isErr) {
+	window.saveAppNotification?.(msg, Boolean(isErr), { source: 'Discipline' });
     const el = document.getElementById('notification');
     el.textContent = (isErr ? '⚠  ' : '✓  ') + msg;
     el.classList.toggle('error', !!isErr);

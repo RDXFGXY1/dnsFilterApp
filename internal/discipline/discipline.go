@@ -274,7 +274,12 @@ func (m *Manager) init() error {
 			started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			ended_at TEXT DEFAULT '',
 			reflection TEXT DEFAULT '',
-			focus_score INTEGER DEFAULT 0
+			focus_score INTEGER DEFAULT 0,
+			review_message_id INTEGER DEFAULT 0,
+			review_mode TEXT DEFAULT '',
+			review_status TEXT DEFAULT 'not_analyzed',
+			review_error TEXT DEFAULT '',
+			reviewed_at TEXT DEFAULT ''
 		)`,
 		`CREATE TABLE IF NOT EXISTS discipline_focus_activity (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -371,6 +376,11 @@ func (m *Manager) init() error {
 	m.db.Exec(`ALTER TABLE discipline_tasks ADD COLUMN focus_profile_id INTEGER DEFAULT 0`)
 	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN capsule_id INTEGER DEFAULT 0`)
 	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN locked_youtube_channel TEXT DEFAULT ''`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN review_message_id INTEGER DEFAULT 0`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN review_mode TEXT DEFAULT ''`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN review_status TEXT DEFAULT 'not_analyzed'`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN review_error TEXT DEFAULT ''`)
+	m.db.Exec(`ALTER TABLE discipline_focus_sessions ADD COLUMN reviewed_at TEXT DEFAULT ''`)
 	return nil
 }
 

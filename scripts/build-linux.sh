@@ -28,9 +28,10 @@ cp "$ROOT/internal/version/VERSION" "$DIST/VERSION"
 cp "$ROOT/scripts/dns-filter.service" "$DIST/dns-filter.service"
 cp "$ROOT/scripts/arch-health-check.sh" "$DIST/arch-health-check.sh"
 cp "$ROOT/scripts/arch-diagnostics.sh" "$DIST/arch-diagnostics.sh"
+cp "$ROOT/scripts/emergency-restore-dns-arch.sh" "$DIST/emergency-restore-dns.sh"
 cp "$ROOT/docs/installation/arch/README.md" "$DIST/RUNNING.md"
 cp "$ROOT/docs/installation/arch/TEST-CHECKLIST.md" "$DIST/ARCH-TEST-CHECKLIST.md"
-chmod +x "$DIST/dns-filter" "$DIST/desktop/DNSFilter" "$DIST/arch-health-check.sh" "$DIST/arch-diagnostics.sh"
+chmod +x "$DIST/dns-filter" "$DIST/desktop/DNSFilter" "$DIST/arch-health-check.sh" "$DIST/arch-diagnostics.sh" "$DIST/emergency-restore-dns.sh"
 
 cat > "$DIST/install.sh" <<'INSTALL'
 #!/usr/bin/env bash

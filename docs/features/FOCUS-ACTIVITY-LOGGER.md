@@ -17,6 +17,6 @@ The user can add a reflection and focus score. A completed session can create a 
 
 ## AI analysis boundary
 
-Focus History now includes an explicit **AI coach** action. It sends the selected structured session record to the enabled provider only when the user requests it and the Secure Vault is unlocked. Without a configured provider, the app creates a deterministic local review. The resulting review is saved to Intelligence Inbox. Model use remains visible and optional.
+Focus History includes an explicit **Generate AI review** action. Every completed session first receives a reliable local review, so analytics are never lost when the vault is locked, no model is configured, or a provider is temporarily unavailable. On request, the structured session record is sent to the enabled provider. The linked result is shown inside the session details and saved to Intelligence Inbox. The session remembers whether its latest result is AI-generated, local, still analyzing, or failed, and exposes a retry/regenerate action without accumulating duplicate messages.
 
 Focus Capsules extend this logger with browser mission rules, crash recovery, and temporary application network allowlists. See [Focus Capsules](FOCUS-CAPSULES.md).

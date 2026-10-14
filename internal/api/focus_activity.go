@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/RDXFGXY1/dns-filter-app/internal/discipline"
 )
 
 func focusSessionID(c *gin.Context) int64 {
@@ -95,7 +97,20 @@ func (s *Server) discEndFocusSession(c *gin.Context) {
 			warning = releaseErr.Error()
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "session": item, "warning": warning})
+	messageID := int64(0)
+	if x.Status == "completed" {
+		message := localFocusCoach(item)
+		messageID, _ = s.discipline.CreateInboxMessage(discipline.InboxInput{
+			Sender: "Discipline Session Coach", Subject: message.Subject, Body: message.Body,
+			Category: message.Category, Severity: message.Severity,
+			ActionLabel: message.ActionLabel, ActionView: message.ActionView,
+		})
+		if messageID > 0 {
+			_ = s.discipline.SetFocusReviewState(item.ID, "ready", "local", messageID, "")
+			item, _ = s.discipline.FocusSessionDetails(item.ID)
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "session": item, "warning": warning, "message_id": messageID})
 }
 
 func (s *Server) discFocusSessions(c *gin.Context) {
@@ -116,7 +131,11 @@ func (s *Server) discFocusSession(c *gin.Context) {
 }
 
 func (s *Server) discFocusCoach(c *gin.Context) {
-	id, mode, err := s.generateFocusCoach(c.Request.Context(), focusSessionID(c))
+	var x struct {
+		Regenerate bool `json:"regenerate"`
+	}
+	_ = c.ShouldBindJSON(&x)
+	id, mode, err := s.generateFocusCoach(c.Request.Context(), focusSessionID(c), x.Regenerate)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

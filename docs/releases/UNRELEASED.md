@@ -15,6 +15,10 @@ Format
 
 ## Added
 
+- Standalone emergency DNS recovery files for Windows and Arch that restore automatic DNS even when the service, dashboard, or main executable is unavailable, without deleting user data.
+- Focus sessions now keep a persistent linked review, show it directly in Focus History, and offer Generate, Retry, Upgrade, and Regenerate AI Review actions. A local review remains available when the AI provider or Secure Vault is unavailable.
+- Persistent Notification Center shared by the DNS dashboard and Discipline, with unread state and saved local history.
+- Live Network Test with continuously updated TCP ping, jitter, inferred packet loss, bounded download/upload speed tests, cancellation, and Quick/Full data presets on Windows and Arch.
 - Discipline Focus Capsules with reusable domain, YouTube-channel, application, strictness, and block-page personality settings.
 - Channel-aware YouTube mission lock in the existing Hard System extension, including automatic first-video channel learning and same-channel continuation.
 - Temporary Windows and Arch application network allowlists with rollback, expiration watchdogs, critical-process exclusions, and restart recovery.
@@ -40,6 +44,9 @@ Format
 - Canonical application version shared by the Go service, Windows desktop, dashboard, and packaging scripts.
 
 ## Changed
+
+- Discipline briefings and focus reviews now fall back to private local analysis when the Secure Vault is locked or an AI provider is temporarily unavailable.
+- Completing a focus session now saves an immediate review to Intelligence Inbox.
 
 - Official Linux packaging and documentation now target Arch and Arch-based distributions; unsupported generic Linux/macOS instructions were removed.
 - App Network Control reports the active operating-system backend and accepts native executable paths on Windows and Linux.
