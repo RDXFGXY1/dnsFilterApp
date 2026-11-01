@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/RDXFGXY1/dns-filter-app/internal/nettest"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,14 +12,26 @@ func (s *Server) networkTestStart(c *gin.Context) {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "network test is unavailable"})
 		return
 	}
-	var body struct {
-		Mode string `json:"mode"`
-	}
+	var body nettest.Options
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "valid test settings are required"})
 		return
 	}
-	c.JSON(http.StatusAccepted, s.networkTest.Start(body.Mode))
+	result, err := s.networkTest.StartWithOptions(body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, result)
+}
+
+func (s *Server) networkTestHistory(c *gin.Context) {
+	items, err := s.db.GetNetworkTestHistory(30)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not load Network Test history"})
+		return
+	}
+	c.JSON(http.StatusOK, items)
 }
 
 func (s *Server) networkTestStatus(c *gin.Context) {

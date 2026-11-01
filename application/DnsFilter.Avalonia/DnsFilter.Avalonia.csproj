@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\dns-filter.ico</ApplicationIcon>
     <AssemblyName>DNSFilter</AssemblyName>
     <Version>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\..\..\internal\version\VERSION').Trim())</Version>
     <InformationalVersion>$(Version)</InformationalVersion>
@@ -24,5 +25,8 @@
 
   <ItemGroup>
     <Compile Include="..\DnsFilter.Desktop\ApiClient.cs" Link="Services\ApiClient.cs" />
+    <AvaloniaResource Include="Assets\dns-filter.ico" />
+    <Content Include="Assets\dns-filter.ico;Assets\dns-filter.png;Notifications\Show-Notification.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\build\dns-filter-notifications.exe" Link="dns-filter-notifications.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('..\..\build\dns-filter-notifications.exe') And ('$(RuntimeIdentifier)' == '' Or '$(RuntimeIdentifier)' == 'win-x64')" />
   </ItemGroup>
 </Project>

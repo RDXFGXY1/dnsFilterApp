@@ -38,19 +38,29 @@ function Test-Administrator {
 function Restart-Elevated {
     $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', ('"' + $PSCommandPath + '"'), $Action)
     if ($NoBuild) { $arguments += '-NoBuild' }
-    Start-Process powershell -Verb RunAs -ArgumentList $arguments -WorkingDirectory $root
+    Start-Process powershell -Verb RunAs -WindowStyle Hidden -ArgumentList $arguments -WorkingDirectory $root
 }
 
 function Get-DevProcess {
-    if (-not (Test-Path -LiteralPath $pidFile)) { return $null }
-    $devPID = 0
-    if (-not [int]::TryParse((Get-Content -Raw -LiteralPath $pidFile).Trim(), [ref]$devPID)) { return $null }
-    $process = Get-Process -Id $devPID -ErrorAction SilentlyContinue
-    if ($null -eq $process -or $process.ProcessName -ne 'dns-filter-dev') { return $null }
-    return $process
+    if (Test-Path -LiteralPath $pidFile) {
+        $devPID = 0
+        if ([int]::TryParse((Get-Content -Raw -LiteralPath $pidFile).Trim(), [ref]$devPID)) {
+            $process = Get-Process -Id $devPID -ErrorAction SilentlyContinue
+            if ($null -ne $process -and $process.ProcessName -eq 'dns-filter-dev' -and $process.Path -eq $exe) { return $process }
+        }
+    }
+    # Scheduled startup creates a new PID after reboot; do not rely on an old file.
+    return Get-Process -Name 'dns-filter-dev' -ErrorAction SilentlyContinue |
+        Where-Object Path -eq $exe | Select-Object -First 1
 }
 
+function Get-ManagedStartupTask {
+    $task = Get-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue
+    if ($null -ne $task -and $task.Actions[0].Execute -eq $exe) { return $task }
+    return $null
+}
 function Stop-DnsFilterProcesses {
+    if ($null -ne (Get-ManagedStartupTask)) { Stop-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue }
     $ids = [Collections.Generic.HashSet[int]]::new()
     $dev = Get-DevProcess
     if ($null -ne $dev) { [void]$ids.Add($dev.Id) }
@@ -102,6 +112,26 @@ function Start-DevServer {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $pidFile), $logDir | Out-Null
     Remove-Item -LiteralPath $stdoutLog, $stderrLog -Force -ErrorAction SilentlyContinue
 
+    $managed = Get-ManagedStartupTask
+    if ($null -ne $managed -and $managed.Settings.Enabled) {
+        # Keep the SYSTEM identity used by startup; an interactive duplicate can
+        # conflict with Windows ICS even when the SYSTEM loopback listener works.
+        Start-ScheduledTask -TaskName 'DNSFilter'
+        for ($attempt = 1; $attempt -le 90; $attempt++) {
+            Start-Sleep -Milliseconds 500
+            try {
+                $health = Invoke-RestMethod -Uri $healthURL -TimeoutSec 2
+                $scheduledProcess = Get-DevProcess
+                if ($health.ready -and $null -ne $scheduledProcess) {
+                    Set-Content -LiteralPath $pidFile -Value $scheduledProcess.Id -Encoding ASCII
+                    Write-Host 'DNS Filter is running through its Windows startup task.' -ForegroundColor Green
+                    Write-Host 'Dashboard: http://dnsfilter.localhost:8080'
+                    return
+                }
+            } catch {}
+        }
+        throw 'The scheduled development server did not become healthy. Check the Windows Startup diagnostics and data/logs/dns-filter.log.'
+    }
     Write-Host 'Starting directly from the repository...' -ForegroundColor Cyan
     $process = Start-Process -FilePath $exe -ArgumentList '-dev' -WorkingDirectory $root -WindowStyle Hidden -PassThru `
         -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog

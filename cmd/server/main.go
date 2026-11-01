@@ -51,7 +51,15 @@ func main() {
 			runAppNetworkReset()
 			return
 		case "install-autostart":
-			if err := autostart.Enable(); err != nil {
+			mode := autostart.ModeBoot
+			if len(os.Args) > 2 {
+				mode = os.Args[2]
+			}
+			if mode != autostart.ModeBoot && mode != autostart.ModeLogin {
+				fmt.Println("Usage: dns-filter install-autostart [boot|login]")
+				os.Exit(1)
+			}
+			if err := autostart.Configure(autostart.Options{Mode: mode, RecoverDNS: true}); err != nil {
 				fmt.Printf("Failed to install Windows background startup: %v\n", err)
 				os.Exit(1)
 			}
@@ -63,6 +71,16 @@ func main() {
 				os.Exit(1)
 			}
 			fmt.Println("DNS Filter background startup removed.")
+			return
+		case "recover-dns":
+			recovered, err := netdns.RecoverIfOffline()
+			if err != nil {
+				fmt.Printf("DNS recovery: %v\n", err)
+				os.Exit(1)
+			}
+			if recovered {
+				fmt.Println("Local DNS was unavailable; restored automatic DNS temporarily.")
+			}
 			return
 		case "version", "--version", "-version":
 			fmt.Println(appversion.Current)

@@ -33,6 +33,7 @@ data/console-settings.json
 data/.dns-filter-approved
 data/vault/
 data/vault-archive-*/
+data/hosts-backups/
 data/quarantine/
 data/security-packs/
 backups/

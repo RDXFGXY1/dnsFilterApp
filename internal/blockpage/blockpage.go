@@ -31,8 +31,12 @@ type BlockPageServer struct {
 	// any rule change, not only after adding the domain to the whitelist.
 	allowedCheck func(string) bool
 
-	handler http.Handler // shared by the HTTP and HTTPS servers
-	tlsMgr  *tlsManager  // dynamic per-SNI certificate authority (nil until EnableTLS)
+	handler             http.Handler // shared by the HTTP and HTTPS servers
+	tlsMgr              *tlsManager  // dynamic per-SNI certificate authority (nil until EnableTLS)
+	dashboardAlias      string
+	dashboardLANEnabled bool
+	dashboardAllowedIPs []string
+	dashboardPort       int
 }
 
 type UnblockRequest struct {
@@ -92,13 +96,89 @@ func NewBlockPageServer(db *sql.DB, port int) (*BlockPageServer, error) {
 	mux.HandleFunc("/request-unblock", bps.handleUnblockRequest)
 	mux.HandleFunc("/stats", bps.handleStats)
 
-	bps.handler = mux
+	bps.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if bps.serveDashboardAlias(w, r) {
+			return
+		}
+		mux.ServeHTTP(w, r)
+	})
 	bps.server = &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
+		Handler: bps.handler,
 	}
 
 	return bps, nil
+}
+
+// SetDashboardAlias reserves one hostname for the local protection console.
+// The existing block-page ports can then serve a clean HTTPS URL without
+// exposing the dashboard listener beyond loopback.
+func (bps *BlockPageServer) SetDashboardAlias(host string, port int) {
+	bps.mu.Lock()
+	defer bps.mu.Unlock()
+	bps.dashboardAlias = strings.TrimSuffix(strings.ToLower(strings.TrimSpace(host)), ".")
+	bps.dashboardPort = port
+}
+
+func (bps *BlockPageServer) SetDashboardLAN(enabled bool, allowedIPs []string) {
+	bps.mu.Lock()
+	defer bps.mu.Unlock()
+	bps.dashboardLANEnabled = enabled
+	bps.dashboardAllowedIPs = append([]string(nil), allowedIPs...)
+}
+
+func (bps *BlockPageServer) serveDashboardAlias(w http.ResponseWriter, r *http.Request) bool {
+	bps.mu.RLock()
+	alias, port := bps.dashboardAlias, bps.dashboardPort
+	lanEnabled := bps.dashboardLANEnabled
+	allowedIPs := append([]string(nil), bps.dashboardAllowedIPs...)
+	bps.mu.RUnlock()
+	if alias == "" || port < 1 {
+		return false
+	}
+	host := strings.ToLower(strings.TrimSuffix(r.Host, "."))
+	if split, _, err := net.SplitHostPort(host); err == nil {
+		host = split
+	}
+	if host != alias {
+		return false
+	}
+	clientHost, _, err := net.SplitHostPort(r.RemoteAddr)
+	clientIP := net.ParseIP(clientHost)
+	if err != nil || clientIP == nil || (!clientIP.IsLoopback() && !dashboardLANClientAllowed(clientIP, lanEnabled, allowedIPs, r.TLS != nil)) {
+		http.Error(w, "Local dashboard only", http.StatusForbidden)
+		return true
+	}
+	if r.TLS == nil {
+		http.Redirect(w, r, "https://"+alias+r.URL.RequestURI(), http.StatusPermanentRedirect)
+		return true
+	}
+	target, _ := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", port))
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	baseDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		baseDirector(req)
+		req.Host = alias
+		req.Header.Set("X-Forwarded-Proto", "https")
+		req.Header.Set("X-Forwarded-Host", alias)
+	}
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) {
+		http.Error(w, "Local DNS Filter dashboard is unavailable", http.StatusBadGateway)
+	}
+	proxy.ServeHTTP(w, r)
+	return true
+}
+
+func dashboardLANClientAllowed(clientIP net.IP, enabled bool, allowed []string, tls bool) bool {
+	if !enabled || !tls || !clientIP.IsPrivate() {
+		return false
+	}
+	for _, raw := range allowed {
+		if ip := net.ParseIP(raw); ip != nil && ip.Equal(clientIP) {
+			return true
+		}
+	}
+	return false
 }
 
 // SetAllowedCheck connects the block-page fallback to the filtering engine's

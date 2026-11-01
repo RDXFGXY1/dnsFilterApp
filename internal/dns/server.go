@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -38,16 +39,20 @@ type Server struct {
 	log          *logger.Logger
 	stats        *Statistics
 
-	filterEnabled atomic.Bool  // runtime on/off toggle
-	pauseUntil    atomic.Int64 // unix seconds; 0 = not paused
-	blockAction   atomic.Value // string: nxdomain | redirect | block_page
-	lockdownMu    sync.RWMutex
-	lockdownUntil int64
-	lockdownAllow []string
+	filterEnabled        atomic.Bool  // runtime on/off toggle
+	pauseUntil           atomic.Int64 // unix seconds; 0 = not paused
+	blockAction          atomic.Value // string: nxdomain | redirect | block_page
+	lockdownMu           sync.RWMutex
+	lockdownUntil        int64
+	lockdownAllow        []string
+	upstreamHealthMu     sync.Mutex
+	upstreamHealthStatus string
 
 	// Live-query pub/sub for the activity monitor.
-	subs   map[chan QueryEvent]struct{}
-	subsMu sync.Mutex
+	subs        map[chan QueryEvent]struct{}
+	subsMu      sync.Mutex
+	historyCh   chan database.LiveQuery
+	historyDone chan struct{}
 }
 
 // Subscribe returns a channel that receives live query events. Call Unsubscribe
@@ -75,6 +80,10 @@ func (s *Server) Unsubscribe(ch chan QueryEvent) {
 
 // publish fans an event out to subscribers, dropping it for any slow consumer.
 func (s *Server) publish(ev QueryEvent) {
+	select {
+	case s.historyCh <- database.LiveQuery{Time: ev.Time, Domain: ev.Domain, ClientIP: ev.ClientIP, Type: ev.Type, Blocked: ev.Blocked, Reason: ev.Reason, Cached: ev.Cached}:
+	default: // DNS responses must not wait for the history database.
+	}
 	s.subsMu.Lock()
 	if len(s.subs) == 0 {
 		s.subsMu.Unlock()
@@ -89,6 +98,37 @@ func (s *Server) publish(ev QueryEvent) {
 	s.subsMu.Unlock()
 }
 
+func (s *Server) saveLiveHistory() {
+	defer close(s.historyDone)
+	ticker := time.NewTicker(250 * time.Millisecond)
+	defer ticker.Stop()
+	batch := make([]database.LiveQuery, 0, 64)
+	flush := func() {
+		if len(batch) == 0 {
+			return
+		}
+		if err := s.db.SaveLiveQueries(batch); err != nil {
+			s.log.Warnf("Could not save live DNS history: %v", err)
+		}
+		batch = batch[:0]
+	}
+	for {
+		select {
+		case item, ok := <-s.historyCh:
+			if !ok {
+				flush()
+				return
+			}
+			batch = append(batch, item)
+			if len(batch) == cap(batch) {
+				flush()
+			}
+		case <-ticker.C:
+			flush()
+		}
+	}
+}
+
 type Statistics struct {
 	mu              sync.RWMutex
 	TotalQueries    uint64
@@ -99,6 +139,9 @@ type Statistics struct {
 
 func NewServer(cfg *config.Config, filterEngine *filter.Engine, db *database.DB) (*Server, error) {
 	log := logger.Get()
+	if err := db.SetLivePrivacy(database.LivePrivacy{RetentionHours: cfg.Logging.LiveRetentionHours, HideClientIP: cfg.Logging.LiveHideClientIP, BlockedOnly: cfg.Logging.LiveBlockedOnly}); err != nil {
+		return nil, fmt.Errorf("initialize live history privacy: %w", err)
+	}
 
 	// Create upstream DNS pool
 	upstreamPool := NewUpstreamPool(cfg.Server.UpstreamDNS, cfg.Advanced.SecureDNSOnly)
@@ -116,10 +159,13 @@ func NewServer(cfg *config.Config, filterEngine *filter.Engine, db *database.DB)
 		cache:        cache,
 		upstreamPool: upstreamPool,
 		log:          log,
+		historyCh:    make(chan database.LiveQuery, 2048),
+		historyDone:  make(chan struct{}),
 		stats: &Statistics{
 			StartTime: time.Now(),
 		},
 	}
+	go server.saveLiveHistory()
 
 	server.filterEnabled.Store(cfg.Filtering.Enabled)
 	action := cfg.Filtering.BlockAction
@@ -144,7 +190,21 @@ func NewServer(cfg *config.Config, filterEngine *filter.Engine, db *database.DB)
 }
 
 func (s *Server) Start() error {
-	s.log.Infof("DNS server listening on %s", s.dnsServer.Addr)
+	// Reserve both listeners before serving either one. On Windows, ICS may
+	// already own the wildcard port while explicit loopback binding is available
+	// to the SYSTEM startup task. Keep local filtering available without stopping
+	// ICS or attempting to share its socket.
+	configured := s.dnsServer.Addr
+	primary, err := bindDNSPacket(s.dnsServer.Net, configured, runtime.GOOS == "windows", net.ListenPacket)
+	if err != nil {
+		return err
+	}
+	defer primary.Close()
+	s.dnsServer.PacketConn = primary
+	s.dnsServer.Addr = primary.LocalAddr().String()
+	if configured != s.dnsServer.Addr {
+		s.log.Warnf("Configured DNS listener %s unavailable; serving local requests on %s. LAN clients cannot use the wildcard listener.", configured, s.dnsServer.Addr)
+	}
 	if s.localIPv6 != nil {
 		// Bind IPv6 before starting either listener, so startup cannot claim
 		// success while Windows is routed to an unavailable ::1 resolver.
@@ -160,7 +220,11 @@ func (s *Server) Start() error {
 		}()
 		defer conn.Close()
 	}
-	return s.dnsServer.ListenAndServe()
+	s.log.Infof("DNS server listening on %s", s.dnsServer.Addr)
+	if err := s.db.LogDNSHealth("service", "ok", "DNS listener started", "Listening on "+s.dnsServer.Addr); err != nil {
+		s.log.Warnf("Could not save DNS health event: %v", err)
+	}
+	return s.dnsServer.ActivateAndServe()
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
@@ -168,7 +232,13 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	if s.localIPv6 != nil {
 		_ = s.localIPv6.ShutdownContext(ctx)
 	}
-	return s.dnsServer.ShutdownContext(ctx)
+	err := s.dnsServer.ShutdownContext(ctx)
+	close(s.historyCh)
+	select {
+	case <-s.historyDone:
+	case <-ctx.Done():
+	}
+	return err
 }
 
 // FilteringActive reports whether filtering is currently applied (enabled and
@@ -362,11 +432,13 @@ func (s *Server) forwardToUpstream(w dns.ResponseWriter, r *dns.Msg, m *dns.Msg,
 	timeout := time.Duration(s.cfg.Advanced.UpstreamTimeoutSeconds) * time.Second
 	response, upstream, err := s.upstreamPool.Exchange(context.Background(), r, timeout)
 	if err != nil {
+		s.recordUpstreamHealth("error", "Upstream DNS unavailable", "All configured upstream resolvers failed. DNS queries may not complete.")
 		s.log.Errorf("Failed to forward DNS query: %v", err)
 		m.SetRcode(r, dns.RcodeServerFailure)
 		w.WriteMsg(m)
 		return
 	}
+	s.recordUpstreamHealth("ok", "Upstream DNS connected", "DNS queries are resolving through a configured upstream.")
 	s.log.Debugf("DNS query forwarded through %s", upstream)
 
 	// Cache successful response
@@ -376,6 +448,21 @@ func (s *Server) forwardToUpstream(w dns.ResponseWriter, r *dns.Msg, m *dns.Msg,
 
 	// Send response
 	w.WriteMsg(response)
+}
+
+func (s *Server) recordUpstreamHealth(status, title, detail string) {
+	s.upstreamHealthMu.Lock()
+	defer s.upstreamHealthMu.Unlock()
+	if status == s.upstreamHealthStatus {
+		return
+	}
+	if status == "ok" && s.upstreamHealthStatus == "error" {
+		title = "Upstream DNS restored"
+	}
+	s.upstreamHealthStatus = status
+	if err := s.db.LogDNSHealth("upstream", status, title, detail); err != nil {
+		s.log.Warnf("Could not save DNS health event: %v", err)
+	}
 }
 
 func (s *Server) GetStatistics() map[string]interface{} {

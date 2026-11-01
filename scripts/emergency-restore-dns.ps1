@@ -37,6 +37,10 @@ if (Get-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue) {
     Stop-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue
     Disable-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue | Out-Null
 }
+if (Get-ScheduledTask -TaskName 'DNSFilterRecovery' -ErrorAction SilentlyContinue) {
+    Stop-ScheduledTask -TaskName 'DNSFilterRecovery' -ErrorAction SilentlyContinue
+    Disable-ScheduledTask -TaskName 'DNSFilterRecovery' -ErrorAction SilentlyContinue | Out-Null
+}
 foreach ($serviceName in @('DNS-Filter', 'DNSFilter')) {
     if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
         Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue

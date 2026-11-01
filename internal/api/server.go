@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net"
 	"net/http"
 	"sort"
 	"strings"
@@ -25,10 +26,12 @@ import (
 	"github.com/RDXFGXY1/dns-filter-app/internal/downloadguard"
 	"github.com/RDXFGXY1/dns-filter-app/internal/filter"
 	"github.com/RDXFGXY1/dns-filter-app/internal/hardsystem"
+	"github.com/RDXFGXY1/dns-filter-app/internal/localdomain"
 	"github.com/RDXFGXY1/dns-filter-app/internal/netdns"
 	"github.com/RDXFGXY1/dns-filter-app/internal/nettest"
 	"github.com/RDXFGXY1/dns-filter-app/internal/networkintel"
 	"github.com/RDXFGXY1/dns-filter-app/internal/plugins"
+	"github.com/RDXFGXY1/dns-filter-app/internal/sideapps"
 	"github.com/RDXFGXY1/dns-filter-app/internal/vault"
 	appversion "github.com/RDXFGXY1/dns-filter-app/internal/version"
 	"github.com/RDXFGXY1/dns-filter-app/pkg/logger"
@@ -55,6 +58,7 @@ type Server struct {
 	dnsBypass        *dnsbypass.Manager
 	downloadGuard    *downloadguard.Manager
 	plugins          *plugins.Manager
+	sideApps         *sideapps.Manager
 	disciplineDNS    chan dns.QueryEvent
 	authMu           sync.Mutex
 	setupMu          sync.Mutex
@@ -90,6 +94,11 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 		recoveryAttempts: make(map[string]authAttempt),
 		networkTest:      nettest.New(),
 	}
+	s.networkTest.SetOnFinish(func(result nettest.Snapshot) {
+		if err := db.SaveNetworkTest(database.NetworkTestRecord{ID: result.ID, Status: result.Status, Mode: result.Mode, LimitMB: result.LimitMB, DurationSeconds: result.DurationSeconds, PingMS: result.PingMS, JitterMS: result.JitterMS, PacketLoss: result.PacketLoss, DownloadMbps: result.DownloadMbps, UploadMbps: result.UploadMbps, BytesDownloaded: result.BytesDownloaded, BytesUploaded: result.BytesUploaded, Error: result.Error, StartedAt: result.StartedAt, FinishedAt: result.FinishedAt}); err != nil {
+			s.log.Warnf("Could not save Network Test result: %v", err)
+		}
+	})
 	router.Use(gin.Recovery(), s.securityMiddleware(), requestSizeMiddleware())
 
 	if mgr, err := discipline.New(db.GetDB()); err != nil {
@@ -108,6 +117,7 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 	if mgr, err := vault.New(cfg.Vault.Directory, time.Duration(cfg.Vault.UnlockMinutes)*time.Minute, cfg.Vault.MaxFailures, time.Duration(cfg.Vault.LockoutMinutes)*time.Minute); err != nil {
 		s.log.Warnf("Secure configuration vault unavailable: %v", err)
 	} else {
+		mgr.SetUnlockRequests(cfg.Vault.UnlockRequests)
 		s.vault = mgr
 	}
 
@@ -172,6 +182,11 @@ func NewServer(cfg *config.Config, db *database.DB, filterEngine *filter.Engine,
 	} else {
 		s.plugins = mgr
 	}
+	if mgr, err := sideapps.New(db.GetDB()); err != nil {
+		s.log.Warnf("Side Apps unavailable: %v", err)
+	} else {
+		s.sideApps = mgr
+	}
 	s.setupRoutes()
 	return s
 }
@@ -182,6 +197,7 @@ func (s *Server) setupRoutes() {
 
 	// Public routes
 	s.router.GET("/healthz", s.handleHealth)
+	s.router.GET("/open", s.openDashboardAddress)
 	s.router.GET("/setup", s.handleFirstRunSetupPage)
 	s.router.POST("/setup", s.handleFirstRunSetup)
 	s.router.GET("/setup/preflight", s.handleFirstRunPreflight)
@@ -198,6 +214,7 @@ func (s *Server) setupRoutes() {
 	s.router.GET("/", s.authCheck(), s.handleDashboard)
 	s.router.GET("/discipline", s.authCheck(), s.handleDiscipline)
 	s.router.GET("/discipline/", s.authCheck(), s.handleDiscipline)
+	s.router.GET("/side-apps/run/:id", s.authMiddleware(), s.runSideApp)
 
 	// Protected API routes
 	api := s.router.Group("/api")
@@ -219,6 +236,10 @@ func (s *Server) setupRoutes() {
 		api.POST("/blocklist/update", s.updateBlocklists)
 		api.GET("/blocklist/count", s.getBlocklistCount)
 		api.GET("/settings", s.getSettings)
+		api.GET("/dashboard/domain", s.getDashboardDomain)
+		api.POST("/dashboard/domain", s.setDashboardDomain)
+		api.GET("/dashboard/lan", s.getDashboardLAN)
+		api.POST("/dashboard/lan", s.setDashboardLAN)
 		api.POST("/settings", s.updateSettings)
 		api.POST("/system/restart", s.restartService)
 		api.POST("/system/clear-cache", s.clearCache)
@@ -233,6 +254,7 @@ func (s *Server) setupRoutes() {
 		s.registerOrganizerRoutes(api)
 		s.registerDisciplineRoutes(api)
 		s.registerPluginRoutes(api)
+		s.registerSideAppRoutes(api)
 	}
 }
 
@@ -467,7 +489,7 @@ func (s *Server) handleLogout(c *gin.Context) {
 		delete(s.csrfTokens, token)
 		s.authMu.Unlock()
 	}
-	secure := s.cfg.Security.HTTPSEnabled
+	secure := s.secureDashboardRequest(c.Request)
 	c.SetCookie("session", "", -1, "/", "", secure, true)
 	c.SetCookie("csrf_token", "", -1, "/", "", secure, false)
 	c.Redirect(http.StatusFound, "/login")
@@ -582,9 +604,45 @@ func (s *Server) validSession(c *gin.Context) bool {
 
 func (s *Server) setSessionCookie(c *gin.Context, token string) {
 	c.SetSameSite(http.SameSiteStrictMode)
-	secure := s.cfg.Security.HTTPSEnabled
+	// The desktop client uses loopback HTTP even when HTTPS is configured.
+	// Marking that cookie Secure prevents HttpClient from sending it back.
+	secure := s.secureDashboardRequest(c.Request)
 	c.SetCookie("session", token, s.cfg.Security.SessionTimeout*60, "/", "", secure, true)
 	c.SetCookie("csrf_token", s.csrfToken(token), s.cfg.Security.SessionTimeout*60, "/", "", secure, false)
+}
+
+func (s *Server) secureDashboardRequest(r *http.Request) bool {
+	if r.TLS != nil {
+		return true
+	}
+	domain := s.dashboardDomain()
+	if normalizeRequestHost(r.Host) != normalizeRequestHost(domain) || domain == "" || r.Header.Get("X-Forwarded-Proto") != "https" {
+		return false
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	return err == nil && net.ParseIP(host) != nil && net.ParseIP(host).IsLoopback()
+}
+
+func (s *Server) dashboardDomain() string {
+	s.configMu.Lock()
+	defer s.configMu.Unlock()
+	return s.cfg.Server.DashboardDomain
+}
+
+func (s *Server) openDashboardAddress(c *gin.Context) {
+	domain := s.dashboardDomain()
+	base := fmt.Sprintf("http://127.0.0.1:%d", s.cfg.Server.APIPort)
+	if domain != "" && localdomain.Ready(domain) {
+		base = "https://" + domain
+	}
+	suffix := "/"
+	switch c.Query("view") {
+	case "discipline":
+		suffix = "/discipline"
+	case "sideapps":
+		suffix = "/#sideapps"
+	}
+	c.Redirect(http.StatusFound, base+suffix)
 }
 
 func (s *Server) csrfToken(session string) string {

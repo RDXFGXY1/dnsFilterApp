@@ -1,0 +1,9 @@
+{{ define "discipline_attention" }}
+<section class="view attention-view" data-view="attention">
+  <div class="attention-hero"><span class="command-kicker">Your next move</span><h2>Clear what needs attention</h2><p>One place for late work, today's deadlines, reminders, and what is coming next.</p></div>
+  <div class="attention-kpis" id="attention-kpis"></div>
+  <section class="attention-rescue"><div><span class="command-kicker">Rescue Plan</span><h2>How much time do you have?</h2><p>We suggest up to three actionable tasks. Waiting or blocked work stays out of the plan.</p></div><div class="attention-rescue-controls"><select id="attention-minutes" aria-label="Time available"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45" selected>45 minutes</option><option value="60">1 hour</option><option value="90">90 minutes</option><option value="120">2 hours</option></select><button class="btn" onclick="buildRescuePlan()">Build plan</button></div><div id="attention-plan" class="attention-plan"></div></section>
+  <div class="attention-filters" role="group" aria-label="Attention filters"><button data-attention-filter="all" class="active">All</button><button data-attention-filter="overdue">Overdue</button><button data-attention-filter="today">Today</button><button data-attention-filter="reminders">Reminders</button><button data-attention-filter="upcoming">Next 7 days</button><button data-attention-filter="unplanned">Unplanned</button><button data-attention-filter="blocked">Blocked</button></div>
+  <div id="attention-list" class="attention-list"><p class="no-data">Loading…</p></div>
+</section>
+{{ end }}

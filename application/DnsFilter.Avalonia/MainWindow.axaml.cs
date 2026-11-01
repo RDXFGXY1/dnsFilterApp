@@ -8,6 +8,9 @@ namespace DnsFilter.Avalonia;
 
 public partial class MainWindow : Window
 {
+    internal event Action? TestNotificationRequested;
+    internal void SetNotificationStatus(string message) => DesktopNotificationText.Text = message;
+    private void TestNotification_Click(object? sender, RoutedEventArgs e) => TestNotificationRequested?.Invoke();
     private ApiClient api = new();
     private readonly DispatcherTimer refreshTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     private bool filteringEnabled;
@@ -19,6 +22,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Icon = new WindowIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "dns-filter.ico"));
         PlatformText.Text = isWindows ? "Windows · native controls" : isLinux ? "Linux · shared core" : "Cross-platform client";
         CapabilitySummary.Text = isWindows
             ? "Windows Firewall, WFP, process telemetry, and Authenticode integrations are available."
@@ -144,6 +148,20 @@ public partial class MainWindow : Window
     private void Controls_Click(object? s, RoutedEventArgs e) => ShowSection(ControlsSection, "DNS CONTROLS", "Filtering and local routing");
     private void Freeze_Click(object? s, RoutedEventArgs e) => ShowSection(FreezeSection, "CONNECTION CONTROL", "Freeze new outbound connections");
     private void Security_Click(object? s, RoutedEventArgs e) => ShowSection(SecuritySection, "HARD SECURITY", "Platform protection controls");
+    private void SideApps_Click(object? s, RoutedEventArgs e) => OpenSideApps();
+
+    private void OpenSideApps()
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "http://127.0.0.1:8080/open?view=sideapps",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex) { LiveStatusText.Text = Friendly(ex); }
+    }
     private async void Refresh_Click(object? s, RoutedEventArgs e) => await RefreshAsync();
     private async void ToggleFiltering_Click(object? s, RoutedEventArgs e) => await RunAsync(() => api.SetFilteringAsync(!filteringEnabled));
     private async void UpdateLists_Click(object? s, RoutedEventArgs e) => await RunAsync(api.UpdateListsAsync);

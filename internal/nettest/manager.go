@@ -33,6 +33,8 @@ type Snapshot struct {
 	Status          string    `json:"status"`
 	Phase           string    `json:"phase"`
 	Mode            string    `json:"mode"`
+	LimitMB         int       `json:"limit_mb,omitempty"`
+	DurationSeconds int       `json:"duration_seconds,omitempty"`
 	Server          string    `json:"server"`
 	Progress        int       `json:"progress"`
 	PingMS          float64   `json:"ping_ms"`
@@ -48,6 +50,12 @@ type Snapshot struct {
 	FinishedAt      time.Time `json:"finished_at,omitempty"`
 }
 
+type Options struct {
+	Mode            string `json:"mode"`
+	LimitMB         int    `json:"limit_mb"`
+	DurationSeconds int    `json:"duration_seconds"`
+}
+
 type run struct {
 	mu     sync.RWMutex
 	snap   Snapshot
@@ -55,21 +63,42 @@ type run struct {
 }
 
 type Manager struct {
-	mu     sync.RWMutex
-	runs   map[string]*run
-	client *http.Client
+	mu       sync.RWMutex
+	runs     map[string]*run
+	client   *http.Client
+	onFinish func(Snapshot)
 }
+
+func (m *Manager) SetOnFinish(callback func(Snapshot)) { m.onFinish = callback }
 
 func New() *Manager {
 	return &Manager{runs: make(map[string]*run), client: &http.Client{Timeout: 60 * time.Second}}
 }
 
 func (m *Manager) Start(mode string) Snapshot {
-	if mode != "full" {
-		mode = "quick"
+	result, _ := m.StartWithOptions(Options{Mode: mode})
+	return result
+}
+
+func (m *Manager) StartWithOptions(options Options) (Snapshot, error) {
+	switch options.Mode {
+	case "full", "quick":
+		options.LimitMB, options.DurationSeconds = 0, 0
+	case "custom_data":
+		if options.LimitMB < 5 || options.LimitMB > 500 {
+			return Snapshot{}, errors.New("Data limit must be between 5 and 500 MB")
+		}
+		options.DurationSeconds = 0
+	case "custom_time":
+		if options.DurationSeconds < 5 || options.DurationSeconds > 60 {
+			return Snapshot{}, errors.New("Test duration must be between 5 and 60 seconds")
+		}
+		options.LimitMB = 0
+	default:
+		options = Options{Mode: "quick"}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	r := &run{snap: Snapshot{ID: newID(), Status: "running", Phase: "latency", Mode: mode, Server: "Cloudflare", StartedAt: time.Now().UTC()}, cancel: cancel}
+	r := &run{snap: Snapshot{ID: newID(), Status: "running", Phase: "latency", Mode: options.Mode, LimitMB: options.LimitMB, DurationSeconds: options.DurationSeconds, Server: "Cloudflare", StartedAt: time.Now().UTC()}, cancel: cancel}
 	m.mu.Lock()
 	for _, old := range m.runs {
 		old.mu.RLock()
@@ -90,7 +119,7 @@ func (m *Manager) Start(mode string) Snapshot {
 	m.runs[r.snap.ID] = r
 	m.mu.Unlock()
 	go m.execute(ctx, r)
-	return copySnapshot(r)
+	return copySnapshot(r), nil
 }
 
 func (m *Manager) Get(id string) (Snapshot, bool) {
@@ -123,6 +152,13 @@ func copySnapshot(r *run) Snapshot {
 }
 
 func (m *Manager) execute(ctx context.Context, r *run) {
+	defer func() {
+		if m.onFinish != nil {
+			if result := copySnapshot(r); result.Status != "running" {
+				m.onFinish(result)
+			}
+		}
+	}()
 	latencies := make([]float64, 0, 10)
 	lost := 0
 	start := time.Now()
@@ -165,6 +201,20 @@ func (m *Manager) execute(ctx context.Context, r *run) {
 	downBytes, upBytes := quickDownloadBytes, quickUploadBytes
 	if r.snap.Mode == "full" {
 		downBytes, upBytes = fullDownloadBytes, fullUploadBytes
+	} else if r.snap.Mode == "custom_data" {
+		downBytes = int64(r.snap.LimitMB) * 1024 * 1024 * 4 / 5
+		upBytes = int64(r.snap.LimitMB)*1024*1024 - downBytes
+	} else if r.snap.Mode == "custom_time" {
+		if err := m.downloadTimed(ctx, r, start, time.Duration(r.snap.DurationSeconds)*time.Second/2); err != nil {
+			finishFromError(r, ctx, "Download test failed: "+err.Error())
+			return
+		}
+		if err := m.uploadTimed(ctx, r, start, time.Duration(r.snap.DurationSeconds)*time.Second/2); err != nil {
+			finishFromError(r, ctx, "Upload test failed: "+err.Error())
+			return
+		}
+		finish(r, "complete", "")
+		return
 	}
 	if err := m.download(ctx, r, start, downBytes); err != nil {
 		finishFromError(r, ctx, "Download test failed: "+err.Error())
@@ -267,6 +317,144 @@ func (m *Manager) upload(ctx context.Context, r *run, runStart time.Time, size i
 		r.mu.Unlock()
 	}
 	return nil
+}
+
+// Timed tests run repeated bounded requests until the chosen phase time ends.
+// A phase deadline is a successful stop; a user cancellation remains an error.
+func (m *Manager) downloadTimed(ctx context.Context, r *run, runStart time.Time, duration time.Duration) error {
+	phaseCtx, cancel := context.WithTimeout(ctx, duration)
+	defer cancel()
+	started := time.Now()
+	var total int64
+	r.mu.Lock()
+	r.snap.Phase, r.snap.Progress = "download", 20
+	r.mu.Unlock()
+	for phaseCtx.Err() == nil {
+		req, err := http.NewRequestWithContext(phaseCtx, http.MethodGet, "https://speed.cloudflare.com/__down?bytes=8388608", nil)
+		if err != nil {
+			return err
+		}
+		req.Header.Set("Accept-Encoding", "identity")
+		resp, err := m.client.Do(req)
+		if err != nil {
+			if phaseCtx.Err() == context.DeadlineExceeded && ctx.Err() == nil {
+				break
+			}
+			return err
+		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			resp.Body.Close()
+			return errors.New(resp.Status)
+		}
+		buf := make([]byte, 64*1024)
+		lastSample := time.Time{}
+		for {
+			n, readErr := resp.Body.Read(buf)
+			total += int64(n)
+			now := time.Now()
+			if n > 0 && (lastSample.IsZero() || now.Sub(lastSample) >= 200*time.Millisecond) {
+				elapsed := now.Sub(started).Seconds()
+				r.mu.Lock()
+				r.snap.BytesDownloaded = total
+				r.snap.DownloadMbps = round(float64(total*8) / elapsed / 1_000_000)
+				r.snap.Progress = 20 + int(math.Min(1, float64(now.Sub(started))/float64(duration))*45)
+				r.snap.Samples = appendLimitedSample(r.snap.Samples, Sample{At: time.Since(runStart).Milliseconds(), DownMbps: r.snap.DownloadMbps})
+				r.mu.Unlock()
+				lastSample = now
+			}
+			if readErr != nil {
+				if readErr != io.EOF && phaseCtx.Err() == nil {
+					resp.Body.Close()
+					return readErr
+				}
+				break
+			}
+		}
+		resp.Body.Close()
+	}
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+	if total == 0 {
+		return errors.New("no download data received")
+	}
+	r.mu.Lock()
+	r.snap.BytesDownloaded, r.snap.Progress = total, 65
+	r.mu.Unlock()
+	return nil
+}
+
+func (m *Manager) uploadTimed(ctx context.Context, r *run, runStart time.Time, duration time.Duration) error {
+	phaseCtx, cancel := context.WithTimeout(ctx, duration)
+	defer cancel()
+	started := time.Now()
+	payload := bytes.Repeat([]byte{0x5a}, 2*1024*1024)
+	var total int64
+	r.mu.Lock()
+	r.snap.Phase, r.snap.Progress = "upload", 65
+	r.mu.Unlock()
+	for phaseCtx.Err() == nil {
+		base := total
+		reader := &progressReader{reader: bytes.NewReader(payload), total: int64(len(payload)), update: func(sent int64) {
+			now := time.Now()
+			elapsed := now.Sub(started).Seconds()
+			if elapsed <= 0 {
+				return
+			}
+			r.mu.Lock()
+			r.snap.BytesUploaded = base + sent
+			r.snap.UploadMbps = round(float64((base+sent)*8) / elapsed / 1_000_000)
+			r.snap.Progress = 65 + int(math.Min(1, float64(now.Sub(started))/float64(duration))*35)
+			r.snap.Samples = appendLimitedSample(r.snap.Samples, Sample{At: time.Since(runStart).Milliseconds(), UpMbps: r.snap.UploadMbps})
+			r.mu.Unlock()
+		}}
+		req, err := http.NewRequestWithContext(phaseCtx, http.MethodPost, "https://speed.cloudflare.com/__up", reader)
+		if err != nil {
+			return err
+		}
+		req.ContentLength = int64(len(payload))
+		req.Header.Set("Content-Type", "application/octet-stream")
+		resp, err := m.client.Do(req)
+		if err != nil {
+			total = base + reader.sent
+			if phaseCtx.Err() == context.DeadlineExceeded && ctx.Err() == nil {
+				break
+			}
+			return err
+		}
+		_, copyErr := io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+		if copyErr != nil && phaseCtx.Err() == nil {
+			return copyErr
+		}
+		if phaseCtx.Err() == context.DeadlineExceeded && ctx.Err() == nil {
+			total = base + reader.sent
+			break
+		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return errors.New(resp.Status)
+		}
+		total = base + int64(len(payload))
+	}
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+	if total == 0 {
+		return errors.New("no upload data sent")
+	}
+	r.mu.Lock()
+	r.snap.BytesUploaded, r.snap.Progress = total, 100
+	r.mu.Unlock()
+	return nil
+}
+
+func appendLimitedSample(samples []Sample, sample Sample) []Sample {
+	if len(samples) >= 300 {
+		copy(samples, samples[1:])
+		samples[len(samples)-1] = sample
+		return samples
+	}
+	return append(samples, sample)
 }
 
 type progressReader struct {

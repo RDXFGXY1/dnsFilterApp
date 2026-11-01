@@ -55,7 +55,7 @@ func (s *Server) securityMiddleware() gin.HandlerFunc {
 			c.Header("Cache-Control", "no-store")
 		}
 
-		if !allowedDashboardHost(c.Request.Host, s.cfg.Server.APIHost) {
+		if !allowedDashboardHost(c.Request.Host, s.cfg.Server.APIHost, s.dashboardDomain()) {
 			c.AbortWithStatusJSON(http.StatusMisdirectedRequest, gin.H{
 				"error": "This local dashboard address is not trusted",
 				"code":  "untrusted_host",
@@ -107,7 +107,7 @@ func contentSecurityPolicy(nonce string) string {
 		"style-src 'self'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; " +
 		"img-src 'self' data:; font-src 'self' data:; connect-src 'self'; " +
 		"object-src 'none'; media-src 'none'; worker-src 'none'; manifest-src 'none'; " +
-		"base-uri 'none'; frame-src http://127.0.0.1:* http://localhost:*; frame-ancestors 'none'; form-action 'self'"
+		"base-uri 'none'; frame-src 'self' http://127.0.0.1:* http://localhost:*; frame-ancestors 'none'; form-action 'self'"
 }
 
 func requiresCSRF(method, path string) bool {
@@ -129,12 +129,15 @@ func secureEqual(expected, actual string) bool {
 	return subtle.ConstantTimeCompare([]byte(expected), []byte(actual)) == 1
 }
 
-func allowedDashboardHost(requestHost, configuredHost string) bool {
+func allowedDashboardHost(requestHost, configuredHost, dashboardDomain string) bool {
 	host := normalizeRequestHost(requestHost)
 	if host == "" {
 		return false
 	}
 	if host == "localhost" || host == "dnsfilter.localhost" {
+		return true
+	}
+	if dashboardDomain != "" && host == normalizeRequestHost(dashboardDomain) {
 		return true
 	}
 	if ip := net.ParseIP(host); ip != nil && ip.IsLoopback() {

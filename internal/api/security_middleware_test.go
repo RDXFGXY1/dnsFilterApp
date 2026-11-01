@@ -46,6 +46,7 @@ func TestAllowedDashboardHost(t *testing.T) {
 	}{
 		{"localhost:8080", "127.0.0.1", true},
 		{"dnsfilter.localhost:8080", "127.0.0.1", true},
+		{"guard.nullstudio.org", "127.0.0.1", true},
 		{"127.0.0.1:8080", "127.0.0.1", true},
 		{"[::1]:8080", "127.0.0.1", true},
 		{"192.168.1.9:8080", "192.168.1.9", true},
@@ -54,7 +55,7 @@ func TestAllowedDashboardHost(t *testing.T) {
 		{"192.168.1.9", "0.0.0.0", false},
 	}
 	for _, tt := range tests {
-		if got := allowedDashboardHost(tt.host, tt.configured); got != tt.want {
+		if got := allowedDashboardHost(tt.host, tt.configured, "guard.nullstudio.org"); got != tt.want {
 			t.Errorf("allowedDashboardHost(%q, %q) = %v, want %v", tt.host, tt.configured, got, tt.want)
 		}
 	}

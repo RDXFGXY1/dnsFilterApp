@@ -1,0 +1,20 @@
+{{ define "side_apps_host" }}
+<section class="view sideapps-host" data-view="sideapps">
+ <div class="sideapps-hero"><div><span class="sideapps-eyebrow">Community applications</span><h2>Your apps. Their own space.</h2><p>Install independent applications in DNS Filter. Each app runs in its own workspace.</p></div><button class="btn" id="sideapps-add">+ Add app</button></div>
+ <div id="sideapps-status" role="status" aria-live="polite"></div>
+ <div id="sideapps-installed" class="sideapps-grid"></div>
+ <section class="panel sideapps-help"><h3>Install an ADNF application</h3><p>Choose an <code>.adnf</code> file, review the app and its permissions, then install. Applications appear in the Side Apps menu.</p><p>For developers: start from <code>side-apps/focus-os/</code>. Packages contain <code>direct.json</code> and the app’s own HTML, CSS, and JavaScript.</p></section>
+</section>
+<section class="view sideapps-host" data-view="sideapp">
+ <div class="sideapps-runbar"><div><strong id="sideapps-running-name"></strong><span id="sideapps-running-author"></span></div><button class="btn btn-ghost" id="sideapps-stop">Close app</button></div>
+ <div id="sideapps-frame-slot"></div>
+</section>
+<dialog id="sideapps-install-dialog" class="sideapps-dialog">
+ <div class="sideapps-dialog-head"><div><span class="sideapps-eyebrow">Add application</span><h2>Install a side app</h2></div><button class="btn btn-ghost" id="sideapps-cancel" aria-label="Close install dialog">Close</button></div>
+ <label class="sideapps-file-label">Application package<input id="sideapps-package-file" type="file" accept=".adnf"></label>
+ <div id="sideapps-package-preview" aria-live="polite"><p>Choose an .adnf file to review it.</p></div>
+ <label id="sideapps-replace-label" hidden><input type="checkbox" id="sideapps-replace"> Replace the installed version and approve its new permissions. Existing app data is kept.</label>
+ <p class="sideapps-install-note">Apps can run their own interface. They cannot modify the dashboard or access DNS controls. Storage permission gives access only to the app’s own local data. Publisher names are self-declared; install packages from people you trust.</p>
+ <div class="sideapps-dialog-footer"><span id="sideapps-install-error" role="alert"></span><button class="btn" id="sideapps-confirm-install" disabled>Install app</button></div>
+</dialog>
+{{ end }}

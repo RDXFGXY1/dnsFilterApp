@@ -10,8 +10,10 @@ Guidelines
 - Use `YYYY-MM-DD-short-title.md` for a dated development update that is not yet a versioned release.
 
 Files
-- `UNRELEASED.md` - Working area for ongoing changes.
-- `v2.6.0-beta.1.md` - Current cross-platform release candidate and known limitations.
+- `UNRELEASED.md` - Itemized changes after the v0.1.0 public release.
+- `v0.1.0.md` - First public Windows release and known limitations.
+- `v0.2.0-draft.md` - Proposed next release and comparison with the v0.1.0 source baseline; not yet published.
+- `v2.6.0-beta.1.md` - Earlier internal cross-platform development preview.
 - `v1.0.0.md` - Example initial release notes (existing baseline).
 - `2026-10-09-arch-validation-and-docs.md` - Arch boot validation, Connection Freeze correction, and documentation reorganization.
 

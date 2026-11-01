@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "focus-os",
+  "name": "Focus OS",
+  "version": "0.1.0",
+  "author": "Focus OS contributors",
+  "description": "An independent study workspace. A bare starting point with a local focus timer and session notes.",
+  "entry": "index.html",
+  "permissions": ["storage"]
+}

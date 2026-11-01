@@ -5,6 +5,12 @@ productivity application. A privileged Go service provides DNS filtering and a
 local API; the same service hosts the web dashboard, while an Avalonia desktop
 client provides a native interface on Windows and Linux.
 
+**Release status:** v0.1.0 is the current version in source. The work since the
+public baseline is summarized in the [v0.2.0 draft](docs/releases/v0.2.0-draft.md).
+That draft describes the working tree; it is not a published package.
+See [the post-v0.1.0 changelog](docs/releases/UNRELEASED.md) for the itemized
+additions, changes, fixes, and release limitations.
+
 ## Supported systems
 
 | System | Status | Package and service |
@@ -38,6 +44,13 @@ the dedicated [Windows](docs/installation/windows/README.md) or
   websites, and YouTube channels, a local block page, crash recovery, and an
   optional AI Session Coach review.
 - Dark Avalonia desktop application and a full local web dashboard.
+- Installable `.adnf` Side Apps with isolated HTML workspaces; Focus OS is the
+  example package. See the [Side Apps guide](docs/SIDE-APPS.md).
+- Windows startup before sign-in, a tray icon, and deadline notifications. See
+  [startup](docs/WINDOWS-STARTUP.md) and [notifications](docs/WINDOWS-NOTIFICATIONS.md).
+- Dashboard controls for local domain names and limited LAN access, a saved
+  200-entry Live view, DNS health timeline, and Network Test history.
+- Vault recovery through a configured SMTP mailbox or USB recovery material.
 
 ## Architecture
 
@@ -183,8 +196,9 @@ local browsing/activity history.
 - [Plugin SDK](docs/PLUGIN-SDK.md)
 - [Feature documentation](docs/features/README.md)
 - [Releases and changelog](docs/releases/README.md)
+- [v0.2.0 draft and comparison with the public baseline](docs/releases/v0.2.0-draft.md)
 - [Unreleased changes](docs/releases/UNRELEASED.md)
-- [v2.6.0-beta.1 release candidate notes](docs/releases/v2.6.0-beta.1.md)
+- [v0.1.0 first public release notes](docs/releases/v0.1.0.md)
 
 ## Important limitations
 

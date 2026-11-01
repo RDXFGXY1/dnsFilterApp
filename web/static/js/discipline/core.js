@@ -4,6 +4,7 @@ const VIEWS = {
     command:   ['Command Center', 'Decide, focus, execute, and review from one place'],
     today:     ['Today',     'Your daily missions'],
     tasks:     ['Tasks',     'Inbox, My Day, upcoming work, and reusable workflows'],
+    attention: ['Needs Attention', 'Deadlines, reminders, and a practical recovery plan'],
     home:      ['Home',      'Your tasks, projects, and momentum'],
     goals:     ['Goals',     'What you are ultimately working toward'],
     habits:    ['Habits',    'Things you do repeatedly — build the streak'],
@@ -55,6 +56,7 @@ function switchView(name) {
     window.scrollTo(0, 0);
     if (name === 'today') loadToday();
     if (name === 'tasks') loadTodoHub();
+    if (name === 'attention') loadAttention();
     if (name === 'command') loadCommand();
     if (name === 'home') loadHome();
     if (name === 'goals') loadGoals();

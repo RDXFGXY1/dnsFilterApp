@@ -235,6 +235,8 @@ func (e *Engine) initializeNewFeatures() error {
 		blocked, _ := e.evaluate(normalizeDomain(domain))
 		return !blocked
 	})
+	e.blockPageServer.SetDashboardAlias(e.cfg.Server.DashboardDomain, e.cfg.Server.APIPort)
+	e.blockPageServer.SetDashboardLAN(e.cfg.Server.DashboardLANEnabled, e.cfg.Server.DashboardAllowedIPs)
 	e.blockPageServer.Start()
 	e.log.Info("✓ Block page server started on :80")
 
@@ -248,6 +250,18 @@ func (e *Engine) initializeNewFeatures() error {
 
 	e.log.Info("🎉 All new features initialized successfully!")
 	return nil
+}
+
+func (e *Engine) SetDashboardAlias(domain string) {
+	if e.blockPageServer != nil {
+		e.blockPageServer.SetDashboardAlias(domain, e.cfg.Server.APIPort)
+	}
+}
+
+func (e *Engine) SetDashboardLAN(enabled bool, allowedIPs []string) {
+	if e.blockPageServer != nil {
+		e.blockPageServer.SetDashboardLAN(enabled, allowedIPs)
+	}
 }
 
 // ShouldBlock decides whether a domain is blocked and records the attempt for

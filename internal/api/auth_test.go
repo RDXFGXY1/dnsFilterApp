@@ -31,6 +31,39 @@ func TestRecoveryKeyGenerationAndNormalization(t *testing.T) {
 	}
 }
 
+func TestLoopbackDesktopSessionCookieWorksOverHTTP(t *testing.T) {
+	s := &Server{cfg: &config.Config{Security: config.SecurityConfig{SessionTimeout: 60, HTTPSEnabled: true}}, sessions: map[string]time.Time{"desktop-session": time.Now().Add(time.Hour)}, csrfTokens: map[string]string{"desktop-session": "csrf"}}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/", nil)
+	s.setSessionCookie(c, "desktop-session")
+	for _, cookie := range w.Result().Cookies() {
+		if cookie.Secure {
+			t.Fatalf("loopback HTTP cookie %s was marked Secure", cookie.Name)
+		}
+	}
+}
+
+func TestBrandedHTTPSProxySetsSecureSessionCookie(t *testing.T) {
+	s := &Server{cfg: &config.Config{Server: config.ServerConfig{DashboardDomain: "guard.nullstudio.org"}, Security: config.SecurityConfig{SessionTimeout: 60}}, sessions: map[string]time.Time{"branded-session": time.Now().Add(time.Hour)}, csrfTokens: map[string]string{"branded-session": "csrf"}}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8080/", nil)
+	c.Request.Host = "guard.nullstudio.org"
+	c.Request.RemoteAddr = "127.0.0.1:6543"
+	c.Request.Header.Set("X-Forwarded-Proto", "https")
+	s.setSessionCookie(c, "branded-session")
+	for _, cookie := range w.Result().Cookies() {
+		if !cookie.Secure {
+			t.Fatalf("branded HTTPS cookie %s was not Secure", cookie.Name)
+		}
+	}
+	c.Request.RemoteAddr = "192.0.2.5:6543"
+	if s.secureDashboardRequest(c.Request) {
+		t.Fatal("non-loopback proxy header was trusted")
+	}
+}
+
 func TestFirstRunSetupCreatesCredentialsAndClosesEndpoint(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	dir := t.TempDir()

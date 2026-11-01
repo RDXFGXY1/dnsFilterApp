@@ -19,7 +19,12 @@ Use this page as the starting point for the project documentation.
 - [Plugin SDK](PLUGIN-SDK.md)
 - [Releases and changelog](releases/README.md)
 - [Unreleased changes](releases/UNRELEASED.md)
-- [v2.6.0-beta.1 release candidate](releases/v2.6.0-beta.1.md)
+- [v0.1.0 first public release](releases/v0.1.0.md)
+- [v0.2.0 draft and baseline comparison](releases/v0.2.0-draft.md)
+- [v2.6.0-beta.1 development preview](releases/v2.6.0-beta.1.md)
+- [Side Apps and ADNF packages](SIDE-APPS.md)
+- [Windows startup](WINDOWS-STARTUP.md)
+- [Windows notifications](WINDOWS-NOTIFICATIONS.md)
 
 Feature documents explain the current behavior. Release documents explain what
 changed over time. Installation documents are the source of truth for supported

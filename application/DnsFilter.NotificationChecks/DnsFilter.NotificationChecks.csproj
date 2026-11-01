@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+ <ItemGroup>
+  <Compile Include="..\DnsFilter.Avalonia\Notifications\NotificationState.cs" Link="NotificationState.cs" />
+  <Compile Include="..\DnsFilter.Avalonia\Notifications\WindowsNotifier.cs" Link="WindowsNotifier.cs" />
+  <Compile Include="..\DnsFilter.Avalonia\Notifications\WindowsIntegration.cs" Link="WindowsIntegration.cs" />
+ </ItemGroup>
+</Project>

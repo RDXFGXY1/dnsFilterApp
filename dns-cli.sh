@@ -9,12 +9,14 @@ if [ -f "/opt/dns-filter/configs/config.yaml" ]; then
     # System-wide installation
     INSTALL_PATH="/opt/dns-filter"
     API="http://127.0.0.1:8080/api"
+    HEALTH="http://127.0.0.1:8080/healthz"
     CUSTOM_BLOCKLIST="$INSTALL_PATH/configs/custom-blocklist.yaml"
     CONFIG_FILE="$INSTALL_PATH/configs/config.yaml"
 elif [ -f "./configs/config.yaml" ]; then
     # Local installation
     INSTALL_PATH="$(pwd)"
     API="http://127.0.0.1:8080/api"
+    HEALTH="http://127.0.0.1:8080/healthz"
     CUSTOM_BLOCKLIST="./configs/custom-blocklist.yaml"
     CONFIG_FILE="./configs/config.yaml"
 else
@@ -46,7 +48,7 @@ warn()  { echo -e "${YELLOW}!${NC} $1"; }
 title() { echo -e "${CYAN}${1}${NC}"; }
 
 is_running() {
-    curl -s --connect-timeout 2 "$API/stats" --cookie "$SESSION_COOKIE" >/dev/null 2>&1
+    curl -fsS --connect-timeout 2 "$HEALTH" >/dev/null 2>&1
 }
 
 api_post() {
@@ -370,20 +372,67 @@ DNS Filter CLI Commands:
     reload               Reload custom-blocklist.yaml
     update               Update ALL blocklists (slow)
     clear                Clear DNS cache
+    enable-dns           Route system DNS through DNS Filter (root required)
+    disable-dns          Restore automatic system DNS (root required)
+    reset-network        Release all DNS Filter app-network rules
+    recover-dns          Run standalone emergency DNS recovery
+    start                Start the Arch background service
+    stop                 Stop the Arch background service
+    restart              Restart the Arch background service
     
   Navigation:
     help                 This help
     exit / quit          Exit
     
 Examples:
-  block tiktok.com
-  disable tiktok.com
-  enable tiktok.com
-  test pornhub.com
-  list
-  status
+  dnscli block tiktok.com
+  dnscli disable tiktok.com
+  dnscli test example.com
+  dnscli status
+  sudo dnscli enable-dns
+  sudo dnscli recover-dns
   
 EOF
+}
+
+cmd_system() {
+    local action="$1"
+    case "$action" in
+        enable-dns)    sudo "$INSTALL_PATH/dns-filter" setup-dns ;;
+        disable-dns)   sudo "$INSTALL_PATH/dns-filter" reset-dns ;;
+        reset-network) sudo "$INSTALL_PATH/dns-filter" reset-app-network ;;
+        recover-dns)
+            local recovery="$INSTALL_PATH/emergency-restore-dns.sh"
+            [ -x "$recovery" ] || { err "Recovery helper not found: $recovery"; return 1; }
+            sudo "$recovery"
+            ;;
+        start|stop|restart) sudo systemctl "$action" dns-filter.service ;;
+    esac
+}
+
+dispatch_command() {
+    local command="${1:-help}"
+    shift || true
+    case "$command" in
+        block)          cmd_block "${1:-}" ;;
+        unblock)        cmd_unblock "${1:-}" ;;
+        remove|rm)      cmd_remove "${1:-}" ;;
+        enable)         cmd_enable "${1:-}" ;;
+        disable)        cmd_disable "${1:-}" ;;
+        whitelist)      cmd_whitelist "${1:-}" ;;
+        test)           cmd_test "${1:-}" ;;
+        list|ls)        cmd_list ;;
+        status|stat)    cmd_status ;;
+        reload)         cmd_reload ;;
+        update)         cmd_update ;;
+        clear)          cmd_clear ;;
+        info)           cmd_info ;;
+        enable-dns|disable-dns|reset-network|recover-dns|start|stop|restart)
+            cmd_system "$command"
+            ;;
+        help|h|-h|--help) cmd_help ;;
+        *) err "Unknown command: $command"; cmd_help; return 2 ;;
+    esac
 }
 
 # ── Shell ─────────────────────────────────────────────────────────
@@ -428,23 +477,9 @@ interactive_shell() {
         [ "$cmd" = "$args" ] && args=""
         
         case "$cmd" in
-            block)      cmd_block "$args" ;;
-            unblock)    cmd_unblock "$args" ;;
-            remove|rm)  cmd_remove "$args" ;;
-            enable)     cmd_enable "$args" ;;
-            disable)    cmd_disable "$args" ;;
-            whitelist)  cmd_whitelist "$args" ;;
-            test)       cmd_test "$args" ;;
-            list|ls)    cmd_list ;;
-            status|stat) cmd_status ;;
-            reload)     cmd_reload ;;
-            update)     cmd_update ;;
-            clear)      cmd_clear ;;
-            info)       cmd_info ;;
-            help|h|\?)  cmd_help ;;
             exit|quit|q) echo "Goodbye!"; exit 0 ;;
             "") ;;
-            *) err "Unknown: $cmd"; echo "Type 'help' for commands" ;;
+            *) dispatch_command "$cmd" "$args" ;;
         esac
         
         echo ""
@@ -455,5 +490,5 @@ interactive_shell() {
 
 case "${1:-run}" in
     run) interactive_shell ;;
-    *) echo "Usage: dns-cli run"; exit 1 ;;
+    *) dispatch_command "$@" ;;
 esac

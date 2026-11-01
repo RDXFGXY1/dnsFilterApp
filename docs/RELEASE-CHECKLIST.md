@@ -1,6 +1,6 @@
 # Release Checklist
 
-This checklist is the minimum gate for `2.6.0-beta.1` and later builds.
+This checklist is the minimum gate for `0.1.0` and later public builds.
 
 ## Automated verification
 

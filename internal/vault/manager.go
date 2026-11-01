@@ -35,19 +35,26 @@ type wrapper struct {
 }
 
 type envelope struct {
-	Version  int       `json:"version"`
-	Created  time.Time `json:"created_at"`
-	Password wrapper   `json:"password"`
-	Recovery wrapper   `json:"recovery"`
+	Version  int          `json:"version"`
+	Created  time.Time    `json:"created_at"`
+	Password wrapper      `json:"password"`
+	Recovery wrapper      `json:"recovery"`
+	USB      []usbWrapper `json:"usb,omitempty"`
+}
+
+type usbWrapper struct {
+	ID  string  `json:"id"`
+	Key wrapper `json:"key"`
 }
 
 type Status struct {
-	Configured     bool       `json:"configured"`
-	Unlocked       bool       `json:"unlocked"`
-	UnlockedUntil  *time.Time `json:"unlocked_until,omitempty"`
-	FailedAttempts int        `json:"failed_attempts"`
-	LockedOutUntil *time.Time `json:"locked_out_until,omitempty"`
-	AuditEntries   int        `json:"audit_entries"`
+	Configured        bool       `json:"configured"`
+	Unlocked          bool       `json:"unlocked"`
+	UnlockedUntil     *time.Time `json:"unlocked_until,omitempty"`
+	FailedAttempts    int        `json:"failed_attempts"`
+	LockedOutUntil    *time.Time `json:"locked_out_until,omitempty"`
+	AuditEntries      int        `json:"audit_entries"`
+	RequestsRemaining int        `json:"requests_remaining"`
 }
 
 type auditRecord struct {
@@ -59,18 +66,24 @@ type auditRecord struct {
 }
 
 type Manager struct {
-	mu              sync.Mutex
-	directory       string
-	envelopePath    string
-	auditPath       string
-	auditHeadPath   string
-	master          []byte
-	unlockedUntil   time.Time
-	unlockDuration  time.Duration
-	maxFailures     int
-	lockoutDuration time.Duration
-	failures        int
-	lockedOutUntil  time.Time
+	mu                sync.Mutex
+	directory         string
+	envelopePath      string
+	auditPath         string
+	auditHeadPath     string
+	master            []byte
+	unlockedUntil     time.Time
+	unlockDuration    time.Duration
+	maxRequests       int
+	requestsRemaining int
+	maxFailures       int
+	lockoutDuration   time.Duration
+	failures          int
+	lockedOutUntil    time.Time
+	emailCodeHash     [32]byte
+	emailCodeExpires  time.Time
+	emailCodeSentAt   time.Time
+	emailCodeFailures int
 }
 
 func New(directory string, unlockDuration time.Duration, maxFailures int, lockoutDuration time.Duration) (*Manager, error) {
@@ -110,11 +123,39 @@ func (m *Manager) SetUnlockDuration(duration time.Duration) {
 	}
 }
 
+// SetUnlockRequests limits successful protected changes per unlock; zero means
+// time-only locking. The new policy applies to the current unlock as well.
+func (m *Manager) SetUnlockRequests(count int) {
+	if count < 0 {
+		return
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.maxRequests = count
+	m.requestsRemaining = count
+}
+
+func (m *Manager) ProtectedChangeCompleted() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if len(m.master) != 32 || m.maxRequests == 0 {
+		return
+	}
+	m.requestsRemaining--
+	if m.requestsRemaining <= 0 {
+		_ = m.auditLocked("vault.lock", "protected change limit reached")
+		zero(m.master)
+		m.master = nil
+		m.unlockedUntil = time.Time{}
+		m.requestsRemaining = 0
+	}
+}
+
 func (m *Manager) Status() Status {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.expireLocked()
-	s := Status{Configured: fileExists(m.envelopePath), Unlocked: len(m.master) == 32, FailedAttempts: m.failures, AuditEntries: countLines(m.auditPath)}
+	s := Status{Configured: fileExists(m.envelopePath), Unlocked: len(m.master) == 32, FailedAttempts: m.failures, AuditEntries: countLines(m.auditPath), RequestsRemaining: m.requestsRemaining}
 	if s.Unlocked {
 		t := m.unlockedUntil
 		s.UnlockedUntil = &t
@@ -346,6 +387,7 @@ func (m *Manager) setMaster(master []byte) {
 	zero(m.master)
 	m.master = append([]byte(nil), master...)
 	m.unlockedUntil = time.Now().Add(m.unlockDuration)
+	m.requestsRemaining = m.maxRequests
 }
 func (m *Manager) expireLocked() {
 	if len(m.master) > 0 && time.Now().After(m.unlockedUntil) {

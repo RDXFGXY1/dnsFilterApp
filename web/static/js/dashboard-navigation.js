@@ -13,7 +13,7 @@
     ['protection', 'Protection', ['protection', 'privacy', 'rules']],
     ['automation', 'Automation', ['profiles', 'schedules', 'focus', 'wellbeing']],
     ['advanced', 'Advanced', ['learning', 'decisions', 'freeze']],
-    ['system', 'System', ['hardsecurity', 'plugins', 'settings', 'requests']]
+    ['system', 'System', ['hardsecurity', 'plugins', 'domains', 'settings', 'requests']]
   ];
   const icon = path => `<svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>`;
 
@@ -21,6 +21,8 @@
     const nav = document.querySelector('.sidenav');
     if (!nav || nav.dataset.organized) return;
     nav.dataset.organized = '1';
+    // Preserve the expandable app shelf and its listeners when regrouping links.
+    const sideApps = nav.querySelector('#sideapps-nav');
     const links = {};
     nav.querySelectorAll('a[data-view]').forEach(link => {
       links[link.dataset.view] = link;
@@ -54,6 +56,8 @@
       available.forEach(link => items.appendChild(link));
       host.appendChild(group);
     });
+
+    if (sideApps) host.appendChild(sideApps);
 
     const discipline = document.createElement('a');
     discipline.className = 'discipline-launcher';

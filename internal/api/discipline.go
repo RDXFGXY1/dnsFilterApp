@@ -373,11 +373,21 @@ func (s *Server) discCreateReminder(c *gin.Context) {
 func (s *Server) discSetReminderDone(c *gin.Context) {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	var data struct {
-		Done bool `json:"done"`
+		Done     *bool   `json:"done"`
+		RemindAt *string `json:"remind_at"`
 	}
-	c.ShouldBindJSON(&data)
-	if err := s.discipline.SetReminderDone(id, data.Done); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := c.ShouldBindJSON(&data); err != nil || (data.Done == nil && data.RemindAt == nil) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reminder update"})
+		return
+	}
+	var err error
+	if data.RemindAt != nil {
+		err = s.discipline.RescheduleReminder(id, *data.RemindAt)
+	} else {
+		err = s.discipline.SetReminderDone(id, *data.Done)
+	}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})

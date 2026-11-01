@@ -44,3 +44,25 @@ func Disable() error {
 	}
 	return nil
 }
+
+// Configure supports boot/manual startup through the installed systemd unit.
+func Configure(options Options) error {
+	if err := options.Validate(); err != nil {
+		return err
+	}
+	if options.Mode == ModeLogin {
+		return fmt.Errorf("after-sign-in startup is available on Windows only")
+	}
+	if options.Mode == ModeManual {
+		return Disable()
+	}
+	return Enable()
+}
+func Inspect() Status {
+	enabled := IsEnabled()
+	mode := ModeManual
+	if enabled {
+		mode = ModeBoot
+	}
+	return Status{ReadOK: true, Supported: Supported(), Enabled: enabled, Mode: mode}
+}

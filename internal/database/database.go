@@ -3,13 +3,22 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
 
 type DB struct {
-	conn *sql.DB
+	conn        *sql.DB
+	liveMu      sync.Mutex
+	livePrivacy LivePrivacy
+}
+
+type LivePrivacy struct {
+	RetentionHours int  `json:"retention_hours"`
+	HideClientIP   bool `json:"hide_client_ip"`
+	BlockedOnly    bool `json:"blocked_only"`
 }
 
 type BlockedQuery struct {
@@ -22,6 +31,16 @@ type BlockedQuery struct {
 type ObservedDomain struct {
 	Domain string `json:"domain"`
 	Count  int    `json:"count"`
+}
+
+type LiveQuery struct {
+	Time     int64  `json:"time"`
+	Domain   string `json:"domain"`
+	ClientIP string `json:"client_ip"`
+	Type     string `json:"type"`
+	Blocked  bool   `json:"blocked"`
+	Reason   string `json:"reason"`
+	Cached   bool   `json:"cached"`
 }
 
 func (db *DB) GetDB() *sql.DB {
@@ -38,7 +57,7 @@ func New(dbPath string) (*DB, error) {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	db := &DB{conn: conn}
+	db := &DB{conn: conn, livePrivacy: LivePrivacy{RetentionHours: 168}}
 
 	if err := db.initialize(); err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
@@ -62,6 +81,44 @@ func (db *DB) initialize() error {
 
 	CREATE INDEX IF NOT EXISTS idx_blocked_timestamp ON blocked_queries(timestamp);
 	CREATE INDEX IF NOT EXISTS idx_blocked_domain ON blocked_queries(domain);
+
+	CREATE TABLE IF NOT EXISTS live_queries (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		time INTEGER NOT NULL,
+		domain TEXT NOT NULL,
+		client_ip TEXT NOT NULL,
+		qtype TEXT NOT NULL,
+		blocked BOOLEAN NOT NULL,
+		reason TEXT NOT NULL,
+		cached BOOLEAN NOT NULL
+	);
+
+	CREATE TABLE IF NOT EXISTS network_test_history (
+		id TEXT PRIMARY KEY,
+		status TEXT NOT NULL,
+		mode TEXT NOT NULL,
+		limit_mb INTEGER NOT NULL,
+		duration_seconds INTEGER NOT NULL,
+		ping_ms REAL NOT NULL,
+		jitter_ms REAL NOT NULL,
+		packet_loss REAL NOT NULL,
+		download_mbps REAL NOT NULL,
+		upload_mbps REAL NOT NULL,
+		bytes_downloaded INTEGER NOT NULL,
+		bytes_uploaded INTEGER NOT NULL,
+		error TEXT NOT NULL,
+		started_at DATETIME NOT NULL,
+		finished_at DATETIME NOT NULL
+	);
+
+	CREATE TABLE IF NOT EXISTS dns_health_events (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		kind TEXT NOT NULL,
+		status TEXT NOT NULL,
+		title TEXT NOT NULL,
+		detail TEXT NOT NULL,
+		at DATETIME NOT NULL
+	);
 
 	CREATE TABLE IF NOT EXISTS blocklist (
 		domain TEXT PRIMARY KEY,
@@ -103,6 +160,113 @@ func (db *DB) LogBlockedQuery(domain, clientIP string, timestamp time.Time) erro
 	query := `INSERT INTO blocked_queries (domain, client_ip, timestamp) VALUES (?, ?, ?)`
 	_, err := db.conn.Exec(query, domain, clientIP, timestamp)
 	return err
+}
+
+// SaveLiveQueries stores only the latest 200 DNS outcomes. A batch keeps writes
+// off the DNS request path and makes insertion and pruning atomic.
+func (db *DB) SaveLiveQueries(items []LiveQuery) error {
+	if len(items) == 0 {
+		return nil
+	}
+	db.liveMu.Lock()
+	defer db.liveMu.Unlock()
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	stmt, err := tx.Prepare(`INSERT INTO live_queries (time, domain, client_ip, qtype, blocked, reason, cached) VALUES (?, ?, ?, ?, ?, ?, ?) `)
+	if err != nil {
+		return err
+	}
+	for _, item := range items {
+		if db.livePrivacy.BlockedOnly && !item.Blocked {
+			continue
+		}
+		if db.livePrivacy.HideClientIP {
+			item.ClientIP = ""
+		}
+		if _, err = stmt.Exec(item.Time, item.Domain, item.ClientIP, item.Type, item.Blocked, item.Reason, item.Cached); err != nil {
+			stmt.Close()
+			return err
+		}
+	}
+	if err = stmt.Close(); err != nil {
+		return err
+	}
+	cutoff := time.Now().Add(-time.Duration(db.livePrivacy.RetentionHours) * time.Hour).Unix()
+	if _, err = tx.Exec(`DELETE FROM live_queries WHERE time < ? OR id NOT IN (SELECT id FROM live_queries ORDER BY id DESC LIMIT 200)`, cutoff); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func (db *DB) GetLiveQueries(limit int) ([]LiveQuery, error) {
+	db.liveMu.Lock()
+	defer db.liveMu.Unlock()
+	if limit < 1 || limit > 200 {
+		limit = 200
+	}
+	cutoff := time.Now().Add(-time.Duration(db.livePrivacy.RetentionHours) * time.Hour).Unix()
+	rows, err := db.conn.Query(`SELECT time, domain, client_ip, qtype, blocked, reason, cached FROM live_queries WHERE time >= ? ORDER BY id DESC LIMIT ?`, cutoff, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := make([]LiveQuery, 0, limit)
+	for rows.Next() {
+		var item LiveQuery
+		if err := rows.Scan(&item.Time, &item.Domain, &item.ClientIP, &item.Type, &item.Blocked, &item.Reason, &item.Cached); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, rows.Err()
+}
+
+func (db *DB) ClearLiveQueries() error {
+	db.liveMu.Lock()
+	defer db.liveMu.Unlock()
+	_, err := db.conn.Exec(`DELETE FROM live_queries`)
+	return err
+}
+
+func (db *DB) LivePrivacy() LivePrivacy {
+	db.liveMu.Lock()
+	defer db.liveMu.Unlock()
+	return db.livePrivacy
+}
+
+func (db *DB) SetLivePrivacy(settings LivePrivacy) error {
+	if settings.RetentionHours < 1 || settings.RetentionHours > 720 {
+		return fmt.Errorf("invalid live history retention")
+	}
+	db.liveMu.Lock()
+	defer db.liveMu.Unlock()
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if settings.HideClientIP {
+		if _, err = tx.Exec(`UPDATE live_queries SET client_ip = ''`); err != nil {
+			return err
+		}
+	}
+	if settings.BlockedOnly {
+		if _, err = tx.Exec(`DELETE FROM live_queries WHERE blocked = 0`); err != nil {
+			return err
+		}
+	}
+	cutoff := time.Now().Add(-time.Duration(settings.RetentionHours) * time.Hour).Unix()
+	if _, err = tx.Exec(`DELETE FROM live_queries WHERE time < ?`, cutoff); err != nil {
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	db.livePrivacy = settings
+	return nil
 }
 
 func (db *DB) GetRecentBlocked(limit int) ([]BlockedQuery, error) {

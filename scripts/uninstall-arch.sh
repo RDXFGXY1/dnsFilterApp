@@ -20,6 +20,7 @@ systemctl disable --now dns-filter.service >/dev/null 2>&1 || true
 nft delete table inet dnsfilter_freeze >/dev/null 2>&1 || true
 nft delete table inet dnsfilter_apps >/dev/null 2>&1 || true
 rm -f /etc/systemd/system/dns-filter.service /usr/share/applications/dns-filter.desktop
+rm -f /usr/local/bin/dnscli
 systemctl daemon-reload
 systemctl reset-failed dns-filter.service >/dev/null 2>&1 || true
 

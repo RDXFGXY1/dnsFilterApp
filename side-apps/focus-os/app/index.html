@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Focus OS</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+ <div class="workspace">
+  <header><a class="brand" href="#home"><span class="brand-icon">F</span><span>Focus OS<small>Independent study workspace</small></span></a><span class="badge">LOCAL · PRIVATE</span></header>
+  <main id="home">
+   <section class="intro"><span class="eyebrow">A space of your own</span><h1>One thing at a time.</h1><p>Start with a clear intention. Your workspace can grow from here.</p></section>
+   <div class="columns">
+    <section class="card timer-card"><div class="card-heading"><h2>Focus session</h2><span id="timer-state">Ready</span></div><label for="objective">What will you work on?</label><input id="objective" maxlength="250" placeholder="Understand limits, one exercise at a time…"><div id="timer" role="timer" aria-live="off">25:00</div><div class="presets"><button type="button" data-minutes="15">15 min</button><button type="button" data-minutes="25" class="selected">25 min</button><button type="button" data-minutes="50">50 min</button></div><div class="actions"><button id="timer-start" class="primary" type="button">Start focus</button><button id="timer-reset" type="button">Reset</button><button id="timer-finish" type="button" disabled>Finish session</button></div><p id="timer-help" class="muted">This timer belongs to Focus OS. It does not change DNS protection.</p></section>
+    <section class="card notes-card"><div class="card-heading"><h2>Session notes</h2><span id="save-state">Connecting…</span></div><label for="notes">A thought, a question, your next step.</label><textarea id="notes" rows="9" maxlength="30000" placeholder="Leave a little clarity for your future self."></textarea><div class="actions"><button class="primary" id="save-notes" type="button" disabled>Save locally</button></div><p class="muted">Saved only in this app’s own space.</p></section>
+   </div>
+   <section class="card history-card"><div class="card-heading"><h2>Recent sessions</h2><span id="session-total">0 sessions</span></div><div id="history"><p class="muted">Your first focused step starts here.</p></div></section>
+   <footer>Bare app · v0.1.0 <span>Your own code. Your own interface. Your own data.</span></footer>
+  </main>
+ </div><script src="app.js"></script>
+</body>
+</html>

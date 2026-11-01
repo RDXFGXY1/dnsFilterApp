@@ -804,6 +804,14 @@ func (m *Manager) SetReminderDone(id int64, done bool) error {
 	return err
 }
 
+func (m *Manager) RescheduleReminder(id int64, remindAt string) error {
+	if _, err := time.ParseInLocation("2006-01-02 15:04", remindAt, time.Local); err != nil {
+		return fmt.Errorf("valid reminder time required")
+	}
+	_, err := m.db.Exec(`UPDATE discipline_reminders SET remind_at = ?, done = 0 WHERE id = ?`, remindAt, id)
+	return err
+}
+
 func (m *Manager) DeleteReminder(id int64) error {
 	_, err := m.db.Exec(`DELETE FROM discipline_reminders WHERE id = ?`, id)
 	return err

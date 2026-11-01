@@ -33,6 +33,7 @@ func (s *Server) vaultMiddleware() gin.HandlerFunc {
 		}
 		c.Next()
 		if c.Writer.Status() < 400 {
+			s.vault.ProtectedChangeCompleted()
 			_ = s.vault.Audit("configuration.change", c.Request.Method+" "+c.Request.URL.Path)
 		}
 	}
@@ -42,10 +43,17 @@ func (s *Server) vaultMiddleware() gin.HandlerFunc {
 // Personal productivity data (todos, notes, discipline, focus sessions) must
 // remain usable while the configuration vault is locked.
 func vaultProtectsPath(path string) bool {
+	if strings.HasPrefix(path, "/api/side-apps/") {
+		parts := strings.Split(strings.TrimPrefix(path, "/api/side-apps/"), "/")
+		return !(len(parts) == 2 && parts[1] == "storage")
+	}
 	protected := []string{
 		"/api/connection-freeze",
 		"/api/whitelist", "/api/custom-blocklist", "/api/blocklist",
 		"/api/settings", "/api/filtering", "/api/categories", "/api/keywords",
+		"/api/dashboard/domain",
+		"/api/dashboard/lan",
+		"/api/live/privacy",
 		"/api/apps", "/api/guard", "/api/blockpage", "/api/autostart",
 		"/api/app-network",
 		"/api/dns-bypass",
@@ -70,6 +78,14 @@ func vaultProtectsPath(path string) bool {
 
 func (s *Server) registerVaultRoutes(api *gin.RouterGroup) {
 	api.GET("/vault/status", s.vaultStatus)
+	api.POST("/vault/policy", s.vaultPolicy)
+	api.GET("/vault/email-recovery", s.vaultEmailRecoveryStatus)
+	api.POST("/vault/email-recovery/enroll", s.vaultEmailRecoveryEnroll)
+	api.POST("/vault/email-recovery/request", s.vaultEmailRecoveryRequest)
+	api.POST("/vault/email-recovery/reset", s.vaultEmailRecoveryReset)
+	api.GET("/vault/usb-drives", s.vaultUSBDrives)
+	api.POST("/vault/usb-recovery/create", s.vaultUSBCreate)
+	api.POST("/vault/usb-recovery/reset", s.vaultUSBReset)
 	api.POST("/vault/setup", s.vaultSetup)
 	api.POST("/vault/unlock", s.vaultUnlock)
 	api.POST("/vault/recover", s.vaultRecover)
@@ -79,12 +95,144 @@ func (s *Server) registerVaultRoutes(api *gin.RouterGroup) {
 	api.GET("/vault/audit", s.vaultAudit)
 }
 
+func (s *Server) vaultUSBDrives(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"drives": vault.RemovableRoots()})
+}
+
+func (s *Server) vaultUSBCreate(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	var in struct {
+		Drive string `json:"drive"`
+	}
+	if c.ShouldBindJSON(&in) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Choose a USB drive"})
+		return
+	}
+	path, err := s.vault.CreateUSBRecovery(in.Drive)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "path": path})
+}
+
+func (s *Server) vaultUSBReset(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	var in struct {
+		Code        string `json:"code"`
+		NewPassword string `json:"new_password"`
+	}
+	if c.ShouldBindJSON(&in) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Code and new password are required"})
+		return
+	}
+	if err := s.vault.RecoverWithUSBCode(in.Code, in.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (s *Server) vaultEmailRecoveryStatus(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	configured, recipient := s.vault.EmailRecoveryStatus()
+	c.JSON(http.StatusOK, gin.H{"configured": configured, "recipient": recipient})
+}
+
+func (s *Server) vaultEmailRecoveryEnroll(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	var in vault.EmailRecoverySettings
+	if c.ShouldBindJSON(&in) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid SMTP settings"})
+		return
+	}
+	if err := s.vault.EnrollEmailRecovery(in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (s *Server) vaultEmailRecoveryRequest(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	if err := s.vault.RequestEmailRecovery(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "A code was sent to the configured recovery email. It expires in 10 minutes."})
+}
+
+func (s *Server) vaultEmailRecoveryReset(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	var in struct {
+		Code        string `json:"code"`
+		NewPassword string `json:"new_password"`
+	}
+	if c.ShouldBindJSON(&in) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Code and new password are required"})
+		return
+	}
+	if err := s.vault.RecoverWithEmailCode(in.Code, in.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
 func (s *Server) vaultStatus(c *gin.Context) {
 	if s.vault == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Vault unavailable"})
 		return
 	}
-	c.JSON(http.StatusOK, s.vault.Status())
+	status := s.vault.Status()
+	c.JSON(http.StatusOK, gin.H{"configured": status.Configured, "unlocked": status.Unlocked, "unlocked_until": status.UnlockedUntil, "failed_attempts": status.FailedAttempts, "locked_out_until": status.LockedOutUntil, "audit_entries": status.AuditEntries, "unlock_minutes": s.cfg.Vault.UnlockMinutes, "unlock_requests": s.cfg.Vault.UnlockRequests, "requests_remaining": status.RequestsRemaining})
+}
+
+func (s *Server) vaultPolicy(c *gin.Context) {
+	if !s.requireVault(c) {
+		return
+	}
+	var in struct {
+		UnlockMinutes  int `json:"unlock_minutes"`
+		UnlockRequests int `json:"unlock_requests"`
+	}
+	if c.ShouldBindJSON(&in) != nil || in.UnlockMinutes < 1 || in.UnlockMinutes > 240 || in.UnlockRequests < 0 || in.UnlockRequests > 100 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Choose 1–240 minutes and 0–100 protected changes (0 means no request limit)"})
+		return
+	}
+	if err := s.vault.RequireUnlocked(); err != nil {
+		c.JSON(http.StatusLocked, gin.H{"error": "Unlock the vault first", "code": "vault_locked"})
+		return
+	}
+	s.configMu.Lock()
+	previous := s.cfg.Vault.UnlockMinutes
+	previousRequests := s.cfg.Vault.UnlockRequests
+	s.cfg.Vault.UnlockMinutes = in.UnlockMinutes
+	s.cfg.Vault.UnlockRequests = in.UnlockRequests
+	if err := s.cfg.SaveDefault(); err != nil {
+		s.cfg.Vault.UnlockMinutes = previous
+		s.cfg.Vault.UnlockRequests = previousRequests
+		s.configMu.Unlock()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save vault policy"})
+		return
+	}
+	s.configMu.Unlock()
+	s.vault.SetUnlockDuration(time.Duration(in.UnlockMinutes) * time.Minute)
+	s.vault.SetUnlockRequests(in.UnlockRequests)
+	_ = s.vault.Audit("vault.policy", fmt.Sprintf("auto-lock set to %d minutes or %d changes", in.UnlockMinutes, in.UnlockRequests))
+	c.JSON(http.StatusOK, gin.H{"success": true, "unlock_minutes": in.UnlockMinutes, "unlock_requests": in.UnlockRequests})
 }
 
 func (s *Server) vaultSetup(c *gin.Context) {

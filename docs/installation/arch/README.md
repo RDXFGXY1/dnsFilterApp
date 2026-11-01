@@ -71,6 +71,16 @@ sudo /opt/dns-filter/arch-diagnostics.sh
 
 Dashboard: `http://127.0.0.1:8080`
 
+The package installs one command entry point:
+
+```bash
+dnscli help
+dnscli status
+dnscli test example.com
+sudo dnscli disable-dns
+sudo dnscli recover-dns
+```
+
 ```bash
 systemctl status dns-filter.service
 sudo systemctl restart dns-filter.service
@@ -135,6 +145,7 @@ sudo nft delete table inet dnsfilter_freeze
 | Path | Purpose |
 |---|---|
 | `/opt/dns-filter/dns-filter` | Go service and recovery commands |
+| `/opt/dns-filter/dnscli` | Direct command-line control (`dnscli <command>`) |
 | `/opt/dns-filter/desktop/DNSFilter` | Avalonia desktop client |
 | `/opt/dns-filter/configs/` | Configuration and custom rules |
 | `/opt/dns-filter/data/` | Database, logs, Vault, and local state |

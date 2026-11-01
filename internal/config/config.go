@@ -25,15 +25,18 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	DNSPort         int      `yaml:"dns_port"`
-	DNSHost         string   `yaml:"dns_host"`
-	APIPort         int      `yaml:"api_port"`
-	APIHost         string   `yaml:"api_host"`
-	UpstreamDNS     []string `yaml:"upstream_dns"`
-	Workers         int      `yaml:"workers"`
-	CacheSize       int      `yaml:"cache_size"`
-	CacheTTL        int      `yaml:"cache_ttl"`
-	ManageSystemDNS bool     `yaml:"manage_system_dns"`
+	DNSPort             int      `yaml:"dns_port"`
+	DNSHost             string   `yaml:"dns_host"`
+	APIPort             int      `yaml:"api_port"`
+	APIHost             string   `yaml:"api_host"`
+	DashboardDomain     string   `yaml:"dashboard_domain"`
+	DashboardLANEnabled bool     `yaml:"dashboard_lan_enabled"`
+	DashboardAllowedIPs []string `yaml:"dashboard_allowed_ips"`
+	UpstreamDNS         []string `yaml:"upstream_dns"`
+	Workers             int      `yaml:"workers"`
+	CacheSize           int      `yaml:"cache_size"`
+	CacheTTL            int      `yaml:"cache_ttl"`
+	ManageSystemDNS     bool     `yaml:"manage_system_dns"`
 }
 
 type FilteringConfig struct {
@@ -74,13 +77,16 @@ type DatabaseConfig struct {
 }
 
 type LoggingConfig struct {
-	Level          string `yaml:"level"`
-	File           string `yaml:"file"`
-	MaxSizeMB      int    `yaml:"max_size_mb"`
-	MaxBackups     int    `yaml:"max_backups"`
-	MaxAgeDays     int    `yaml:"max_age_days"`
-	LogQueries     bool   `yaml:"log_queries"`
-	LogBlockedOnly bool   `yaml:"log_blocked_only"`
+	Level              string `yaml:"level"`
+	File               string `yaml:"file"`
+	MaxSizeMB          int    `yaml:"max_size_mb"`
+	MaxBackups         int    `yaml:"max_backups"`
+	MaxAgeDays         int    `yaml:"max_age_days"`
+	LogQueries         bool   `yaml:"log_queries"`
+	LogBlockedOnly     bool   `yaml:"log_blocked_only"`
+	LiveRetentionHours int    `yaml:"live_retention_hours"`
+	LiveHideClientIP   bool   `yaml:"live_hide_client_ip"`
+	LiveBlockedOnly    bool   `yaml:"live_blocked_only"`
 }
 
 type SecurityConfig struct {
@@ -127,6 +133,7 @@ type SecurityPacksConfig struct {
 type VaultConfig struct {
 	Directory      string `yaml:"directory"`
 	UnlockMinutes  int    `yaml:"unlock_minutes"`
+	UnlockRequests int    `yaml:"unlock_requests"`
 	MaxFailures    int    `yaml:"max_failures"`
 	LockoutMinutes int    `yaml:"lockout_minutes"`
 }
@@ -192,6 +199,9 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.Advanced.UpstreamTimeoutSeconds <= 0 {
 		cfg.Advanced.UpstreamTimeoutSeconds = 5
+	}
+	if cfg.Logging.LiveRetentionHours <= 0 {
+		cfg.Logging.LiveRetentionHours = 168
 	}
 	if cfg.Blocklists.CustomPath == "" {
 		cfg.Blocklists.CustomPath = "./configs/custom*.yaml"

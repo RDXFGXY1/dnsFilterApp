@@ -49,6 +49,7 @@ if [[ ! -x "$DESKTOP_SOURCE" ]]; then DESKTOP_SOURCE="$SOURCE_DIR/build/desktop/
 [[ -x "$SOURCE_DIR/arch-health-check.sh" ]] || fail "The Arch health-check helper is missing."
 [[ -x "$SOURCE_DIR/arch-diagnostics.sh" ]] || fail "The Arch diagnostics helper is missing."
 [[ -x "$SOURCE_DIR/emergency-restore-dns.sh" ]] || fail "The emergency DNS recovery helper is missing."
+[[ -x "$SOURCE_DIR/dnscli" ]] || fail "The DNS Filter CLI is missing."
 
 if [[ $INSTALL_DEPS -eq 1 ]]; then
   step "Installing required Arch runtime libraries"
@@ -69,6 +70,8 @@ fi
 step "Installing DNS Filter into $INSTALL_DIR"
 install -d -m 0755 "$INSTALL_DIR" "$INSTALL_DIR/configs" "$INSTALL_DIR/data/logs" "$INSTALL_DIR/desktop"
 install -m 0755 "$SERVER_SOURCE" "$INSTALL_DIR/dns-filter"
+install -m 0755 "$SOURCE_DIR/dnscli" "$INSTALL_DIR/dnscli"
+ln -sfn "$INSTALL_DIR/dnscli" /usr/local/bin/dnscli
 rm -rf "$INSTALL_DIR/web" "$INSTALL_DIR/desktop"
 cp -a "$SOURCE_DIR/web" "$INSTALL_DIR/"
 install -d -m 0755 "$INSTALL_DIR/desktop"
@@ -134,3 +137,4 @@ printf 'Status: systemctl status dns-filter.service\n'
 printf 'Logs: journalctl -u dns-filter.service -f\n'
 printf 'Health: sudo /opt/dns-filter/arch-health-check.sh\n'
 printf 'Diagnostics: sudo /opt/dns-filter/arch-diagnostics.sh\n'
+printf 'CLI: dnscli help\n'

@@ -53,6 +53,31 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev-server.ps1
 Restart the development server after Go changes. Dashboard HTML, CSS, and
 JavaScript changes become visible after a browser refresh.
 
+## One-command control
+
+The release includes `dnscli.cmd`. Short flags may be combined and are executed
+from left to right. The CLI requests Administrator permission automatically when
+an action changes Windows:
+
+```powershell
+.\dnscli.cmd -S -E       # start, wait until healthy, then enable DNS filtering
+.\dnscli.cmd -D -T       # restore automatic DNS, then stop the service
+.\dnscli.cmd -R          # restart and wait until healthy
+.\dnscli.cmd -I          # install from this extracted portable package
+.\dnscli.cmd -U          # safely update from this extracted portable package
+.\dnscli.cmd -X          # uninstall while preserving user data
+.\dnscli.cmd -F          # emergency DNS fallback
+.\dnscli.cmd status
+.\dnscli.cmd dashboard
+```
+
+Available flags are `-S` start, `-T` stop, `-R` restart, `-E` enable DNS,
+`-D` disable DNS, `-N` reset application-network rules, `-I` install, `-U`
+update, `-X` uninstall, `-F` emergency fallback, `-V` version, and `-H` help.
+Long command names remain supported. Start waits for `/healthz` before the next
+action, so `-S -E` cannot route DNS to a service that is not ready. Uninstall and
+emergency fallback end the chain and should always be the final flag.
+
 ## Health and recovery
 
 If DNS Filter cannot start or `dns-filter.exe` is unavailable, run

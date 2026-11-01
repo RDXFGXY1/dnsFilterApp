@@ -48,6 +48,9 @@ logging:
     max_age_days: 30
     log_queries: true
     log_blocked_only: false
+    live_retention_hours: 168
+    live_hide_client_ip: false
+    live_blocked_only: false
 security:
     admin_username: admin
     # First-run compatibility hash. The server replaces this legacy example in

@@ -95,6 +95,42 @@ foreach ($serviceName in @('DNS-Filter', 'DNSFilter')) {
 if (Get-ScheduledTask -TaskName 'DNSFilter' -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName 'DNSFilter' -Confirm:$false
 }
+if (Get-ScheduledTask -TaskName 'DNSFilterRecovery' -ErrorAction SilentlyContinue) {
+    Stop-ScheduledTask -TaskName 'DNSFilterRecovery' -ErrorAction SilentlyContinue
+    Unregister-ScheduledTask -TaskName 'DNSFilterRecovery' -Confirm:$false
+}
+
+# Remove only desktop registrations that point to this installation. A source
+# checkout or another installation may own the current user's tray registration.
+$desktopExe = Join-Path $install 'desktop\DNSFilter.exe'
+$desktopCommand = '"' + $desktopExe + '"'
+$runKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\Microsoft\Windows\CurrentVersion\Run', $true)
+if ($null -ne $runKey) {
+    try {
+        $value = [string]$runKey.GetValue('DNSFilterDesktop')
+        if ($value.StartsWith($desktopCommand, [StringComparison]::OrdinalIgnoreCase)) { $runKey.DeleteValue('DNSFilterDesktop', $false) }
+    } finally { $runKey.Dispose() }
+}
+$classes = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\Classes', $true)
+if ($null -ne $classes) {
+    try {
+        $protocol = $classes.OpenSubKey('dnsfilter-app\shell\open\command')
+        if ($null -ne $protocol) {
+            $value = [string]$protocol.GetValue(''); $protocol.Dispose()
+            if ($value.StartsWith($desktopCommand, [StringComparison]::OrdinalIgnoreCase)) { $classes.DeleteSubKeyTree('dnsfilter-app', $false) }
+        }
+        $identity = $classes.OpenSubKey('AppUserModelId\DNSFilter.Desktop')
+        if ($null -ne $identity) {
+            $icon = [string]$identity.GetValue('IconUri'); $identity.Dispose()
+            if ($icon -eq (Join-Path $install 'desktop\Assets\dns-filter.png')) { $classes.DeleteSubKeyTree('AppUserModelId\DNSFilter.Desktop', $false) }
+        }
+    } finally { $classes.Dispose() }
+}
+$shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'DNS Filter Desktop.lnk'
+if (Test-Path -LiteralPath $shortcut) {
+    $shell = New-Object -ComObject WScript.Shell
+    if ($shell.CreateShortcut($shortcut).TargetPath -eq $desktopExe) { Remove-Item -LiteralPath $shortcut -Force }
+}
 
 Restore-AutomaticDNS
 Log 'System DNS restored to automatic configuration.'
@@ -105,7 +141,7 @@ Log 'Matching DNS Filter local CA certificate removed when present.'
 
 $immutable = @(
     'dns-filter.exe', 'web', 'desktop', '.rollback', '.installed-version',
-    'update-windows.ps1', 'uninstall-windows.ps1', 'emergency-restore-dns.ps1',
+    'update-windows.ps1', 'uninstall-windows.ps1', 'emergency-restore-dns.ps1', 'dnscli.cmd',
     'Install or Update DNS Filter.bat', 'Uninstall DNS Filter.bat',
     '1. Start DNS Filter.bat', '2. Enable Protection.bat', '3. Disable Protection.bat',
     'EMERGENCY - Restore Normal DNS.bat', 'README.txt', 'RUNNING.md', 'VERSION'

@@ -38,6 +38,8 @@ Write-Host "==> Building dns-filter.exe (CGO disabled, static)..." -ForegroundCo
 $env:CGO_ENABLED = "0"; $env:GOOS = "windows"; $env:GOARCH = "amd64"
 go build -trimpath -ldflags "-s -w" -o "build\dns-filter.exe" ./cmd/server
 if ($LASTEXITCODE -ne 0) { throw "build failed" }
+go build -trimpath -ldflags "-s -w" -o "build\dns-filter-notifications.exe" ./cmd/desktop-notifications
+if ($LASTEXITCODE -ne 0) { throw "desktop notification companion build failed" }
 
 Write-Host "==> Assembling portable folder..." -ForegroundColor Cyan
 if (Test-Path $dist) { Remove-Item $dist -Recurse -Force }
@@ -51,6 +53,7 @@ Copy-Item "web" $dist -Recurse
 Copy-Item "scripts\update-windows.ps1" (Join-Path $dist "update-windows.ps1")
 Copy-Item "scripts\uninstall-windows.ps1" (Join-Path $dist "uninstall-windows.ps1")
 Copy-Item "scripts\emergency-restore-dns.ps1" (Join-Path $dist "emergency-restore-dns.ps1")
+Copy-Item "scripts\dnscli.cmd" (Join-Path $dist "dnscli.cmd")
 Copy-Item "internal\version\VERSION" (Join-Path $dist "VERSION")
 if (Get-Command dotnet -ErrorAction SilentlyContinue) {
     Write-Host "==> Publishing Windows desktop..." -ForegroundColor Cyan
@@ -151,13 +154,27 @@ DNS FILTER $version — Portable Edition
 ======================================
 
 QUICK START (Windows)
-  1) Double-click "1. Start DNS Filter.bat"      (approve the admin prompt)
+  1) Run: dnscli.cmd -S -E                       (approve the admin prompt)
   2) Open http://dnsfilter.localhost:8080 and complete the secure first-run setup
-  3) Double-click "2. Enable Protection.bat"     to route this PC's DNS through the filter
-  4) In your browser settings, turn OFF "Secure DNS / DNS-over-HTTPS", then restart it
+  3) Keep browser "Secure DNS / DNS-over-HTTPS" disabled
+
+  The original numbered .bat launchers remain available.
+
+ONE-COMMAND CONTROL
+  dnscli.cmd -S -E    Start, wait until ready, then enable protection
+  dnscli.cmd -D -T    Restore automatic DNS, then stop
+  dnscli.cmd -R       Restart and wait until ready
+  dnscli.cmd -I       Install from this extracted package
+  dnscli.cmd -U       Safely update from this extracted package
+  dnscli.cmd -X       Uninstall while preserving user data
+  dnscli.cmd -F       Emergency DNS fallback
+  dnscli.cmd -H       Show every flag and full command name
+
+  Flags can be chained and execute from left to right. System-changing actions
+  request Administrator permission automatically.
 
 TO STOP
-  - Close the DNS Filter window, then run "3. Disable Protection.bat" to restore normal DNS.
+  - Run dnscli.cmd -D -T to restore normal DNS before stopping the service.
   - IMPORTANT: if you stop the filter without disabling protection, DNS will not work.
 
 EMERGENCY RECOVERY
@@ -174,8 +191,7 @@ NOTES
 Keep data\ca\ca.key private — it is your machine's local certificate authority key.
 
 SAFE INSTALL OR UPDATE
-  Run PowerShell as Administrator, then:
-  .\update-windows.ps1 -PackageDir .
+  Run dnscli.cmd -I for a first installation or dnscli.cmd -U for an update.
 
   Existing configs, database, Vault, logs, certificates, and recovery state are preserved.
   If the new service fails its health check, the previous executable and web assets return automatically.

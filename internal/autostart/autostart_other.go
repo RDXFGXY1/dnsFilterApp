@@ -19,3 +19,8 @@ func Enable() error {
 func Disable() error {
 	return fmt.Errorf("start-on-login is currently supported on Windows only")
 }
+
+func Configure(options Options) error {
+	return fmt.Errorf("automatic startup is unavailable on this operating system")
+}
+func Inspect() Status { return Status{ReadOK: true, Mode: ModeManual} }

@@ -6,10 +6,11 @@
     <title>{{ .title }}</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/dashboard-enhancements.css?v=3">
+    <link rel="stylesheet" href="/static/css/live-privacy.css?v=1">
     <link rel="stylesheet" href="/static/css/theme-modes.css?v=2">
     <link rel="stylesheet" href="/static/css/decision-center.css?v=1">
     <link rel="stylesheet" href="/static/css/security-packs.css?v=1">
-    <link rel="stylesheet" href="/static/css/vault.css?v=1">
+    <link rel="stylesheet" href="/static/css/vault.css?v=2">
     <link rel="stylesheet" href="/static/css/security-center.css?v=1">
     <link rel="stylesheet" href="/static/css/dashboard-organizer.css?v=1">
     <link rel="stylesheet" href="/static/css/professional-ui.css?v=3">
@@ -86,12 +87,23 @@
                 <a href="/discipline">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     Discipline</a>
+                <details id="sideapps-nav" class="sideapps-nav">
+                    <summary>◈ <span>Side Apps</span></summary>
+                    <div class="sideapps-nav-body">
+                        <div id="sideapps-nav-list"><small>Loading applications…</small></div>
+                        <button type="button" id="sideapps-nav-add">+ Add app</button>
+                        <button type="button" id="sideapps-nav-manage">Manage apps</button>
+                    </div>
+                </details>
                 <a href="#plugins" data-view="plugins">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3a2.5 2.5 0 1 0 0 5H10v3H7a2.5 2.5 0 1 0-5 0v2.5h8V17H8.5a2.5 2.5 0 1 0 0 5H13v-8h3v1.5a2.5 2.5 0 1 0 5 0V11h-8V8h1.5a2.5 2.5 0 1 0 0-5H8.5z"/></svg>
                     Plugins</a>
                 <a href="#" data-view="settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     Settings</a>
+                <a href="#domains" data-view="domains">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+                    Domains</a>
                 <a href="#" data-view="requests">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Requests <span id="request-count">0</span></a>
@@ -361,15 +373,15 @@
                     <div class="stat-value" id="live-qps">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-label">Allowed (session)</span></div>
+                    <div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-label">Allowed (last 200)</span></div>
                     <div class="stat-value" id="live-allowed">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><span class="stat-label">Blocked (session)</span></div>
+                    <div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><span class="stat-label">Blocked (last 200)</span></div>
                     <div class="stat-value" id="live-blocked">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-top"><div class="stat-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4"/></svg></div><span class="stat-label">Total seen</span></div>
+                    <div class="stat-top"><div class="stat-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4"/></svg></div><span class="stat-label">Saved queries</span></div>
                     <div class="stat-value" id="live-total">0</div>
                 </div>
             </div>
@@ -392,6 +404,18 @@
                         </tbody>
                     </table>
                 </div>
+            </section>
+            <section class="panel panel-wide">
+                <div class="panel-head"><h2>Top 10 Blocked Domains</h2><span class="panel-desc">Last 24 hours</span></div>
+                <ul class="data-list" id="live-top-blocked-list"><li class="no-data">Loading…</li></ul>
+            </section>
+            <section class="panel panel-wide" id="live-privacy-panel">
+                <div class="panel-head"><h2>Live history privacy</h2></div>
+                <p class="panel-desc">Choose how saved Live history works. Separate blocked-domain security records and diagnostic log files have their own settings.</p>
+                <div class="input-row"><label for="live-retention">Keep saved queries for</label><select id="live-retention"><option value="1">1 hour</option><option value="24">24 hours</option><option value="168">7 days</option><option value="720">30 days</option></select></div>
+                <div class="live-privacy-options"><label><input type="checkbox" id="live-save-allowed"> Save allowed queries</label><label><input type="checkbox" id="live-hide-ip"> Hide client IP in Live history</label></div>
+                <p class="panel-desc">Up to 200 recent queries are kept. Hiding IP removes it from existing saved Live entries; turning it back on only shows IP for new entries.</p>
+                <div class="action-buttons"><button class="btn" id="live-privacy-save" type="button">Save privacy settings</button><span id="live-privacy-status" role="status">Loading…</span></div>
             </section>
         </section>
 
@@ -619,6 +643,7 @@
             </div>
         </section>
 
+        {{ template "side_apps_host" . }}
         <!-- ═══ PLUGIN CENTER ═══ -->
         <section class="view plugin-center" data-view="plugins">
             <section class="plugin-hero">
@@ -758,37 +783,28 @@
                     </div>
                 </section>
 
-                <!-- Start on login -->
-                <section class="panel panel-wide vault-panel">
-                    <div class="panel-head"><h2>Secure Vault</h2><span id="vault-badge" class="vault-badge {{ if .vault_unlocked }}open{{ else if .vault_configured }}locked{{ end }}">{{ if .vault_unlocked }}Unlocked{{ else if .vault_configured }}Locked{{ else }}Not enabled{{ end }}</span></div>
-                    <p class="panel-desc">Protect every configuration change with a second password, encrypted backups, a one-time recovery code, and a tamper-evident audit trail. DNS protection keeps running while the vault is locked.</p>
-                    <div id="vault-setup" class="vault-section" {{ if .vault_configured }}hidden{{ end }}>
-                        <strong>Enable the vault</strong>
-                        <div class="input-row"><input type="password" id="vault-new-password" placeholder="Vault password (minimum 12 characters)"><input type="password" id="vault-new-confirm" placeholder="Confirm vault password"><button class="btn" onclick="setupVault()">Enable</button></div>
-                    </div>
-                    <div id="vault-unlock" class="vault-section" {{ if or (not .vault_configured) .vault_unlocked }}hidden{{ end }}>
-                        <strong>Unlock configuration changes</strong>
-                        <div class="input-row"><input type="password" id="vault-password" placeholder="Vault password"><button class="btn" onclick="unlockVault()">Unlock</button></div>
-                        <details><summary>Use recovery code</summary><div class="input-row"><input id="vault-recovery" placeholder="Recovery code"><input type="password" id="vault-recovery-password" placeholder="New password (12+ characters)"><button class="btn btn-ghost" onclick="recoverVault()">Recover</button></div></details>
-                    </div>
-                    <div id="vault-open" class="vault-section" {{ if not .vault_unlocked }}hidden{{ end }}>
-                        <div class="middleman-bar"><div><strong>Configuration changes are unlocked</strong><small id="vault-until"></small></div><button class="btn btn-danger" onclick="lockVault()">Lock now</button></div>
-                        <div class="action-buttons"><button class="btn" onclick="downloadVaultBackup()">Download encrypted backup</button><label class="btn btn-ghost vault-file">Restore backup<input type="file" id="vault-backup-file" accept="application/json" onchange="restoreVaultBackup(this)"></label><button class="btn btn-ghost" onclick="loadVaultAudit()">Verify audit log</button></div>
-                        <ul id="vault-audit" class="data-list vault-audit"><li class="no-data">Open the audit log to verify its chain.</li></ul>
-                    </div>
-                    <div id="vault-recovery-result" class="vault-recovery-result" hidden></div>
+                <!-- Windows startup and independent DNS recovery -->
+                <section class="panel vault-panel">
+                    <div class="panel-head"><h2>Configuration Vault</h2><span id="vault-badge" class="vault-badge">Checking</span></div>
+                    <p class="panel-desc">Protect DNS and security changes. Recovery works offline with the code saved during setup.</p>
+                    <div id="vault-setup" hidden><div class="input-row"><input id="vault-new-password" type="password" placeholder="Vault password (12+ characters)"><input id="vault-new-confirm" type="password" placeholder="Confirm password"><button class="btn" onclick="setupVault()">Set up</button></div><div id="vault-recovery-result" class="vault-recovery-result" hidden></div></div>
+                    <div id="vault-unlock" hidden><strong>Vault locked</strong><div class="input-row"><input id="vault-password" type="password" placeholder="Vault password"><button class="btn" onclick="unlockVault()">Unlock</button></div></div>
+                    <div id="vault-open" hidden><p id="vault-until" class="panel-desc"></p><div class="input-row"><label for="vault-minutes">Lock after</label><input id="vault-minutes" type="number" min="1" max="240" value="15" style="max-width:90px"><span>minutes or</span><input id="vault-requests" type="number" min="0" max="100" value="0" style="max-width:90px"><span>protected changes (0 = no limit)</span><button class="btn" onclick="saveVaultPolicy()">Save</button><button class="btn btn-ghost" onclick="lockVault()">Lock now</button></div><small id="vault-remaining"></small></div>
+                    <details><summary>Reset Vault password</summary><p class="panel-desc">Enter your offline recovery code and a new password. This also works without Internet.</p><div class="input-row"><input id="vault-recovery" type="text" autocomplete="off" placeholder="Recovery code"><input id="vault-recovery-password" type="password" placeholder="New password (12+ characters)"><button class="btn" onclick="recoverVault()">Reset password</button></div></details>
+                    <details><summary>Email recovery</summary><p class="panel-desc">Set this up while the Vault is unlocked. A new one-time code is emailed when you request a reset. Your SMTP app password is protected by Windows and stays on this computer.</p><p id="vault-email-status" class="panel-desc">Checking…</p><div class="input-row"><input id="vault-smtp-host" placeholder="SMTP host"><input id="vault-smtp-port" type="number" min="1" max="65535" value="587" placeholder="SMTP port"><select id="vault-smtp-tls"><option value="starttls">STARTTLS</option><option value="implicit">TLS from connection</option></select></div><div class="input-row"><input id="vault-smtp-from" type="email" placeholder="Sender email"><input id="vault-smtp-to" type="email" placeholder="Recovery email"></div><div class="input-row"><input id="vault-smtp-user" placeholder="SMTP username"><input id="vault-smtp-password" type="password" autocomplete="new-password" placeholder="SMTP app password"><button class="btn" onclick="enrollVaultEmail()">Enable email recovery</button></div><p class="panel-desc">A test email is sent before saving these settings.</p><div class="input-row"><button class="btn btn-ghost" onclick="requestVaultEmailCode()">Send reset code</button><input id="vault-email-code" inputmode="numeric" maxlength="8" placeholder="8-digit code"><input id="vault-email-new-password" type="password" autocomplete="new-password" placeholder="New Vault password"><button class="btn" onclick="resetVaultWithEmail()">Reset with code</button></div></details>
+                    <details><summary>USB recovery</summary><p class="panel-desc">Insert a USB drive, choose it, then create a separate recovery code. A folder named DNSFilter-Recovery is written to that drive. Keep the drive private.</p><div class="input-row"><select id="vault-usb-drive"><option value="">Insert a USB drive</option></select><button class="btn btn-ghost" onclick="loadVaultUSBDrives()">Refresh drives</button><button class="btn" onclick="createVaultUSBRecovery()">Create USB code</button></div><p id="vault-usb-result" class="panel-desc"></p><div class="input-row"><input id="vault-usb-code" autocomplete="off" placeholder="Code from USB file"><input id="vault-usb-new-password" type="password" autocomplete="new-password" placeholder="New Vault password"><button class="btn" onclick="resetVaultWithUSB()">Reset with USB code</button></div></details>
                 </section>
-
-                <!-- Start on login -->
                 <section class="panel">
-                    <div class="panel-head"><h2>Start on Login</h2></div>
-                    <p class="panel-desc">Launch DNS Filter automatically (elevated) when you sign in to Windows.</p>
-                    <div class="middleman-bar">
-                        <div class="middleman-status"><span class="dot" id="auto-dot"></span><span id="auto-text">Checking…</span></div>
-                        <button id="auto-toggle" class="btn" onclick="toggleAutostart()">…</button>
-                    </div>
+                    <div class="panel-head"><h2>Windows Startup</h2></div>
+                    <p class="panel-desc">Run DNS Filter in the background without opening a terminal. Your saved filtering rules and local DNS routing preference are used.</p>
+                    <div class="middleman-status"><span class="dot" id="auto-dot"></span><span id="auto-text">Checking…</span></div>
+                    <label for="auto-mode">When should DNS Filter start?</label>
+                    <div class="input-row"><select id="auto-mode"><option value="boot">Before Windows sign-in (recommended)</option><option value="login">After Windows sign-in</option><option value="manual">Manual start only</option></select><button id="auto-save" class="btn" onclick="saveStartupSettings()">Save startup settings</button></div>
+                    <label class="panel-desc"><input id="auto-recovery" type="checkbox" checked> Keep Internet available if DNS Filter stops</label>
+                    <p class="panel-desc" id="auto-recovery-help">An independent Windows task checks once a minute. If the local resolver stops answering, it temporarily restores automatic DNS. Filtering resumes when the server returns and local DNS routing is enabled. Traffic is unfiltered during fallback.</p>
+                    <p class="panel-desc">Before sign-in runs as a system task, without your Windows password. After sign-in starts after any user logs in. Mode changes take effect at the next Windows startup; saving does not stop the current server.</p>
+                    <p class="panel-desc" id="auto-details" role="status"></p>
                 </section>
-
                 <!-- System info -->
                 <section class="panel">
                     <div class="panel-head"><h2>System Info</h2></div>
@@ -816,6 +832,9 @@
                     </ul>
                 </section>
             </div>
+        </section>
+        <section class="view" data-view="domains">
+            <div class="panel-grid" id="domain-settings-panels"></div>
         </section>
         </div>
     </div>
@@ -907,19 +926,16 @@
                 const data = await api('GET', '/stats/top-blocked');
                 if (!data) return;
 
-                const list = document.getElementById('top-blocked-list');
-
-                if (!data || data.length === 0) {
-                    list.innerHTML = '<li class="no-data">No data yet</li>';
-                    return;
-                }
-
-                list.innerHTML = data.map(item => `
+                const html = !data.length ? '<li class="no-data">No blocked domains in the last 24 hours</li>' : data.map(item => `
                     <li>
                         <span class="domain">${escapeHtml(item.domain || '')}</span>
                         <span class="count">${(item.count || 0).toLocaleString()} blocks</span>
                     </li>
                 `).join('');
+                ['top-blocked-list', 'live-top-blocked-list'].forEach(id => {
+                    const list = document.getElementById(id);
+                    if (list) list.innerHTML = html;
+                });
             } catch (e) {
                 console.error('Failed to load top blocked:', e);
             }
@@ -1451,6 +1467,8 @@
 
         // ── Tabs ───────────────────────────────────────────────────
         const VIEW_META = {
+            sideapps: ['Side Apps', 'Install and manage independent community applications'],
+            sideapp: ['Side App', 'Independent application workspace'],
             freeze: ['Connection Freeze', 'Keep current connections and block new ones'],
             overview:   ['Overview',      'Real-time DNS filtering status'],
             security:   ['Security Center', 'Status and controls for the new privacy and security features'],
@@ -1466,12 +1484,14 @@
             whitelist:  ['Whitelist',     'Domains that are never blocked'],
             ai:         ['AI Blocker',    'Machine-learning threat detection'],
             settings:   ['Settings',      'Controls, testing, and maintenance'],
+            domains:    ['Domains',       'Dashboard address, email recovery, and device access'],
             requests:   ['Requests',      'Manage unblock requests'],
             todos:      ['Todo List',     'Todos, nested sub-todos, and completion progress'],
             notes:      ['Notes',         'Searchable notes with autosave and pinning'],
             plugins:    ['Plugin Center', 'Install and control trusted local API extensions'],
         };
         function switchView(name) {
+            if (name !== 'sideapp' && window.stopSideApp) window.stopSideApp();
             document.querySelectorAll('.view').forEach(v =>
                 v.classList.toggle('active', v.dataset.view === name));
             document.querySelectorAll('.sidenav a[data-view]').forEach(a =>
@@ -1491,6 +1511,7 @@
             if (name === 'todos' && window.loadDashboardTodos) loadDashboardTodos();
             if (name === 'notes' && window.loadDashboardNotes) loadDashboardNotes();
             if (name === 'plugins' && window.loadPluginCenter) loadPluginCenter();
+            if (name === 'sideapps' && window.loadSideApps) loadSideApps();
             if (name === 'settings') { loadFilteringStatus(); loadSystemInfo(); loadModules(); loadSources(); loadBlockPage(); loadAutostart(); }
             window.scrollTo(0, 0);
             location.hash = name;
@@ -1561,32 +1582,41 @@
         }
 
         // ── Start on login ─────────────────────────────────────────
-        let autostartState = false;
         async function loadAutostart() {
             const a = await api('GET','/autostart');
-            if (!a) return;
-            autostartState = !!a.enabled;
-            const dot = document.getElementById('auto-dot');
-            const text = document.getElementById('auto-text');
-            const btn = document.getElementById('auto-toggle');
-            if (!a.supported) {
-                dot.className = 'dot unknown';
-                text.textContent = 'Windows only';
-                btn.disabled = true; btn.textContent = 'N/A';
+            const dot = document.getElementById('auto-dot'), text = document.getElementById('auto-text');
+            const button = document.getElementById('auto-save'), mode = document.getElementById('auto-mode'), recovery = document.getElementById('auto-recovery'), details = document.getElementById('auto-details');
+            if (!a || a.error) { text.textContent = a?.error || 'Could not read startup settings'; button.disabled = true; return; }
+            if (a.read_ok === false) {
+                dot.className = 'dot unknown'; text.textContent = 'Startup status unavailable';
+                button.disabled = true; mode.disabled = true; recovery.disabled = true;
+                details.textContent = a.problem || 'Could not read Windows startup settings. Refresh to retry.';
                 return;
             }
-            btn.disabled = false;
+            button.disabled = !a.supported; mode.disabled = !a.supported;
+            recovery.disabled = !a.recovery_supported;
+            mode.querySelector('[value="login"]').disabled = !a.login_supported;
+            mode.value = ['boot','login','manual'].includes(a.mode) ? a.mode : 'boot';
+            recovery.checked = Boolean(a.recover_dns);
             dot.className = 'dot ' + (a.enabled ? 'on' : 'off');
-            text.textContent = a.enabled ? 'Starts on login' : 'Does not start on login';
-            btn.textContent = a.enabled ? '⏻ Disable' : '⏻ Enable';
-            btn.className = a.enabled ? 'btn btn-danger' : 'btn';
+            text.textContent = !a.supported ? 'Automatic startup is unavailable' : a.mode === 'boot' ? 'Starts before Windows sign-in' : a.mode === 'login' ? 'Starts after Windows sign-in' : a.mode === 'manual' ? 'Manual start only' : 'Startup task needs repair';
+            const info = [];
+            if (a.problem) info.push(a.problem);
+            if (a.executable) info.push('Server: ' + a.executable);
+            if (a.working_directory) info.push('Working folder: ' + a.working_directory);
+            if (a.last_result && a.last_result !== 267009 && a.last_result !== 267011) info.push('Last Windows task result: ' + a.last_result + '. Saving these settings repairs the startup task.');
+            if (!a.login_supported && a.supported) info.push('This platform uses its installed system service at boot. Sign-in mode and automatic DNS recovery are Windows features.');
+            details.textContent = info.join(' · ');
+            document.getElementById('auto-recovery-help').hidden = !a.recovery_supported;
         }
-        async function toggleAutostart() {
-            const d = await api('POST','/autostart',{enabled:!autostartState});
-            if (d && d.success) { showNotification('Start on login ' + (!autostartState?'enabled':'disabled')); loadAutostart(); }
-            else showNotification((d && (d.hint||d.error)) || 'Failed', true);
+        async function saveStartupSettings() {
+            const button = document.getElementById('auto-save'); button.disabled = true;
+            try {
+                const d = await api('POST','/autostart',{mode:document.getElementById('auto-mode').value,recover_dns:document.getElementById('auto-recovery').checked});
+                if (d?.success) { showNotification('Startup settings saved. Changes apply at the next Windows startup.'); await loadAutostart(); }
+                else showNotification(d?.error || d?.hint || 'Could not save startup settings', true);
+            } finally { button.disabled = false; }
         }
-
         // ── Block page style ───────────────────────────────────────
         async function loadBlockPage() {
             const b = await api('GET','/blockpage');
@@ -1659,11 +1689,26 @@
         // ── Live Activity Monitor (SSE) ────────────────────────────
         let liveES = null, livePaused = false;
         let liveStats = { allowed: 0, blocked: 0, total: 0 };
+        let liveEvents = [];
         let liveWindow = []; // timestamps (ms) for queries/sec
         const LIVE_MAX_ROWS = 200;
 
-        function startLive() {
+        async function refreshLiveHistory() {
+            const history = await api('GET', '/live/history');
+            if (Array.isArray(history)) {
+                liveEvents = [];
+                liveStats = { allowed: 0, blocked: 0, total: 0 };
+                document.getElementById('live-table').innerHTML = '<tr><td colspan="6" class="no-data">Waiting for DNS queries… browse something to see it live.</td></tr>';
+                history.slice().reverse().forEach(ev => addLiveRow(ev, true));
+                if (!history.length) ['live-total','live-allowed','live-blocked'].forEach(id => document.getElementById(id).textContent = '0');
+            }
+        }
+        window.refreshLiveHistory = refreshLiveHistory;
+        async function startLive() {
             if (liveES) return;
+            await refreshLiveHistory();
+            if (document.querySelector('.view.active')?.dataset.view !== 'live') return;
+            loadTopBlocked();
             liveES = new EventSource('/api/stream');
             liveES.addEventListener('query', e => {
                 if (livePaused) return;
@@ -1676,10 +1721,11 @@
         }
         function stopLive() { if (liveES) { liveES.close(); liveES = null; } }
 
-        function addLiveRow(ev) {
-            liveStats.total++;
-            if (ev.blocked) liveStats.blocked++; else liveStats.allowed++;
-            liveWindow.push(Date.now());
+        function addLiveRow(ev, historic = false) {
+            liveEvents.push(ev);
+            if (liveEvents.length > LIVE_MAX_ROWS) liveEvents.shift();
+            liveStats = { total: liveEvents.length, blocked: liveEvents.filter(x => x.blocked).length, allowed: liveEvents.filter(x => !x.blocked).length };
+            if (!historic) liveWindow.push(Date.now());
             document.getElementById('live-total').textContent = liveStats.total.toLocaleString();
             document.getElementById('live-allowed').textContent = liveStats.allowed.toLocaleString();
             document.getElementById('live-blocked').textContent = liveStats.blocked.toLocaleString();
@@ -1695,7 +1741,7 @@
                 `<td>${dot}</td>` +
                 `<td><button class="domain-explain">${escapeHtml(ev.domain || '')}</button></td>` +
                 `<td><small>${escapeHtml(ev.type || '')}</small></td>` +
-                `<td><small>${escapeHtml(ev.client_ip || '')}</small></td>` +
+                `<td><small>${escapeHtml(ev.client_ip || 'Hidden')}</small></td>` +
                 `<td>${result}</td>` +
                 `<td style="text-align:right;"><small>${new Date((ev.time||0)*1000).toLocaleTimeString()}</small></td>`;
             tr.querySelector('.domain-explain')?.addEventListener('click', () => openDomainExplanation(ev.domain || ''));
@@ -1709,10 +1755,13 @@
             btn.textContent = livePaused ? '▶ Resume' : '⏸ Pause';
             document.getElementById('live-pulse').classList.toggle('paused', livePaused);
         }
-        function clearLive() {
+        async function clearLive() {
+            const result = await api('DELETE', '/live/history');
+            if (!result?.success) { showNotification(result?.error || 'Could not clear saved queries', true); return; }
             document.getElementById('live-table').innerHTML =
                 '<tr><td colspan="6" class="no-data">Cleared. Waiting for queries…</td></tr>';
             liveStats = { allowed: 0, blocked: 0, total: 0 };
+            liveEvents = [];
             liveWindow = [];
             ['live-total','live-allowed','live-blocked','live-qps'].forEach(id => document.getElementById(id).textContent = '0');
         }
@@ -1810,7 +1859,8 @@
             loadAIStats();
         }, 30000);
     </script>
-    <script src="/static/js/dashboard-enhancements.js?v=4"></script>
+    <script src="/static/js/dashboard-enhancements.js?v=11"></script>
+    <script src="/static/js/dashboard-live-privacy.js?v=1"></script>
     <link rel="stylesheet" href="/static/css/app-network-control.css?v=1">
     <script src="/static/js/dashboard-app-network.js?v=1"></script>
     <link rel="stylesheet" href="/static/css/network-intelligence.css?v=1">
@@ -1822,8 +1872,8 @@
     <script src="/static/js/dashboard-app-schedules.js?v=1"></script>
     <link rel="stylesheet" href="/static/css/network-profiles.css?v=1">
     <script src="/static/js/dashboard-network-profiles.js?v=1"></script>
-    <link rel="stylesheet" href="/static/css/dns-route-watch.css?v=1">
-    <script src="/static/js/dashboard-dns-route-watch.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/dns-route-watch.css?v=2">
+    <script src="/static/js/dashboard-dns-route-watch.js?v=3"></script>
     <script src="/static/js/dashboard-destination-alerts.js?v=1"></script>
     <link rel="stylesheet" href="/static/css/hard-security.css?v=1">
     <script src="/static/js/dashboard-hard-security.js?v=1"></script>
@@ -1840,17 +1890,19 @@
     <link rel="stylesheet" href="/static/css/connection-freeze.css?v=2">
     <script src="/static/js/connection-freeze.js?v=2"></script>
     <script src="/static/js/dashboard-security-packs.js?v=1"></script>
-    <link rel="stylesheet" href="/static/css/network-test.css?v=1">
-    <script src="/static/js/dashboard-network-test.js?v=1"></script>
+    <link rel="stylesheet" href="/static/css/network-test.css?v=4">
+    <script src="/static/js/dashboard-network-test.js?v=4"></script>
     <link rel="stylesheet" href="/static/css/vault-quick-unlock.css?v=2">
-    <script src="/static/js/dashboard-vault.js?v=8"></script>
+    <script src="/static/js/dashboard-vault.js?v=13"></script>
     <script src="/static/js/dashboard-security-center.js?v=1"></script>
     <script src="/static/js/dashboard-organizer.js?v=1"></script>
     <link rel="stylesheet" href="/static/css/plugin-center.css?v=6">
     <script src="/static/js/dashboard-plugins.js?v=6"></script>
+    <link rel="stylesheet" href="/static/css/side-apps.css?v=1">
+    <script src="/static/js/side-apps.js?v=2"></script>
     <script src="/static/js/theme-modes.js?v=2"></script>
     <link rel="stylesheet" href="/static/css/navigation-architecture.css?v=1">
-    <script src="/static/js/dashboard-navigation.js?v=2"></script>
+    <script src="/static/js/dashboard-navigation.js?v=6"></script>
     <link rel="stylesheet" href="/static/css/console-transition.css?v=1">
     <script src="/static/js/console-transition.js?v=1"></script>
 </body>

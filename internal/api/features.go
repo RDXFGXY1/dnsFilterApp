@@ -25,6 +25,7 @@ func (s *Server) registerFeatureRoutes(api *gin.RouterGroup) {
 	api.POST("/decision/simulate", s.simulateRule)
 	api.GET("/decision/conflicts", s.listRuleConflicts)
 	api.GET("/protection/health", s.protectionHealth)
+	api.GET("/dns-health/timeline", s.dnsHealthTimeline)
 	api.POST("/protection/repair", s.repairProtection)
 	api.GET("/protection/lockdown", s.getEmergencyLockdown)
 	api.POST("/protection/lockdown/start", s.startEmergencyLockdown)
@@ -101,6 +102,7 @@ func (s *Server) registerFeatureRoutes(api *gin.RouterGroup) {
 	api.GET("/network-intelligence/learning/:id/baseline", s.networkLearningBaseline)
 	api.POST("/network-intelligence/learning/:id/stop", s.networkLearningStop)
 	api.POST("/network-test/start", s.networkTestStart)
+	api.GET("/network-test/history", s.networkTestHistory)
 	api.GET("/network-test/:id", s.networkTestStatus)
 	api.DELETE("/network-test/:id", s.networkTestCancel)
 	api.GET("/network-profiles", s.listNetworkProfiles)
@@ -144,6 +146,10 @@ func (s *Server) registerFeatureRoutes(api *gin.RouterGroup) {
 
 	// Live activity monitor (Server-Sent Events)
 	api.GET("/stream", s.streamEvents)
+	api.GET("/live/history", s.liveHistory)
+	api.DELETE("/live/history", s.clearLiveHistory)
+	api.GET("/live/privacy", s.livePrivacyStatus)
+	api.POST("/live/privacy", s.updateLivePrivacy)
 
 	// Blocklist sources
 	api.GET("/blocklist/sources", s.getSources)
@@ -156,6 +162,23 @@ func (s *Server) registerFeatureRoutes(api *gin.RouterGroup) {
 	api.POST("/security-packs/install", s.installSecurityPack)
 	api.POST("/security-packs/trusted-keys", s.trustSecurityPackKey)
 	api.DELETE("/security-packs/:id", s.removeSecurityPack)
+}
+
+func (s *Server) liveHistory(c *gin.Context) {
+	items, err := s.db.GetLiveQueries(200)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not load live query history"})
+		return
+	}
+	c.JSON(http.StatusOK, items)
+}
+
+func (s *Server) clearLiveHistory(c *gin.Context) {
+	if err := s.db.ClearLiveQueries(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not clear live query history"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 // ─── Live activity monitor (SSE) ──────────────────────────────────────────────
@@ -182,6 +205,13 @@ func (s *Server) streamEvents(c *gin.Context) {
 		case ev, ok := <-ch:
 			if !ok {
 				return false
+			}
+			privacy := s.db.LivePrivacy()
+			if privacy.BlockedOnly && !ev.Blocked {
+				return true
+			}
+			if privacy.HideClientIP {
+				ev.ClientIP = ""
 			}
 			c.SSEvent("query", ev)
 			return true
@@ -410,31 +440,46 @@ func (s *Server) setBlockAction(c *gin.Context) {
 // ─── Start on login ───────────────────────────────────────────────────────────
 
 func (s *Server) getAutostart(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"supported": autostart.Supported(), "enabled": autostart.IsEnabled()})
+	c.JSON(http.StatusOK, autostart.Inspect())
 }
 
 func (s *Server) setAutostart(c *gin.Context) {
 	var data struct {
-		Enabled bool `json:"enabled"`
+		Enabled    *bool  `json:"enabled"`
+		Mode       string `json:"mode"`
+		RecoverDNS *bool  `json:"recover_dns"`
 	}
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	var err error
-	if data.Enabled {
-		err = autostart.Enable()
-	} else {
-		err = autostart.Disable()
+	options := autostart.Options{Mode: data.Mode, RecoverDNS: true}
+	if options.Mode == "" {
+		if data.Enabled == nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Choose boot, login, or manual startup"})
+			return
+		}
+		options.Mode = autostart.ModeManual
+		if *data.Enabled {
+			options.Mode = autostart.ModeBoot
+		}
 	}
+	if data.RecoverDNS != nil {
+		options.RecoverDNS = *data.RecoverDNS
+	}
+	if err := options.Validate(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := autostart.Configure(options)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
-			"hint":  "The server must run as Administrator to manage the login task.",
+			"hint":  "The server must run as Administrator to manage Windows startup and DNS recovery.",
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "enabled": data.Enabled})
+	c.JSON(http.StatusOK, gin.H{"success": true, "enabled": options.Mode != autostart.ModeManual, "mode": options.Mode, "recover_dns": options.RecoverDNS})
 }
 
 // ─── Change admin password ────────────────────────────────────────────────────

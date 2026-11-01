@@ -79,6 +79,34 @@ func TestVaultLifecycleRecoveryAndEncryption(t *testing.T) {
 	}
 }
 
+func TestVaultLocksAfterProtectedChangeLimit(t *testing.T) {
+	m, err := New(t.TempDir(), time.Hour, 5, time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m.SetUnlockRequests(2)
+	if _, err := m.Setup("a-very-strong-password"); err != nil {
+		t.Fatal(err)
+	}
+	m.ProtectedChangeCompleted()
+	if status := m.Status(); !status.Unlocked || status.RequestsRemaining != 1 {
+		t.Fatalf("after one change: %+v", status)
+	}
+	m.ProtectedChangeCompleted()
+	if status := m.Status(); status.Unlocked || status.RequestsRemaining != 0 {
+		t.Fatalf("after limit: %+v", status)
+	}
+	if err := m.RequireUnlocked(); err != ErrLocked {
+		t.Fatalf("expected vault to lock, got %v", err)
+	}
+	if err := m.Unlock("a-very-strong-password"); err != nil {
+		t.Fatal(err)
+	}
+	if status := m.Status(); !status.Unlocked || status.RequestsRemaining != 2 {
+		t.Fatalf("after unlock: %+v", status)
+	}
+}
+
 func TestVaultAttemptLockout(t *testing.T) {
 	m, _ := New(t.TempDir(), time.Minute, 2, 25*time.Millisecond)
 	if _, err := m.Setup("another-strong-password"); err != nil {
