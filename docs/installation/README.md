@@ -3,6 +3,10 @@
 This directory contains the official installation and recovery instructions for
 the operating systems supported by DNS Filter.
 
+The published Windows package is `v0.1.0`. The post-release features in the
+[v0.2.0 draft](../releases/v0.2.0-draft.md) are source changes until a new
+package passes the [release checklist](../RELEASE-CHECKLIST.md).
+
 ## Supported platforms
 
 | Platform | Package | Current status |

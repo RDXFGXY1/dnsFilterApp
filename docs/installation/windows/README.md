@@ -5,6 +5,10 @@
 Windows 11 x64 is the verified Windows target. Installation and system controls
 require Administrator permission.
 
+The published portable release is `v0.1.0`. The new Side Apps, recovery,
+startup, and observability changes are in the [v0.2.0 draft](../../releases/v0.2.0-draft.md)
+and are not yet a published Windows package.
+
 ## Requirements for building from source
 
 - Go matching the version declared in `go.mod`.
@@ -37,6 +41,11 @@ and runs the release audit.
 3. Open `%ProgramFiles%\DNS Filter\desktop\DNSFilter.exe`.
 4. Complete first-run setup for a new installation.
 5. Enable system DNS routing from the desktop client or dashboard.
+
+For the new startup choices, see [Windows Startup](../../WINDOWS-STARTUP.md).
+Before-sign-in mode runs the server as a system task; the optional DNS fallback
+restores automatic DNS when the local resolver stops responding. A real reboot
+test is still required for the next release.
 
 An update preserves configuration, database, Vault, plugins, certificates,
 recovery state, and logs. If the new service fails its health check, the updater

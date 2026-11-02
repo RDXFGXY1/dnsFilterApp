@@ -11,6 +11,7 @@ Use this page as the starting point for the project documentation.
 - [Usage Guide](USAGE.md)
 - [Development Mode](DEVELOPMENT-MODE.md)
 - [Hard System browser extension](../extensions/hard-system/README.md)
+- [What's new after v0.1.0](releases/v0.2.0-draft.md)
 
 ## Project reference
 
@@ -25,6 +26,9 @@ Use this page as the starting point for the project documentation.
 - [Side Apps and ADNF packages](SIDE-APPS.md)
 - [Windows startup](WINDOWS-STARTUP.md)
 - [Windows notifications](WINDOWS-NOTIFICATIONS.md)
+- [Dashboard Domains and LAN](features/DASHBOARD-DOMAINS.md)
+- [Live DNS history and health](features/LIVE-HISTORY.md)
+- [Discipline Needs Attention](features/DISCIPLINE-NEEDS-ATTENTION.md)
 
 Feature documents explain the current behavior. Release documents explain what
 changed over time. Installation documents are the source of truth for supported

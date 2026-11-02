@@ -1,50 +1,43 @@
-# Live Network Test
+# Network Test
 
-The Network Test page performs an explicit, on-demand connection-quality test.
-It does not inspect applications, capture packet contents, or run automatically
-in the background.
+Open **Monitor → Network Test** in the local dashboard. Tests run only when you
+start them. They do not inspect applications or capture packet contents.
 
-## Where to find it
+## What it measures
 
-Open **Monitor → Network Test** in the local web dashboard.
+- **Ping:** repeated TCP connections to the test server on port 443.
+- **Jitter:** variation between successful latency samples.
+- **Packet loss:** failed TCP connection attempts in the sample, not raw ICMP
+  packet loss.
+- **Download and upload:** transfer speed during the selected test.
 
-## Measurements
+The page shows each metric and its progress separately. A running test can be
+cancelled; starting a new test cancels the previous one.
 
-- **Ping** is measured with repeated TCP connection attempts to the test server
-  on port 443. TCP latency remains useful when traditional ICMP echo is blocked.
-- **Jitter** is the average change between consecutive successful latency samples.
-- **Packet loss** is the percentage of failed connection attempts in the sample.
-- **Download** is calculated while a bounded test file is received.
-- **Upload** is calculated while a bounded generated payload is sent.
+## Choose a test
 
-Every measurement and the graph update while the test is running.
+| Mode | Transfer or duration |
+|---|---|
+| Quick | About 5 MB down and 2 MB up |
+| Full | About 25 MB down and 5 MB up |
+| Custom data | 5–500 MB total, split about 80% download and 20% upload |
+| Custom time | 5–60 seconds, split between download and upload; data use depends on speed |
 
-## Test sizes
+The selected MB value is a **data budget**, not a speed cap. HTTP framing can
+make the exact amount vary slightly. A timed test has no fixed data budget.
 
-- **Quick test** uses approximately 5 MB for download and 2 MB for upload.
-- **Full test** uses approximately 25 MB for download and 5 MB for upload.
+## Saved results and privacy
 
-The exact transferred amount may vary slightly because of HTTP framing. Tests are
-manual and a running test can be cancelled at any time. Starting another test
-cancels the previous one.
+The latest 30 results are stored in the local database and remain available
+after a page reload or service restart. The page compares results from the same
+test mode. A test contacts Cloudflare's public speed-test host over HTTPS; that
+host can observe the public IP address and normal connection metadata. DNS
+Filter does not include account details, browsing history, local logs, or saved
+rules in the request. The generated upload payload contains no user files.
 
-## External service and privacy
+## Interpreting results
 
-The current beta uses Cloudflare's public speed-test host. Running a test sends a
-normal HTTPS request to that host, which can observe the public IP address and
-standard connection metadata. DNS Filter does not send account details, browsing
-history, local logs, or saved rules with the request.
-
-The upload payload is generated in memory and contains no user files or personal
-content. Results remain in memory and are not written to the database in this
-version.
-
-## Accuracy limits
-
-This is a practical connection-health measurement, not a laboratory benchmark.
-Results can change because of Wi-Fi quality, VPNs, proxies, firewall inspection,
-other downloads, test-server load, and the route between the device and server.
-TCP packet loss is inferred from failed connection attempts and is not identical
-to raw ICMP packet-loss measurement.
-
-The feature uses the same Go implementation on Windows 11 and Arch Linux.
+Results vary with Wi-Fi, VPNs, proxies, firewall inspection, other transfers,
+the test server, and the route to it. This is a practical connection check,
+not a laboratory benchmark. The same Go test implementation is used on Windows
+and Arch Linux.

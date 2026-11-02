@@ -18,9 +18,13 @@ username/password and a Secure Vault password. Save the separately generated
 account recovery key and Vault recovery code when they are displayed; neither can
 be displayed again.
 
-The dashboard is loopback-only by default. Remote dashboard access requires an
-explicit trusted bind/host configuration and should not be enabled without HTTPS
-and appropriate network access controls.
+The dashboard is loopback-only by default. In the development version, **System
+→ Domains** can set a local hostname and allow exact private LAN device IPs.
+Public-Internet access is not available. See [Dashboard Domains and LAN](features/DASHBOARD-DOMAINS.md).
+
+For the current additions, see [Side Apps](SIDE-APPS.md), [Windows Startup](WINDOWS-STARTUP.md),
+[Vault recovery](features/SECURE-CONFIGURATION-VAULT.md), and
+[Network Test](features/NETWORK-TEST.md).
 
 ### Dashboard Overview
 
@@ -43,12 +47,9 @@ Shows the most frequently blocked domains in the last 24 hours. This helps you:
 
 #### 3. Recent Activity
 
-Live feed of recently blocked DNS queries showing:
-- Timestamp of the query
-- Domain that was blocked
-- Client IP address that made the request
-
-Refreshes automatically every 5 seconds.
+The Live view shows recent allowed and blocked DNS decisions. Up to 200 entries
+are stored locally and survive a page reload. Privacy settings can keep only
+blocked entries or hide client IP addresses. See [Live DNS history and health](features/LIVE-HISTORY.md).
 
 #### 4. Whitelist Management
 
